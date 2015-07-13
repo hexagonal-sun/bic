@@ -47,6 +47,7 @@ statements: statement  ';'
 | statements statement ';'
 {
     $1->next = $2;
+    $$ = $2;
 }
 
 statement: INTEGER
