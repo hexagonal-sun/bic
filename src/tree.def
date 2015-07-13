@@ -1,0 +1,2 @@
+
+DEFTYPE(T_INTEGER, "Constant integer")
