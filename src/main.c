@@ -1,7 +1,10 @@
+#include "tree.h"
 #include "parser.h"
 #include <stdio.h>
 
 extern FILE* yyin;
+
+tree parse_head;
 
 /*
  * Parser's error callback.

@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include "tree.h"
 #include "parser.h"
 #define YY_NO_INPUT
 #define YY_USER_ACTION {yylloc.first_line = yylloc.last_line = yylineno;}
@@ -49,7 +50,7 @@ X                               [0-9A-F]
 "while"				return WHILE;
 
 {L}({L}|{D})*                   yylval.string = strdup(yytext); return IDENTIFIER;
-[0-9]+                          yylval.number = atoi(yytext); return CONST_INT;
+[0-9]+                          yylval.number = atoi(yytext); return INTEGER;
 0x{X}+                          yylval.string = strdup(yytext); return CONST_HEX;
 
 "=="                            return EQUATE;
