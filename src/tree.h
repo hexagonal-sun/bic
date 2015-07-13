@@ -19,5 +19,6 @@ typedef struct tree {
 } *tree;
 
 tree tree_make(enum tree_type);
+void tree_dump(tree tree);
 
 #endif
