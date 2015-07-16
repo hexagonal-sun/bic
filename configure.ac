@@ -22,6 +22,8 @@ AC_PROG_MKDIR_P
 AC_PROG_RANLIB
 
 # Checks for libraries.
+AX_LIB_READLINE
+AC_SUBST(ax_cv_lib_readline)
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])
