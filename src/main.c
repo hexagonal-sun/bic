@@ -1,5 +1,6 @@
 #include "tree.h"
 #include "parser.h"
+#include "lex.h"
 #include <stdio.h>
 
 extern FILE* yyin;

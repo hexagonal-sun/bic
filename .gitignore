@@ -17,6 +17,7 @@ src/Makefile.in
 src/bic
 src/lex.c
 src/lex.o
+src/lex.h
 src/libbic.a
 src/main.o
 src/parser.c
