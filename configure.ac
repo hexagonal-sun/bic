@@ -30,6 +30,11 @@ AC_CHECK_HEADERS([stdlib.h string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
+# Configuration options for the program
+PROMPT="BIC> "
+AC_DEFINE_UNQUOTED([BIC_PROMPT], ["$PROMPT"],
+                        [Interactive prompt for BIC])
+
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
