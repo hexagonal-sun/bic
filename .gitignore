@@ -28,4 +28,7 @@ stamp-h1
 ylwrap
 *.tar.gz
 *~
-
+*.log
+*.sum
+testsuite/prompt.exp
+testsuite/site.exp

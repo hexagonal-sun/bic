@@ -1,0 +1,2 @@
+global prompt
+set prompt "@BIC_PROMPT@"

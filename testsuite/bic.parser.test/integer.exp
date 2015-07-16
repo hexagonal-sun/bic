@@ -1,0 +1,22 @@
+load_lib prompt.exp
+load_lib util.exp
+load_lib tree-util.exp
+set timeout 3
+
+set test integer1
+send "1;\n"
+expect_tree_integer 1
+finish_test
+
+set test integer2
+send "2;\n"
+expect_tree_integer 2
+finish_test
+
+
+set test integer-chain
+send "1;2;3;4;5;6;7;8;9;\n"
+for {set i 1} {$i <= 9} {incr i} {
+    expect_tree_integer $i
+}
+finish_test

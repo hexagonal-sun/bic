@@ -1,0 +1,13 @@
+proc re_tree_preamble { type } {
+    return "<tree at 0x\[0-9a-f]+, next \(\\(nil\\)|0x\[0-9a-f\]+\), type $type"
+}
+
+proc expect_tree_integer { n } {
+    global test
+    set RE [re_tree_preamble "T_INTEGER"]
+    set RE "$RE, number $n>"
+    expect {
+        -re $RE { pass "$test" }
+    }
+}
+
