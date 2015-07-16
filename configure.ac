@@ -23,6 +23,9 @@ AC_PROG_RANLIB
 
 # Checks for libraries.
 AX_LIB_READLINE
+AC_CHECK_LIB(gmp, __gmpz_init, ,
+       [AC_MSG_ERROR([GNU MP not found, see https://gmplib.org/])])
+
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h])
