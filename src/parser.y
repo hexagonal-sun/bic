@@ -15,7 +15,7 @@ extern tree parse_head;
 
 %union
 {
-    int number;
+    mpz_t integer;
     char *string;
     tree tree;
 }
@@ -33,7 +33,7 @@ extern tree parse_head;
 %token <string> IDENTIFIER
 %token <string> CONST_BITS
 %token <string> CONST_HEX
-%token <number> INTEGER;
+%token <integer> INTEGER;
 
 %type <tree> statements
 %type <tree> statement
@@ -53,7 +53,7 @@ statements: statement  ';'
 statement: INTEGER
 {
     tree number = tree_make(T_INTEGER);
-    number->data.integer = $1;
+    mpz_set(number->data.integer, $1);
     $$ = number;
 }
 ;

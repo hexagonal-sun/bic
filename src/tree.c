@@ -31,7 +31,7 @@ void tree_dump(tree tree)
                 tree, tree->next, tree_type_string(tree->type));
         switch (tree->type) {
         case T_INTEGER:
-            eprintf(" number %d", tree->data.integer);
+            gmp_fprintf(stderr, " number %Zd", tree->data.integer);
             break;
         }
         eprintf(">\n");

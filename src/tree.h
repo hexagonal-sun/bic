@@ -1,6 +1,8 @@
 #ifndef __TREE_H_
 #define __TREE_H_
 
+#include <gmp.h>
+
 enum tree_type {
     #define DEFTYPE(TNAME, DESC) TNAME ,
     #include "tree.def"
@@ -9,7 +11,7 @@ enum tree_type {
 
 union tree_data {
     /* T_INTEGER */
-    int integer;
+    mpz_t integer;
 };
 
 typedef struct tree {
