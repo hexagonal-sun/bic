@@ -13,7 +13,6 @@ send "2;\n"
 expect_tree_integer 2
 finish_test
 
-
 set test integer-chain
 send "1;2;3;4;5;6;7;8;9;\n"
 for {set i 1} {$i <= 9} {incr i} {
@@ -25,3 +24,16 @@ set test bigint
 send " 999999999999999999999999999999999999999999999;3141592653589793238462643383279502884;\n"
 expect_tree_integer 999999999999999999999999999999999999999999999
 expect_tree_integer 3141592653589793238462643383279502884
+finish_test
+
+set test negative-ineteger
+send -- "-1; -2;\n"
+expect_tree_integer -1
+expect_tree_integer -2
+finish_test
+
+set test negative-integer-big
+send -- "-999999999999999999999999999999999999999999999;-3141592653589793238462643383279502884;\n"
+expect_tree_integer -999999999999999999999999999999999999999999999
+expect_tree_integer -3141592653589793238462643383279502884
+finish_test
