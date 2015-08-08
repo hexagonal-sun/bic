@@ -40,6 +40,7 @@ extern tree parse_head;
 %type <tree> statement
 %type <tree> primary_expression
 %type <tree> postfix_expression
+%type <tree> unary_expression
 
 %%
 
@@ -53,7 +54,7 @@ statements: statement  ';'
     $$ = $2;
 }
 
-statement: postfix_expression
+statement: unary_expression
 
 primary_expression
 : INTEGER
@@ -75,6 +76,22 @@ postfix_expression
 {
     tree dec = tree_make(T_P_DEC);
     dec->data.exp = $1;
+    $$ = dec;
+}
+;
+
+unary_expression
+: postfix_expression
+| INC unary_expression
+{
+    tree inc = tree_make(T_INC);
+    inc->data.exp = $2;
+    $$ = inc;
+}
+| DEC unary_expression
+{
+    tree dec = tree_make(T_DEC);
+    dec->data.exp = $2;
     $$ = dec;
 }
 ;

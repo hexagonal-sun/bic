@@ -53,6 +53,12 @@ void tree_dump(tree tree, int depth)
         case T_P_DEC:
             tree_dump_single_exp(tree, depth);
             break;
+        case T_INC:
+            tree_dump_single_exp(tree, depth);
+            break;
+        case T_DEC:
+            tree_dump_single_exp(tree, depth);
+            break;
         }
         eprintf(">\n");
         tree = tree->next;

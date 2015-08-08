@@ -5,6 +5,14 @@ proc re_tree_preamble { type } {
     return "[BOL]<tree at 0x\[0-9a-f]+, next \(\\(nil\\)|0x\[0-9a-f\]+\), type $type"
 }
 
+proc re_tree_exp { exp_regex type } {
+    set RE [re_tree_preamble $type]
+    set RE "$RE, exp:[EOL]"
+    set RE "$RE$exp_regex"
+    set RE "$RE[BOL]>[EOL]"
+    return $RE
+}
+
 proc re_tree_integer { n } {
     set RE [re_tree_preamble "T_INTEGER"]
     set RE "$RE, number $n>[EOL]"
@@ -12,19 +20,20 @@ proc re_tree_integer { n } {
 }
 
 proc re_tree_postfix_inc { exp_regex } {
-    set RE [re_tree_preamble "T_P_INC"]
-    set RE "$RE, exp:[EOL]"
-    set RE "$RE$exp_regex"
-    set RE "$RE[BOL]>[EOL]"
-    return $RE
+    return [re_tree_exp $exp_regex "T_P_INC"]
 }
 
 proc re_tree_postfix_dec { exp_regex } {
-    set RE [re_tree_preamble "T_P_DEC"]
-    set RE "$RE, exp:[EOL]"
-    set RE "$RE$exp_regex"
-    set RE "$RE[BOL]>[EOL]"
-    return $RE
+    return [re_tree_exp $exp_regex "T_P_DEC"]
+}
+
+proc re_tree_unary_inc { exp_regex } {
+    return [re_tree_exp $exp_regex "T_INC"]
+}
+
+proc re_tree_unary_dec { exp_regex } {
+    return [re_tree_exp $exp_regex "T_DEC"]
+
 }
 
 proc expect_tree_integer { n } {
@@ -45,5 +54,19 @@ proc expect_tree_postfix_dec { exp_regex } {
     global test
      expect {
          -re [re_tree_postfix_dec $exp_regex] { pass "$test" }
+    }
+}
+
+proc expect_tree_unary_inc { exp_regex } {
+    global test
+     expect {
+         -re [re_tree_unary_inc $exp_regex] { pass "$test" }
+    }
+}
+
+proc expect_tree_unary_dec { exp_regex } {
+    global test
+     expect {
+         -re [re_tree_unary_dec $exp_regex] { pass "$test" }
     }
 }

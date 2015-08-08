@@ -2,3 +2,5 @@
 DEFTYPE(T_INTEGER, "Constant integer")
 DEFTYPE(T_P_INC, "Increment (postfix)")
 DEFTYPE(T_P_DEC, "Decrement (postfix)")
+DEFTYPE(T_INC, "Increment (unary)")
+DEFTYPE(T_DEC, "Decrement (unary)")
