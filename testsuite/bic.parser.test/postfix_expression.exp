@@ -1,0 +1,8 @@
+load_lib prompt.exp
+load_lib util.exp
+load_lib tree-util.exp
+set timeout 3
+
+set test postfix_increment
+send "22++;\n"
+expect_tree_postfix_inc [re_tree_integer 22]
