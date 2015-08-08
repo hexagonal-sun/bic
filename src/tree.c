@@ -41,7 +41,7 @@ void tree_dump(tree tree, int depth)
         case T_INTEGER:
             gmp_fprintf(stderr, " number %Zd", tree->data.integer);
             break;
-        case T_INC:
+        case T_P_INC:
             eprintf(" exp:\n");
             tree_dump(tree->data.exp, depth + 1);
             break;

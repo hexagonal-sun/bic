@@ -12,7 +12,7 @@ proc re_tree_integer { n } {
 }
 
 proc re_tree_postfix_inc { exp_regex } {
-    set RE [re_tree_preamble "T_INC"]
+    set RE [re_tree_preamble "T_P_INC"]
     set RE "$RE, exp:[EOL]"
     set RE "$RE$exp_regex"
     set RE "$RE[BOL]>[EOL]"

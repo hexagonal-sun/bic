@@ -15,7 +15,7 @@ union tree_data {
     /* T_INTEGER */
     mpz_t integer;
 
-    /* T_INC */
+    /* T_P_INC */
     tree exp;
 };
 

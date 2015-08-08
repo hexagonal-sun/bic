@@ -66,7 +66,7 @@ postfix_expression
 : primary_expression
 | postfix_expression INC
 {
-    tree inc = tree_make(T_INC);
+    tree inc = tree_make(T_P_INC);
     inc->data.exp = $1;
     $$ = inc;
 }
