@@ -4,7 +4,8 @@ bin_PROGRAMS = bic
 
 noinst_LIBRARIES = libbic.a
 
-libbic_a_SOURCES = parser.y lex.l lex.h tree.c tree.h tree.def
+libbic_a_SOURCES = parser.y lex.l lex.h tree.c tree.h tree.def list.h	\
+list.c
 
 bic_SOURCES = main.c
 bic_LDADD = libbic.a
