@@ -31,6 +31,12 @@ static void tree_print_indent(int depth)
         eprintf(" ");
 }
 
+static void tree_dump_single_exp(tree t, int depth)
+{
+    eprintf(" exp:\n");
+    tree_dump(t->data.exp, depth + 1);
+}
+
 void tree_dump(tree tree, int depth)
 {
     while (tree) {
@@ -42,8 +48,10 @@ void tree_dump(tree tree, int depth)
             gmp_fprintf(stderr, " number %Zd", tree->data.integer);
             break;
         case T_P_INC:
-            eprintf(" exp:\n");
-            tree_dump(tree->data.exp, depth + 1);
+            tree_dump_single_exp(tree, depth);
+            break;
+        case T_P_DEC:
+            tree_dump_single_exp(tree, depth);
             break;
         }
         eprintf(">\n");

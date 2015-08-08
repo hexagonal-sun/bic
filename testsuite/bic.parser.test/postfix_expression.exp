@@ -6,3 +6,7 @@ set timeout 3
 set test postfix_increment
 send "22++;\n"
 expect_tree_postfix_inc [re_tree_integer 22]
+
+set test postfix_decrement
+send "23--;\n"
+expect_tree_postfix_dec [re_tree_integer 23]

@@ -29,6 +29,7 @@ extern tree parse_head;
 %token SWITCH TYPEDEF UNION UNSIGNED VOID VOLATILE WHILE
 %token EQUATE NOT_EQUATE LESS_OR_EQUAL GREATER_OR_EQUAL
 %token SHIFT_LEFT SHIFT_RIGHT BOOL_OP_AND BOOL_OP_OR INC
+%token DEC
 
 %token <string> IDENTIFIER
 %token <string> CONST_BITS
@@ -69,5 +70,11 @@ postfix_expression
     tree inc = tree_make(T_P_INC);
     inc->data.exp = $1;
     $$ = inc;
+}
+| postfix_expression DEC
+{
+    tree dec = tree_make(T_P_DEC);
+    dec->data.exp = $1;
+    $$ = dec;
 }
 ;

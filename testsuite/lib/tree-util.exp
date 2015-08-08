@@ -19,6 +19,14 @@ proc re_tree_postfix_inc { exp_regex } {
     return $RE
 }
 
+proc re_tree_postfix_dec { exp_regex } {
+    set RE [re_tree_preamble "T_P_DEC"]
+    set RE "$RE, exp:[EOL]"
+    set RE "$RE$exp_regex"
+    set RE "$RE[BOL]>[EOL]"
+    return $RE
+}
+
 proc expect_tree_integer { n } {
     global test
      expect {
@@ -30,5 +38,12 @@ proc expect_tree_postfix_inc { exp_regex } {
     global test
      expect {
          -re [re_tree_postfix_inc $exp_regex] { pass "$test" }
+    }
+}
+
+proc expect_tree_postfix_dec { exp_regex } {
+    global test
+     expect {
+         -re [re_tree_postfix_dec $exp_regex] { pass "$test" }
     }
 }
