@@ -1,10 +1,15 @@
+proc EOL {} {return "\[\n\r\]+"}
+proc BOL {} {return "\[ \t\]*"}
+
 proc re_tree_preamble { type } {
-    return "<tree at 0x\[0-9a-f]+, next \(\\(nil\\)|0x\[0-9a-f\]+\), type $type"
+    return "[BOL]<tree at 0x\[0-9a-f]+, next \(\\(nil\\)|0x\[0-9a-f\]+\), type $type"
 }
 
 proc re_tree_integer { n } {
     set RE [re_tree_preamble "T_INTEGER"]
-    set RE "$RE, number $n>"
+    set RE "$RE, number $n>[EOL]"
+    return $RE
+}
     return $RE
 }
 
