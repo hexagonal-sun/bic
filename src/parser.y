@@ -37,6 +37,7 @@ extern tree parse_head;
 
 %type <tree> statements
 %type <tree> statement
+%type <tree> primary_expression
 
 %%
 
@@ -50,7 +51,10 @@ statements: statement  ';'
     $$ = $2;
 }
 
-statement: INTEGER
+statement: primary_expression
+
+primary_expression
+: INTEGER
 {
     tree number = tree_make(T_INTEGER);
     mpz_set(number->data.integer, $1);
