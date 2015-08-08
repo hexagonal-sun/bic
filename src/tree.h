@@ -26,6 +26,6 @@ struct tree {
 };
 
 tree tree_make(enum tree_type);
-void tree_dump(tree tree);
+void tree_dump(tree tree, int depth);
 
 #endif

@@ -24,9 +24,17 @@ static const char *tree_type_string(enum tree_type t)
     }
 }
 
-void tree_dump(tree tree)
+static void tree_print_indent(int depth)
+{
+    int i;
+    for (i = 0; i < depth *2; i++)
+        eprintf(" ");
+}
+
+void tree_dump(tree tree, int depth)
 {
     while (tree) {
+        tree_print_indent(depth);
         eprintf("<tree at %p, next %p, type %s,",
                 tree, tree->next, tree_type_string(tree->type));
         switch (tree->type) {
@@ -35,7 +43,7 @@ void tree_dump(tree tree)
             break;
         case T_INC:
             eprintf(" exp:\n");
-            tree_dump(tree->data.exp);
+            tree_dump(tree->data.exp, depth + 1);
             break;
         }
         eprintf(">\n");

@@ -36,7 +36,7 @@ int main()
         YY_BUFFER_STATE buffer = yy_scan_string(line);
         yyparse();
         yy_delete_buffer(buffer);
-        tree_dump(parse_head);
+        tree_dump(parse_head, 0);
         line = readline(BIC_PROMPT);
     }
 }
