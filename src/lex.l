@@ -78,6 +78,7 @@ X                               [0-9A-F]
 "}"                             return '}';
 "<<"                            return SHIFT_LEFT;
 ">>"                            return SHIFT_RIGHT;
+"++"                            return INC;
 
 "&&"                            return BOOL_OP_AND;
 "||"                            return BOOL_OP_OR;

@@ -3,6 +3,8 @@
 
 #include <gmp.h>
 
+typedef struct tree *tree;
+
 enum tree_type {
     #define DEFTYPE(TNAME, DESC) TNAME ,
     #include "tree.def"
@@ -12,13 +14,16 @@ enum tree_type {
 union tree_data {
     /* T_INTEGER */
     mpz_t integer;
+
+    /* T_INC */
+    tree exp;
 };
 
-typedef struct tree {
+struct tree {
     struct tree *next;
     enum tree_type type;
     union tree_data data;
-} *tree;
+};
 
 tree tree_make(enum tree_type);
 void tree_dump(tree tree);

@@ -33,6 +33,10 @@ void tree_dump(tree tree)
         case T_INTEGER:
             gmp_fprintf(stderr, " number %Zd", tree->data.integer);
             break;
+        case T_INC:
+            eprintf(" exp:\n");
+            tree_dump(tree->data.exp);
+            break;
         }
         eprintf(">\n");
         tree = tree->next;

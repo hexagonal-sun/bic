@@ -28,7 +28,7 @@ extern tree parse_head;
 %token REGISTER RETURN SHORT SIGNED SIZEOF STATIC STRUCT
 %token SWITCH TYPEDEF UNION UNSIGNED VOID VOLATILE WHILE
 %token EQUATE NOT_EQUATE LESS_OR_EQUAL GREATER_OR_EQUAL
-%token SHIFT_LEFT SHIFT_RIGHT BOOL_OP_AND BOOL_OP_OR
+%token SHIFT_LEFT SHIFT_RIGHT BOOL_OP_AND BOOL_OP_OR INC
 
 %token <string> IDENTIFIER
 %token <string> CONST_BITS
@@ -38,6 +38,7 @@ extern tree parse_head;
 %type <tree> statements
 %type <tree> statement
 %type <tree> primary_expression
+%type <tree> postfix_expression
 
 %%
 
@@ -51,7 +52,7 @@ statements: statement  ';'
     $$ = $2;
 }
 
-statement: primary_expression
+statement: postfix_expression
 
 primary_expression
 : INTEGER
@@ -59,5 +60,14 @@ primary_expression
     tree number = tree_make(T_INTEGER);
     mpz_set(number->data.integer, $1);
     $$ = number;
+}
+
+postfix_expression
+: primary_expression
+| postfix_expression INC
+{
+    tree inc = tree_make(T_INC);
+    inc->data.exp = $1;
+    $$ = inc;
 }
 ;
