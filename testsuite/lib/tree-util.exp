@@ -1,8 +1,9 @@
 proc EOL {} {return "\[\n\r\]+"}
 proc BOL {} {return "\[ \t\]*"}
+proc ADR {} {return "0x\[0-9a-f]+"}
 
 proc re_tree_preamble { type } {
-    return "[BOL]<tree at 0x\[0-9a-f]+, next \(\\(nil\\)|0x\[0-9a-f\]+\), type $type"
+    return "[BOL]<tree at [ADR], next \(\\(nil\\)|0x\[0-9a-f\]+\), type $type"
 }
 
 proc re_tree_exp { exp_regex type } {
