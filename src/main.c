@@ -2,6 +2,7 @@
 #include "tree.h"
 #include "parser.h"
 #include "lex.h"
+#include "identifier.h"
 #include <stdio.h>
 #ifdef HAVE_LIBREADLINE
 #  if defined(HAVE_READLINE_READLINE_H)
@@ -31,7 +32,11 @@ void yyerror(const char *str)
 
 int main()
 {
-    char *line = readline(BIC_PROMPT);
+    char *line;
+
+    identifier_init();
+
+    line = readline(BIC_PROMPT);
     while (line) {
         YY_BUFFER_STATE buffer = yy_scan_string(line);
         yyparse();

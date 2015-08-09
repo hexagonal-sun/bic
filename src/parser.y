@@ -63,6 +63,12 @@ primary_expression
     mpz_set(number->data.integer, $1);
     $$ = number;
 }
+| IDENTIFIER
+{
+    tree identifier = tree_make(T_IDENTIFIER);
+    identifier->data.id = get_identifier($1);
+    $$ = identifier;
+}
 
 postfix_expression
 : primary_expression
