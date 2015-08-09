@@ -37,6 +37,13 @@ proc re_tree_unary_dec { exp_regex } {
 
 }
 
+proc re_tree_identifier { name address } {
+    set RE [re_tree_preamble "T_IDENTIFIER"]
+    set RE "$RE, id:[EOL]"
+    set RE "$RE[BOL]<identifier at $address. name: $name>[EOL]"
+    set RE "$RE[BOL]>[EOL]"
+}
+
 proc expect_tree_integer { n } {
     global test
      expect {
@@ -69,5 +76,15 @@ proc expect_tree_unary_dec { exp_regex } {
     global test
      expect {
          -re [re_tree_unary_dec $exp_regex] { pass "$test" }
+    }
+}
+
+proc expect_tree_identifier { name {address ""} } {
+    global test
+    if {$address eq ""} {
+        set address "[ADR]"
+    }
+    expect {
+        -re [re_tree_identifier $name $address] { pass "$test" }
     }
 }

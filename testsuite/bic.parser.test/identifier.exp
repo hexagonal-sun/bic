@@ -1,0 +1,17 @@
+load_lib util.exp
+load_lib tree-util.exp
+set timeout 3
+
+
+set test identifier1
+send "a;\n"
+expect_tree_identifier "a"
+finish_test
+
+set test ideentifer-addr-equality
+send "a;\n"
+expect "identifier*"
+regexp ".*identifier at ([ADR]).*" $expect_out(buffer) all adr
+send "a;\n"
+expect_tree_identifier "a" "$adr"
+finish_test
