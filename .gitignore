@@ -32,3 +32,5 @@ ylwrap
 *.sum
 testsuite/prompt.exp
 testsuite/site.exp
+*.o
+*#
