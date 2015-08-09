@@ -82,12 +82,12 @@ uint32_t super_fast_hash (const char * data)
 
 void hash_table_add(hash_table ht, const char *key, list *element)
 {
-    int bin = super_fast_hash(key) % (1 << ht->bits);
+    int bin = super_fast_hash(key) & ((1 << ht->bits) - 1);
     list_add(element, &(ht->table[bin]));
 }
 
 list *hash_table_get_bin(hash_table ht, const char *key)
 {
-    int bin = super_fast_hash(key) % (1 << ht->bits);
+    int bin = super_fast_hash(key) & ((1 << ht->bits) - 1);
     return &(ht->table[bin]);
 }
