@@ -52,6 +52,7 @@ X                               [0-9A-F]
 {L}({L}|{D})*                   yylval.string = strdup(yytext); return IDENTIFIER;
 -?[0-9]+                          mpz_init_set_str(yylval.integer, yytext, 10); return INTEGER;
 0x{X}+                          yylval.string = strdup(yytext); return CONST_HEX;
+[ \t\n\r]                       /* skip whitespace */
 
 "=="                            return EQUATE;
 "!="                            return NOT_EQUATE;
