@@ -12,6 +12,11 @@ enum tree_type {
     #undef DEFTYPE
 };
 
+struct binary_exp {
+    tree left;
+    tree right;
+};
+
 union tree_data {
     /* T_INTEGER */
     mpz_t integer;
@@ -21,6 +26,9 @@ union tree_data {
 
     /* T_IDENTIFIER */
     identifier *id;
+
+    /* T_MULTIPLY */
+    struct binary_exp bin;
 };
 
 struct tree {
@@ -30,6 +38,7 @@ struct tree {
 };
 
 tree tree_make(enum tree_type);
+tree tree_build_bin(enum tree_type, tree left, tree right);
 void tree_dump(tree tree, int depth);
 
 #endif

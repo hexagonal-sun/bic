@@ -12,6 +12,14 @@ tree tree_make(enum tree_type type)
     return ret;
 }
 
+tree tree_build_bin(enum tree_type type, tree left, tree right)
+{
+    tree ret = tree_make(type);
+    ret->data.bin.left = left;
+    ret->data.bin.right = right;
+    return ret;
+}
+
 static const char *tree_type_string(enum tree_type t)
  {
     switch (t) {
@@ -44,6 +52,15 @@ static void tree_dump_identifier(identifier *id, int depth)
     eprintf("<identifier at %p, name: %s>\n", id, id->name);
 }
 
+static void tree_dump_binary(tree t, int depth)
+{
+    eprintf(" left:\n");
+    tree_dump(t->data.bin.left, depth + 1);
+    tree_print_indent(depth);
+    eprintf("right:\n");
+    tree_dump(t->data.bin.right, depth + 1);
+}
+
 void tree_dump(tree tree, int depth)
 {
     while (tree) {
@@ -70,6 +87,11 @@ void tree_dump(tree tree, int depth)
             eprintf(" id:\n");
             tree_dump_identifier(tree->data.id, depth + 1);
             tree_print_indent(depth);
+            break;
+        case T_MUL:
+        case T_DIV:
+        case T_MOD:
+            tree_dump_binary(tree, depth);
             break;
         }
         eprintf(">\n");

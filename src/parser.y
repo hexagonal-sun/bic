@@ -41,6 +41,7 @@ extern tree parse_head;
 %type <tree> primary_expression
 %type <tree> postfix_expression
 %type <tree> unary_expression
+%type <tree> multiplicative_expression
 
 %%
 
@@ -54,7 +55,7 @@ statements: statement  ';'
     $$ = $2;
 }
 
-statement: unary_expression
+statement: multiplicative_expression
 
 primary_expression
 : INTEGER
@@ -101,3 +102,18 @@ unary_expression
     $$ = dec;
 }
 ;
+
+multiplicative_expression
+: unary_expression
+| multiplicative_expression '*' unary_expression
+{
+    $$ = tree_build_bin(T_MUL, $1, $3);
+}
+| multiplicative_expression '/' unary_expression
+{
+    $$ = tree_build_bin(T_DIV, $1, $3);
+}
+| multiplicative_expression '%' unary_expression
+{
+    $$ = tree_build_bin(T_MOD, $1, $3);
+}
