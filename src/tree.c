@@ -62,6 +62,23 @@ static void tree_dump_binary(tree t, int depth)
     tree_print_indent(depth);
 }
 
+static void tree_dump_decl(tree t, int depth)
+{
+    eprintf("\n");
+    tree_print_indent(depth);
+    eprintf(" type:\n");
+    tree_dump(t->data.decl.type, depth + 1);
+    tree_print_indent(depth);
+    eprintf(" decl(s):\n");
+    tree_dump(t->data.decl.decls, depth + 1);
+    tree_print_indent(depth);
+}
+
+static void tree_dump_type(tree t, int depth)
+{
+    eprintf(" TYPE");
+}
+
 void tree_dump(tree tree, int depth)
 {
     while (tree) {
@@ -96,6 +113,12 @@ void tree_dump(tree tree, int depth)
         case T_SUB:
         case T_ASSIGN:
             tree_dump_binary(tree, depth);
+            break;
+        case T_DECL:
+            tree_dump_decl(tree, depth);
+            break;
+        case D_T_INT:
+            tree_dump_type(tree, depth);
             break;
         }
         eprintf(">\n");

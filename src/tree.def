@@ -11,3 +11,7 @@ DEFTYPE(T_MOD, "Modulus")
 DEFTYPE(T_ADD, "Addition")
 DEFTYPE(T_SUB, "Subtraction")
 DEFTYPE(T_ASSIGN, "Assignment")
+DEFTYPE(T_DECL, "Declaration")
+
+/* Declation type tree types */
+DEFTYPE(D_T_INT, "Integer type")

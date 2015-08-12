@@ -17,6 +17,11 @@ struct binary_exp {
     tree right;
 };
 
+struct declaration {
+    tree type;
+    tree decls;
+};
+
 union tree_data {
     /* T_INTEGER */
     mpz_t integer;
@@ -29,6 +34,8 @@ union tree_data {
 
     /* T_MULTIPLY */
     struct binary_exp bin;
+
+    struct declaration decl;
 };
 
 struct tree {

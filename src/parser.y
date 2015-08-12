@@ -44,6 +44,12 @@ extern tree parse_head;
 %type <tree> multiplicative_expression
 %type <tree> additive_expression
 %type <tree> assignment_expression
+%type <tree> decl
+%type <tree> declarator
+%type <tree> initialiser
+%type <tree> declarator_list
+%type <tree> type_specifier
+%type <tree> declaration
 
 %%
 
@@ -57,7 +63,10 @@ statements: statement  ';'
     $$ = $2;
 }
 
-statement: additive_expression
+statement
+: assignment_expression
+| declaration
+;
 
 primary_expression
 : INTEGER
@@ -141,3 +150,48 @@ assignment_expression
 }
 ;
 
+decl
+: IDENTIFIER
+{
+    tree identifier = tree_make(T_IDENTIFIER);
+    identifier->data.id = get_identifier($1);
+    $$ = identifier;
+}
+;
+
+initialiser
+: additive_expression
+;
+
+declarator
+: decl
+| decl '=' initialiser
+{
+    $$ = tree_build_bin(T_ASSIGN, $1, $3);
+}
+;
+
+declarator_list
+: declarator
+| declarator ',' declarator_list
+{
+    $1->next = $3;
+}
+;
+
+type_specifier
+: INT
+{
+    $$ = tree_make(D_T_INT);
+}
+;
+
+declaration
+: type_specifier declarator_list
+{
+    tree decl = tree_make(T_DECL);
+    decl->data.decl.type = $1;
+    decl->data.decl.decls = $2;
+    $$ = decl;
+}
+;
