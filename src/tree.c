@@ -94,6 +94,7 @@ void tree_dump(tree tree, int depth)
         case T_MOD:
         case T_ADD:
         case T_SUB:
+        case T_ASSIGN:
             tree_dump_binary(tree, depth);
             break;
         }
