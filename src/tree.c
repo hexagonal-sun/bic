@@ -59,6 +59,7 @@ static void tree_dump_binary(tree t, int depth)
     tree_print_indent(depth);
     eprintf("right:\n");
     tree_dump(t->data.bin.right, depth + 1);
+    tree_print_indent(depth);
 }
 
 void tree_dump(tree tree, int depth)
@@ -91,6 +92,8 @@ void tree_dump(tree tree, int depth)
         case T_MUL:
         case T_DIV:
         case T_MOD:
+        case T_ADD:
+        case T_SUB:
             tree_dump_binary(tree, depth);
             break;
         }

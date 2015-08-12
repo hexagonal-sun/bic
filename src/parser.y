@@ -42,6 +42,7 @@ extern tree parse_head;
 %type <tree> postfix_expression
 %type <tree> unary_expression
 %type <tree> multiplicative_expression
+%type <tree> additive_expression
 
 %%
 
@@ -55,7 +56,7 @@ statements: statement  ';'
     $$ = $2;
 }
 
-statement: multiplicative_expression
+statement: additive_expression
 
 primary_expression
 : INTEGER
@@ -117,3 +118,16 @@ multiplicative_expression
 {
     $$ = tree_build_bin(T_MOD, $1, $3);
 }
+;
+
+additive_expression
+: multiplicative_expression
+| additive_expression '+' multiplicative_expression
+{
+    $$ = tree_build_bin(T_ADD, $1, $3);
+}
+| additive_expression '-'  multiplicative_expression
+{
+    $$ = tree_build_bin(T_SUB, $1, $3);
+}
+;
