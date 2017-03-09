@@ -180,9 +180,101 @@ declarator_list
 ;
 
 type_specifier
-: INT
+: CHAR
+{
+    $$ = tree_make(D_T_CHAR);
+}
+| SIGNED CHAR
+{
+    $$ = tree_make(D_T_CHAR);
+}
+| UNSIGNED CHAR
+{
+    $$ = tree_make(D_T_UCHAR);
+}
+| SHORT
+{
+    $$ = tree_make(D_T_SHORT);
+}
+| SHORT INT
+{
+    $$ = tree_make(D_T_SHORT);
+}
+| SIGNED SHORT
+{
+    $$ = tree_make(D_T_SHORT);
+}
+| SIGNED SHORT INT
+{
+    $$ = tree_make(D_T_SHORT);
+}
+| UNSIGNED SHORT
+{
+    $$ = tree_make(D_T_USHORT);
+}
+| UNSIGNED SHORT INT
+{
+    $$ = tree_make(D_T_USHORT);
+}
+| INT
 {
     $$ = tree_make(D_T_INT);
+}
+| SIGNED INT
+{
+    $$ = tree_make(D_T_INT);
+}
+| UNSIGNED INT
+{
+    $$ = tree_make(D_T_UINT);
+}
+| LONG
+{
+    $$ = tree_make(D_T_LONG);
+}
+| LONG INT
+{
+    $$ = tree_make(D_T_LONG);
+}
+| SIGNED LONG
+{
+    $$ = tree_make(D_T_LONG);
+}
+| SIGNED LONG INT
+{
+    $$ = tree_make(D_T_LONG);
+}
+| UNSIGNED LONG
+{
+    $$ = tree_make(D_T_ULONG);
+}
+| UNSIGNED LONG INT
+{
+    $$ = tree_make(D_T_ULONG);
+}
+| LONG LONG
+{
+    $$ = tree_make(D_T_LONGLONG);
+}
+| LONG LONG INT
+{
+    $$ = tree_make(D_T_LONGLONG);
+}
+| SIGNED LONG LONG
+{
+    $$ = tree_make(D_T_LONGLONG);
+}
+| SIGNED LONG LONG INT
+{
+    $$ = tree_make(D_T_LONGLONG);
+}
+| UNSIGNED LONG LONG
+{
+    $$ = tree_make(D_T_ULONGLONG);
+}
+| UNSIGNED LONG LONG INT
+{
+    $$ = tree_make(D_T_ULONGLONG);
 }
 ;
 
