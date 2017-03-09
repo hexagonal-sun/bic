@@ -22,6 +22,11 @@ struct declaration {
     tree decls;
 };
 
+struct struct_data {
+    identifier *id;
+    tree decls;
+};
+
 union tree_data {
     /* T_INTEGER */
     mpz_t integer;
@@ -36,6 +41,9 @@ union tree_data {
     struct binary_exp bin;
 
     struct declaration decl;
+
+    /* T_STRUCT_DECL */
+    struct struct_data structure;
 };
 
 struct tree {

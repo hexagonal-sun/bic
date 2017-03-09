@@ -12,6 +12,7 @@ DEFTYPE(T_ADD, "Addition")
 DEFTYPE(T_SUB, "Subtraction")
 DEFTYPE(T_ASSIGN, "Assignment")
 DEFTYPE(T_DECL, "Declaration")
+DEFTYPE(T_DECL_STRUCT, "Structure Declataion")
 
 /* Declation type tree types */
 DEFTYPE(D_T_CHAR, "Signed Char type")

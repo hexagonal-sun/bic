@@ -74,6 +74,15 @@ static void tree_dump_decl(tree t, int depth)
     tree_print_indent(depth);
 }
 
+static void tree_dump_struct(tree t, int depth)
+{
+    eprintf(" name: %s\n", t->data.structure.id->name);
+    tree_print_indent(depth);
+    eprintf(" decl(s):\n");
+    tree_dump(t->data.structure.decls, depth + 1);
+    tree_print_indent(depth);
+}
+
 static void tree_dump_type(tree t, int depth)
 {
     eprintf(" TYPE");
@@ -116,6 +125,9 @@ void tree_dump(tree tree, int depth)
             break;
         case T_DECL:
             tree_dump_decl(tree, depth);
+            break;
+        case T_DECL_STRUCT:
+            tree_dump_struct(tree, depth);
             break;
         case D_T_INT:
             tree_dump_type(tree, depth);
