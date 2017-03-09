@@ -9,7 +9,6 @@ list.c hash_table.c hash_table.h identifier.c identifier.h
 
 bic_SOURCES = main.c
 bic_LDADD = libbic.a
-bic_LDFLAGS = @LIBS@
 
 lex.h: lex.l
 	$(LEX) --header-file=$@ -o /dev/null $<
