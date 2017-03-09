@@ -28,9 +28,17 @@ AC_CHECK_LIB(gmp, __gmpz_init, ,
 
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdlib.h string.h])
+AC_CHECK_HEADERS([inttypes.h libintl.h malloc.h stddef.h \
+                  stdint.h stdlib.h string.h unistd.h])
 
-# Checks for typedefs, structures, and compiler characteristics.
+# Checks for typedefs, structures, and compiler characteristics.o
+AC_TYPE_INT16_T
+AC_TYPE_INT32_T
+AC_TYPE_INT8_T
+AC_TYPE_SIZE_T
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT8_T
 
 # Configuration options for the program
 BIC_PROMPT="BIC> "
@@ -41,6 +49,8 @@ AC_SUBST([BIC_PROMPT])
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
+AC_FUNC_ALLOCA
+AC_CHECK_FUNCS([memset strdup])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
