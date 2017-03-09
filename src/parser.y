@@ -48,6 +48,10 @@ extern tree parse_head;
 %type <tree> declarator
 %type <tree> initialiser
 %type <tree> declarator_list
+%type <tree> direct_declarator_list
+%type <tree> struct_specifier
+%type <tree> struct_decl_list
+%type <tree> struct_decl
 %type <tree> type_specifier
 %type <tree> declaration
 
@@ -179,6 +183,14 @@ declarator_list
 }
 ;
 
+direct_declarator_list
+: decl
+| decl ',' direct_declarator_list
+{
+    $1 ->next = $3;
+}
+;
+
 type_specifier
 : CHAR
 {
@@ -278,6 +290,33 @@ type_specifier
 }
 ;
 
+struct_specifier
+: STRUCT IDENTIFIER '{' struct_decl_list '}'
+{
+    tree decl = tree_make(T_DECL_STRUCT);
+    decl->data.structure.id = get_identifier($2);
+    decl->data.structure.decls = $4;
+    $$ = decl;
+}
+;
+
+struct_decl_list
+: struct_decl
+| struct_decl_list struct_decl
+{
+    $1->next = $2;
+}
+;
+
+struct_decl
+: type_specifier direct_declarator_list ';'
+{
+    tree decl = tree_make(T_DECL);
+    decl->data.decl.type = $1;
+    decl->data.decl.decls = $2;
+    $$ = decl;
+}
+
 declaration
 : type_specifier declarator_list
 {
@@ -286,4 +325,5 @@ declaration
     decl->data.decl.decls = $2;
     $$ = decl;
 }
+| struct_specifier
 ;
