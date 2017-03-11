@@ -36,7 +36,13 @@ extern tree parse_head;
 %token <string> CONST_HEX
 %token <integer> INTEGER;
 
-%type <tree> statements
+%type <tree> translation_unit
+%type <tree> toplevel_declarations
+%type <tree> compound_statement
+%type <tree> function_definition
+%type <tree> argument_specifier
+%type <tree> argument_list
+%type <tree> argument_decl
 %type <tree> statement
 %type <tree> primary_expression
 %type <tree> postfix_expression
@@ -57,15 +63,73 @@ extern tree parse_head;
 
 %%
 
-statements: statement  ';'
+translation_unit
+: toplevel_declarations
 {
     parse_head = $1;
 }
-| statements statement ';'
+| translation_unit toplevel_declarations
+{
+    $1->next = $2;
+}
+;
+
+toplevel_declarations
+: declaration ';'
+| function_definition
+;
+
+function_definition
+: type_specifier IDENTIFIER argument_specifier '{' compound_statement '}'
+{
+    tree function_def = tree_make(T_FN_DEF);
+    function_def->data.function.id = get_identifier($2);
+    function_def->data.function.return_type = $1;
+    function_def->data.function.arguments = $3;
+    function_def->data.function.stmts = $5;
+    $$ = function_def;
+}
+;
+
+argument_specifier
+: '(' ')'
+{
+    $$ = NULL;
+}
+| '(' VOID ')'
+{
+    $$ = NULL;
+}
+| '(' argument_list ')'
+{
+    $$ = $2;
+}
+;
+
+argument_list
+: argument_decl
+| argument_list ',' argument_decl
+{
+    $1->next = $3;
+};
+
+argument_decl
+: type_specifier decl
+{
+    tree decl = tree_make(T_DECL);
+    decl->data.decl.type = $1;
+    decl->data.decl.decls = $2;
+    $$ = decl;
+}
+;
+
+compound_statement: statement  ';'
+| compound_statement statement ';'
 {
     $1->next = $2;
     $$ = $2;
 }
+;
 
 statement
 : assignment_expression
