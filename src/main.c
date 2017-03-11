@@ -38,10 +38,15 @@ int main()
 
     line = readline(BIC_PROMPT);
     while (line) {
+        int parse_result;
+
         YY_BUFFER_STATE buffer = yy_scan_string(line);
-        yyparse();
+        parse_result = yyparse();
         yy_delete_buffer(buffer);
-        tree_dump(parse_head, 0);
+
+        if (!parse_result)
+            tree_dump(parse_head, 0);
+
         line = readline(BIC_PROMPT);
     }
 }
