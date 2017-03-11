@@ -74,6 +74,24 @@ static void tree_dump_decl(tree t, int depth)
     tree_print_indent(depth);
 }
 
+static void tree_dump_function(tree t, int depth)
+{
+    eprintf(" name: %s\n", t->data.function.id->name);
+    tree_print_indent(depth);
+
+    eprintf(" Return Type:\n");
+    tree_dump(t->data.function.return_type, depth + 1);
+    tree_print_indent(depth);
+
+    eprintf(" argument(s):\n");
+    tree_dump(t->data.function.arguments, depth + 1);
+    tree_print_indent(depth);
+
+    eprintf(" stmt(s):\n");
+    tree_dump(t->data.function.stmts, depth + 1);
+    tree_print_indent(depth);
+}
+
 static void tree_dump_struct(tree t, int depth)
 {
     eprintf(" name: %s\n", t->data.structure.id->name);
@@ -128,6 +146,9 @@ void tree_dump(tree tree, int depth)
             break;
         case T_DECL_STRUCT:
             tree_dump_struct(tree, depth);
+            break;
+        case T_FN_DEF:
+            tree_dump_function(tree, depth);
             break;
         case D_T_INT:
             tree_dump_type(tree, depth);

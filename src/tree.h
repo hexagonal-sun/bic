@@ -27,6 +27,13 @@ struct struct_data {
     tree decls;
 };
 
+struct function_data {
+    identifier *id;
+    tree return_type;
+    tree arguments;
+    tree stmts;
+};
+
 union tree_data {
     /* T_INTEGER */
     mpz_t integer;
@@ -44,6 +51,9 @@ union tree_data {
 
     /* T_STRUCT_DECL */
     struct struct_data structure;
+
+    /* T_FN_DEF */
+    struct function_data function;
 };
 
 struct tree {
