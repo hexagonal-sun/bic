@@ -30,11 +30,9 @@ void yyerror(const char *str)
     fprintf(stderr, "Parser Error: %s:%d %s.\n", "<stdin>", yylloc.first_line, str);
 }
 
-int main()
+static void bic_repl(void)
 {
     char *line;
-
-    identifier_init();
 
     line = readline(BIC_PROMPT);
     while (line) {
@@ -49,4 +47,38 @@ int main()
 
         line = readline(BIC_PROMPT);
     }
+}
+
+static int parse_file(char *fname)
+{
+    int parse_result;
+    FILE *f = fopen(fname, "r");
+
+    if (!f) {
+        perror("Error: Could not open file");
+        return 1;
+    }
+
+    yyin = f;
+
+    parse_result = yyparse();
+
+    fclose(f);
+
+    return parse_result;
+}
+
+
+int main(int argc, char *argv[])
+{
+    int i;
+
+    identifier_init();
+
+    if (argc == 1)
+        bic_repl();
+    else
+        for (i = 1; i < argc; i++)
+            if (!parse_file(argv[i]))
+                tree_dump(parse_head, 0);
 }
