@@ -74,4 +74,15 @@ tree tree_make(enum tree_type);
 tree tree_build_bin(enum tree_type, tree left, tree right);
 void tree_dump(tree tree, int depth);
 
+#define DEFTYPE(ETYPE, DESC)                    \
+    static inline int is_##ETYPE (tree t)       \
+    {                                           \
+        if (t->type == ETYPE)                   \
+            return 1;                           \
+        else                                    \
+            return 0;                           \
+    }
+#include "tree.def"
+#undef DEFTYPE
+
 #endif
