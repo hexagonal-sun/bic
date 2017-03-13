@@ -3,6 +3,7 @@
 #include "parser.h"
 #include "lex.h"
 #include "identifier.h"
+#include "evaluate.h"
 #include <stdio.h>
 #ifdef HAVE_LIBREADLINE
 #  if defined(HAVE_READLINE_READLINE_H)
@@ -68,6 +69,21 @@ static int parse_file(char *fname)
     return parse_result;
 }
 
+static void add_call_to_main(tree head)
+{
+    tree main_id = tree_make(T_IDENTIFIER);
+    tree main_fncall = tree_make(T_FN_CALL);
+
+    main_id->data.id = get_identifier("main");
+
+    main_fncall->data.fncall.identifier = main_id;
+    main_fncall->data.fncall.arguments = NULL;
+
+    while (head->next)
+        head = head->next;
+
+    head->next = main_fncall;
+}
 
 int main(int argc, char *argv[])
 {
@@ -79,6 +95,12 @@ int main(int argc, char *argv[])
         bic_repl();
     else
         for (i = 1; i < argc; i++)
-            if (!parse_file(argv[i]))
+            if (!parse_file(argv[i])) {
+                add_call_to_main(parse_head);
+
                 tree_dump(parse_head, 0);
+
+                printf("Evaluating...\n");
+                evaluate(parse_head);
+            }
 }
