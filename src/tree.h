@@ -34,6 +34,11 @@ struct function_data {
     tree stmts;
 };
 
+struct function_call {
+    tree identifier;
+    tree arguments;
+};
+
 union tree_data {
     /* T_INTEGER */
     mpz_t integer;
@@ -54,6 +59,9 @@ union tree_data {
 
     /* T_FN_DEF */
     struct function_data function;
+
+    /* T_FN_CALL */
+    struct function_call fncall;
 };
 
 struct tree {

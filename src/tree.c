@@ -92,6 +92,20 @@ static void tree_dump_function(tree t, int depth)
     tree_print_indent(depth);
 }
 
+static void tree_dump_fncall(tree t, int depth)
+{
+    eprintf("\n");
+    tree_print_indent(depth);
+    eprintf(" identifier:\n");
+    tree_dump(t->data.fncall.identifier, depth + 1);
+
+    tree_print_indent(depth);
+    eprintf(" argument(s):\n");
+    tree_dump(t->data.fncall.arguments, depth + 1);
+
+    tree_print_indent(depth);
+}
+
 static void tree_dump_struct(tree t, int depth)
 {
     eprintf(" name: %s\n", t->data.structure.id->name);
@@ -149,6 +163,9 @@ void tree_dump(tree tree, int depth)
             break;
         case T_FN_DEF:
             tree_dump_function(tree, depth);
+            break;
+        case T_FN_CALL:
+            tree_dump_fncall(tree, depth);
             break;
         case D_T_INT:
             tree_dump_type(tree, depth);
