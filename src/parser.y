@@ -46,6 +46,7 @@ extern tree parse_head;
 %type <tree> statement
 %type <tree> primary_expression
 %type <tree> postfix_expression
+%type <tree> argument_expression_list
 %type <tree> unary_expression
 %type <tree> multiplicative_expression
 %type <tree> additive_expression
@@ -152,6 +153,20 @@ primary_expression
 
 postfix_expression
 : primary_expression
+| postfix_expression '(' ')'
+{
+    tree fncall = tree_make(T_FN_CALL);
+    fncall->data.fncall.identifier = $1;
+    fncall->data.fncall.arguments = NULL;
+    $$ = fncall;
+}
+| postfix_expression '(' argument_expression_list ')'
+{
+    tree fncall = tree_make(T_FN_CALL);
+    fncall->data.fncall.identifier = $1;
+    fncall->data.fncall.arguments = $3;
+    $$ = fncall;
+}
 | postfix_expression INC
 {
     tree inc = tree_make(T_P_INC);
@@ -163,6 +178,14 @@ postfix_expression
     tree dec = tree_make(T_P_DEC);
     dec->data.exp = $1;
     $$ = dec;
+}
+;
+
+argument_expression_list
+: assignment_expression
+| argument_expression_list ',' assignment_expression
+{
+    $1->next = $3;
 }
 ;
 
