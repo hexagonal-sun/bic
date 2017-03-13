@@ -13,11 +13,11 @@ struct list {
 };
 
 /* Creation and initialisation helper macros. */
-#define __LIST_INIT(name) \
+#define LIST_INIT(name) \
     { &(name), &(name) }
 
 #define LIST(name) \
-    list name = __LIST_INIT(name)
+    list name = LIST_INIT(name)
 
 #define INIT_LIST(ptr) do { \
 	(ptr)->next = (ptr); (ptr)->prev = (ptr); \
