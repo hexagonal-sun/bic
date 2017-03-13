@@ -20,6 +20,12 @@ tree tree_build_bin(enum tree_type type, tree left, tree right)
     return ret;
 }
 
+static const char *tree_desc_string[] = {
+    #define DEFTYPE(ETYPE, DESC) [ETYPE] = DESC ,
+    #include "tree.def"
+    #undef DEFTYPE
+};
+
 static const char *tree_type_string(enum tree_type t)
  {
     switch (t) {
@@ -124,8 +130,9 @@ void tree_dump(tree tree, int depth)
 {
     while (tree) {
         tree_print_indent(depth);
-        eprintf("<tree at %p, next %p, type %s,",
-                tree, tree->next, tree_type_string(tree->type));
+        eprintf("<tree at %p, next %p, type %s (%s),",
+                tree, tree->next, tree_type_string(tree->type),
+                tree_desc_string[tree->type]);
         switch (tree->type) {
         case T_INTEGER:
             gmp_fprintf(stderr, " number %Zd", tree->data.integer);
