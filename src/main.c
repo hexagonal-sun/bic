@@ -44,7 +44,7 @@ static void bic_repl(void)
         yy_delete_buffer(buffer);
 
         if (!parse_result)
-            tree_dump(parse_head, 0);
+            tree_dump(parse_head);
 
         line = readline(BIC_PROMPT);
     }
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
             if (!parse_file(argv[i])) {
                 add_call_to_main(parse_head);
 
-                tree_dump(parse_head, 0);
+                tree_dump(parse_head);
 
                 printf("Evaluating...\n");
                 evaluate(parse_head);

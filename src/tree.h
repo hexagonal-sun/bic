@@ -88,7 +88,7 @@ static inline void tree_chain(tree new, tree chain)
     list_for_each((i), &(head)->chain, chain)
 
 tree tree_build_bin(enum tree_type, tree left, tree right);
-void tree_dump(tree tree, int depth);
+void tree_dump(tree tree);
 
 #define DEFTYPE(ETYPE, DESC)                    \
     static inline int is_##ETYPE (tree t)       \
