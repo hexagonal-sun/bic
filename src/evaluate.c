@@ -11,6 +11,7 @@ static eval_ctx toplevel_ctx = {
     }
 };
 
+static tree __evaluate_1(tree t, int depth);
 static tree __evaluate(tree t, int depth);
 
 static eval_ctx *cur_ctx = &toplevel_ctx;
@@ -131,7 +132,7 @@ static tree eval_fn_call(tree t, int depth)
      *
      * 3: The function couldn't be found.  In that case, error.
      */
-    tree function = __evaluate(t->data.fncall.identifier, depth + 1);
+    tree function = __evaluate_1(t->data.fncall.identifier, depth + 1);
 
     if (is_T_FN_DEF(function)) {
         push_ctx(function->data.function.id->name);
@@ -146,18 +147,30 @@ static tree eval_fn_def(tree t, int depth)
     map_identifier(t->data.function.id, t);
 }
 
-static tree __evaluate(tree t, int depth)
+static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
-    while (t) {
-        switch (t->type)
-        {
-        case T_IDENTIFIER: result = eval_identifier(t, depth + 1); break;
-        case T_FN_CALL:    result = eval_fn_call(t, depth + 1);    break;
-        case T_FN_DEF:     result = eval_fn_def(t, depth + 1);     break;
-        default:           result = NULL;                          break;
-        }
 
+    if (!t)
+        return result;
+
+    switch (t->type)
+    {
+    case T_IDENTIFIER: result = eval_identifier(t, depth + 1); break;
+    case T_FN_CALL:    result = eval_fn_call(t, depth + 1);    break;
+    case T_FN_DEF:     result = eval_fn_def(t, depth + 1);     break;
+    default:           result = NULL;                          break;
+    }
+
+    return result;
+}
+
+static tree __evaluate(tree t, int depth)
+{
+    tree result;
+
+    while (t) {
+        result = __evaluate_1(t, depth);
         t = t->next;
     }
 
