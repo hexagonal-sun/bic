@@ -25,6 +25,9 @@ static const char *tree_desc_string[] = {
     #define DEFTYPE(ETYPE, DESC) [ETYPE] = DESC ,
     #include "tree.def"
     #undef DEFTYPE
+    #define DEFCTYPE(ETYPE, DESC, STDINTSZ) [ETYPE] = DESC ,
+    #include "ctypes.def"
+    #undef DEFCTYPE
 };
 
 static const char *tree_type_string(enum tree_type t)
@@ -35,6 +38,11 @@ static const char *tree_type_string(enum tree_type t)
                 return #ETYPE;
         #include "tree.def"
         #undef DEFTYPE
+        #define DEFCTYPE(ETYPE, DESC, STDINTSZ) \
+            case ETYPE:                         \
+                return #ETYPE;
+        #include "ctypes.def"
+        #undef DEFCTYPE
         default:
             return "unknown";
     }

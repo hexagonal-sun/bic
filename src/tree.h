@@ -2,6 +2,7 @@
 #define __TREE_H_
 
 #include <gmp.h>
+#include <stdint.h>
 #include "identifier.h"
 
 typedef struct tree *tree;
@@ -10,6 +11,9 @@ enum tree_type {
     #define DEFTYPE(TNAME, DESC) TNAME ,
     #include "tree.def"
     #undef DEFTYPE
+    #define DEFCTYPE(TNAME, DESC, STDINTSZ) TNAME ,
+    #include "ctypes.def"
+    #undef DEFCTYPE
 };
 
 struct binary_exp {
@@ -37,6 +41,13 @@ struct function_data {
 struct function_call {
     tree identifier;
     tree arguments;
+};
+
+union live_var {
+    #define DEFCTYPE(TNAME, DESC, STDINTSZ)     \
+        STDINTSZ TNAME;
+    #include "ctypes.def"
+    #undef DEFCTYPE
 };
 
 union tree_data {
