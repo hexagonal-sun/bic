@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "evaluate.h"
 
@@ -147,6 +148,29 @@ static tree eval_fn_def(tree t, int depth)
     map_identifier(t->data.function.id, t);
 }
 
+static void make_and_map_live_var(tree id, tree type)
+{
+    tree live_var = tree_make(T_LIVE_VAR);
+
+    assert(id->type == T_IDENTIFIER);
+
+    live_var->data.var.type = type;
+
+    map_identifier(id->data.id, live_var);
+}
+
+static tree eval_decl(tree t, int depth)
+{
+    tree type = __evaluate_1(t->data.decl.type, depth + 1),
+        decls = t->data.decl.decls,
+        i;
+
+    for_each_tree(i, decls)
+        make_and_map_live_var(i, type);
+
+    return NULL;
+}
+
 static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
@@ -159,6 +183,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_IDENTIFIER: result = eval_identifier(t, depth + 1); break;
     case T_FN_CALL:    result = eval_fn_call(t, depth + 1);    break;
     case T_FN_DEF:     result = eval_fn_def(t, depth + 1);     break;
+    case T_DECL:       result = eval_decl(t, depth + 1);       break;
     default:           result = NULL;                          break;
     }
 

@@ -43,11 +43,16 @@ struct function_call {
     tree arguments;
 };
 
-union live_var {
+union value {
     #define DEFCTYPE(TNAME, DESC, STDINTSZ)     \
         STDINTSZ TNAME;
     #include "ctypes.def"
     #undef DEFCTYPE
+};
+
+struct live_var {
+    tree type;
+    union value val;
 };
 
 union tree_data {
@@ -73,6 +78,9 @@ union tree_data {
 
     /* T_FN_CALL */
     struct function_call fncall;
+
+    /* T_LIVE_VAR */
+    struct live_var var;
 };
 
 struct tree {
