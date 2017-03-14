@@ -276,7 +276,7 @@ declarator_list
 {
     $$ = tree_chain_head($1);
 }
-| declarator ',' declarator_list
+| declarator_list ',' declarator
 {
     tree_chain($3, $1);
 }
