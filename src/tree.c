@@ -9,6 +9,7 @@ tree tree_make(enum tree_type type)
 {
     tree ret = calloc(sizeof(*ret), 1);
     ret->type = type;
+    INIT_LIST(&ret->chain);
     return ret;
 }
 
@@ -126,59 +127,70 @@ static void tree_dump_type(tree t, int depth)
     eprintf(" TYPE");
 }
 
-void tree_dump(tree tree, int depth)
+void tree_dump_1(tree t, int depth)
 {
-    while (tree) {
+    tree_print_indent(depth);
+    eprintf("<tree at %p, next %p, type %s (%s),",
+            t,  t->chain.next, tree_type_string(t->type),
+            tree_desc_string[t->type]);
+    switch (t->type) {
+    case T_INTEGER:
+        gmp_fprintf(stderr, " number %Zd", t->data.integer);
+        break;
+    case T_P_INC:
+        tree_dump_single_exp(t,  depth);
+        break;
+    case T_P_DEC:
+        tree_dump_single_exp(t,  depth);
+        break;
+    case T_INC:
+        tree_dump_single_exp(t,  depth);
+        break;
+    case T_DEC:
+        tree_dump_single_exp(t,  depth);
+        break;
+    case T_IDENTIFIER:
+        eprintf(" id:\n");
+        tree_dump_identifier(t->data.id, depth + 1);
         tree_print_indent(depth);
-        eprintf("<tree at %p, next %p, type %s (%s),",
-                tree, tree->next, tree_type_string(tree->type),
-                tree_desc_string[tree->type]);
-        switch (tree->type) {
-        case T_INTEGER:
-            gmp_fprintf(stderr, " number %Zd", tree->data.integer);
-            break;
-        case T_P_INC:
-            tree_dump_single_exp(tree, depth);
-            break;
-        case T_P_DEC:
-            tree_dump_single_exp(tree, depth);
-            break;
-        case T_INC:
-            tree_dump_single_exp(tree, depth);
-            break;
-        case T_DEC:
-            tree_dump_single_exp(tree, depth);
-            break;
-        case T_IDENTIFIER:
-            eprintf(" id:\n");
-            tree_dump_identifier(tree->data.id, depth + 1);
-            tree_print_indent(depth);
-            break;
-        case T_MUL:
-        case T_DIV:
-        case T_MOD:
-        case T_ADD:
-        case T_SUB:
-        case T_ASSIGN:
-            tree_dump_binary(tree, depth);
-            break;
-        case T_DECL:
-            tree_dump_decl(tree, depth);
-            break;
-        case T_DECL_STRUCT:
-            tree_dump_struct(tree, depth);
-            break;
-        case T_FN_DEF:
-            tree_dump_function(tree, depth);
-            break;
-        case T_FN_CALL:
-            tree_dump_fncall(tree, depth);
-            break;
-        case D_T_INT:
-            tree_dump_type(tree, depth);
-            break;
-        }
-        eprintf(">\n");
-        tree = tree->next;
+        break;
+    case T_MUL:
+    case T_DIV:
+    case T_MOD:
+    case T_ADD:
+    case T_SUB:
+    case T_ASSIGN:
+        tree_dump_binary(t,  depth);
+        break;
+    case T_DECL:
+        tree_dump_decl(t,  depth);
+        break;
+    case T_DECL_STRUCT:
+        tree_dump_struct(t,  depth);
+        break;
+    case T_FN_DEF:
+        tree_dump_function(t,  depth);
+        break;
+    case T_FN_CALL:
+        tree_dump_fncall(t,  depth);
+        break;
+    case D_T_INT:
+        tree_dump_type(t,  depth);
+        break;
     }
+    eprintf(">\n");
+}
+
+void tree_dump(tree head, int depth)
+{
+    tree i;
+
+    if (!head)
+        return;
+
+    if (is_CHAIN_HEAD(head))
+        for_each_tree(i, head)
+            tree_dump_1(i, depth);
+    else
+        tree_dump_1(head, depth);
 }

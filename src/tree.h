@@ -65,12 +65,28 @@ union tree_data {
 };
 
 struct tree {
-    struct tree *next;
     enum tree_type type;
     union tree_data data;
+    list chain;
 };
 
 tree tree_make(enum tree_type);
+
+static inline tree tree_chain_head(tree head)
+{
+    tree head_marker = tree_make(CHAIN_HEAD);
+    list_add(&head->chain, &head_marker->chain);
+    return head_marker;
+}
+
+static inline void tree_chain(tree new, tree chain)
+{
+    list_add_tail(&new->chain, &chain->chain);
+}
+
+#define for_each_tree(pos, head)                \
+    list_for_each((i), &(head)->chain, chain)
+
 tree tree_build_bin(enum tree_type, tree left, tree right);
 void tree_dump(tree tree, int depth);
 

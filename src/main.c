@@ -79,10 +79,7 @@ static void add_call_to_main(tree head)
     main_fncall->data.fncall.identifier = main_id;
     main_fncall->data.fncall.arguments = NULL;
 
-    while (head->next)
-        head = head->next;
-
-    head->next = main_fncall;
+    tree_chain(main_fncall, head);
 }
 
 int main(int argc, char *argv[])

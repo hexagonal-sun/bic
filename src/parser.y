@@ -67,11 +67,12 @@ extern tree parse_head;
 translation_unit
 : toplevel_declarations
 {
-    parse_head = $1;
+    parse_head = tree_chain_head($1);
+    $$ = parse_head;
 }
 | translation_unit toplevel_declarations
 {
-    $1->next = $2;
+    tree_chain($2, $1);
 }
 ;
 
@@ -109,9 +110,12 @@ argument_specifier
 
 argument_list
 : argument_decl
+{
+    $$ = tree_chain_head($1);
+}
 | argument_list ',' argument_decl
 {
-    $1->next = $3;
+    tree_chain($3, $1);
 };
 
 argument_decl
@@ -125,10 +129,12 @@ argument_decl
 ;
 
 compound_statement: statement  ';'
+{
+    $$ = tree_chain_head($1);
+}
 | compound_statement statement ';'
 {
-    $1->next = $2;
-    $$ = $2;
+    tree_chain($2, $1);
 }
 ;
 
@@ -183,9 +189,12 @@ postfix_expression
 
 argument_expression_list
 : assignment_expression
+{
+    $$ = tree_chain_head($1);
+}
 | argument_expression_list ',' assignment_expression
 {
-    $1->next = $3;
+    tree_chain($3, $1);
 }
 ;
 
@@ -264,17 +273,23 @@ declarator
 
 declarator_list
 : declarator
+{
+    $$ = tree_chain_head($1);
+}
 | declarator ',' declarator_list
 {
-    $1->next = $3;
+    tree_chain($3, $1);
 }
 ;
 
 direct_declarator_list
 : decl
+{
+    $$ = tree_chain_head($1);
+}
 | decl ',' direct_declarator_list
 {
-    $1 ->next = $3;
+    tree_chain($3, $1);
 }
 ;
 
@@ -389,9 +404,12 @@ struct_specifier
 
 struct_decl_list
 : struct_decl
+{
+    $$ = tree_chain_head($1);
+}
 | struct_decl_list struct_decl
 {
-    $1->next = $2;
+    tree_chain($2, $1);
 }
 ;
 

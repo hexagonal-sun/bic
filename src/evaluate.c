@@ -165,14 +165,15 @@ static tree __evaluate_1(tree t, int depth)
     return result;
 }
 
-static tree __evaluate(tree t, int depth)
+static tree __evaluate(tree head, int depth)
 {
-    tree result;
+    tree result, i;
 
-    while (t) {
-        result = __evaluate_1(t, depth);
-        t = t->next;
-    }
+    if (!head)
+        return NULL;
+
+    for_each_tree(i, head)
+        result = __evaluate_1(i, depth);
 
     return result;
 }
