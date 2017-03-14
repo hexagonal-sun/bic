@@ -198,9 +198,16 @@ static void __tree_dump(tree head, int depth)
     if (!head)
         return;
 
-    if (is_CHAIN_HEAD(head))
+    if (is_CHAIN_HEAD(head)) {
+        tree_print_indent(depth);
+        eprintf("<chain\n");
+
         for_each_tree(i, head)
-            __tree_dump_1(i, depth);
+            __tree_dump_1(i, depth+1);
+
+        tree_print_indent(depth);
+        eprintf(">\n");
+    }
     else
         __tree_dump_1(head, depth);
 }
