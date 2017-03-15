@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdarg.h>
 
 #include "evaluate.h"
 
@@ -61,6 +62,18 @@ static void ctx_backtrace(void)
     __ctx_backtrace(cur_ctx, 0);
 }
 
+static void eval_die(const char *format, ...)
+{
+    ctx_backtrace();
+
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+
+    exit(EXIT_FAILURE);
+}
+
 static tree resolve_identifier(struct identifier *id,
                                eval_ctx *ctx)
 {
@@ -78,12 +91,9 @@ static void map_identifier(struct identifier *id, tree t)
 {
     identifier_mapping *new_map;
 
-    if (resolve_identifier(id, cur_ctx)) {
-        fprintf(stderr, "Error: attempted to map already existing identifier %s. Stopping.\n",
+    if (resolve_identifier(id, cur_ctx))
+        eval_die("Error: attempted to map already existing identifier %s. Stopping.\n",
                 id->name);
-        ctx_backtrace();
-        exit(EXIT_FAILURE);
-    }
 
     new_map = malloc(sizeof(*new_map));
 
@@ -109,12 +119,8 @@ static tree eval_identifier(tree t, int depth)
         search_ctx = search_ctx->parent;
     }
 
-    fprintf(stderr, "Error: could not resolve identifier %s. Stopping.\n",
+    eval_die("Error: could not resolve identifier %s. Stopping.\n",
             id->name);
-
-    ctx_backtrace();
-
-    exit(EXIT_FAILURE);
 }
 
 static tree eval_fn_call(tree t, int depth)
