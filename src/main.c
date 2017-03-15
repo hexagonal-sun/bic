@@ -86,8 +86,10 @@ static void add_call_to_main(tree head)
 
 int main(int argc, char *argv[])
 {
+    tree top;
     int i;
-    top_of_stack = (ptrdiff_t)&i;
+
+    top_of_stack = &top;
 
     identifier_init();
 

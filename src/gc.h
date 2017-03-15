@@ -3,7 +3,7 @@
 #include "tree.h"
 #include <stddef.h>
 
-extern ptrdiff_t top_of_stack;
+extern tree *top_of_stack;
 
 #define GC_TREE_DECL(name)                                      \
     static volatile tree *__tree_##name                         \

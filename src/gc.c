@@ -4,7 +4,7 @@
 
 static LIST(all_trees);
 
-ptrdiff_t top_of_stack;
+tree *top_of_stack;
 
 tree alloc_tree(void)
 {
@@ -73,15 +73,14 @@ static void unmark_all_trees(void)
 
 static void mark_stack(void)
 {
-    int bottom;
-    ptrdiff_t bottom_of_stack = (ptrdiff_t)&bottom,
-        ptr;
+    tree bottom;
+    tree *bottom_of_stack = &bottom, *ptr;
 
-     for (ptr = top_of_stack; ptr > bottom_of_stack; ptr--)
+    for (ptr = top_of_stack; ptr > bottom_of_stack; ptr--)
     {
         tree i;
         list_for_each(i, &all_trees, alloc)
-            if (ptr == (ptrdiff_t)i)
+            if (*ptr == i)
                 mark_tree(i);
     }
 }
