@@ -96,9 +96,30 @@ static void mark_static(void)
         mark_tree(**i);
 }
 
+static void sweep(void)
+{
+    list *i, *n;
+
+    list_for_each_safe(i, n, &all_trees) {
+        tree t = list_entry(i, typeof(*t), alloc);
+
+        if (!t->reachable) {
+            switch(t->type) {
+            case T_INTEGER:
+                mpz_clear(t->data.integer);
+                break;
+            }
+
+            list_del(&t->alloc);
+            free(t);
+        }
+    }
+}
+
 void collect(void)
 {
        unmark_all_trees();
        mark_stack();
        mark_static();
+       sweep();
 }

@@ -39,4 +39,9 @@ int list_empty(list *list);
          &pos->member != (head);                                 \
          pos = list_entry(pos->member.next, typeof(*pos), member))
 
+#define list_for_each_safe(pos, n, head)                                \
+    for (pos = (head)->next, n = pos->next;                             \
+         pos != (head);                                                 \
+         pos = n, n = pos->next)
+
 #endif
