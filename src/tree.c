@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include "tree.h"
 #include "identifier.h"
+#include "gc.h"
 
 #define eprintf(args...) fprintf (stderr, args)
 
 tree tree_make(enum tree_type type)
 {
-    tree ret = calloc(sizeof(*ret), 1);
+    tree ret = alloc_tree();
     ret->type = type;
     INIT_LIST(&ret->chain);
     return ret;
@@ -140,9 +141,9 @@ static void tree_dump_type(tree t, int depth)
 void __tree_dump_1(tree t, int depth)
 {
     tree_print_indent(depth);
-    eprintf("<tree at %p, next %p, type %s (%s),",
-            t,  t->chain.next, tree_type_string(t->type),
-            tree_desc_string[t->type]);
+    eprintf("<tree at %p, next %p, reachable: %d, type %s (%s),",
+            t,  t->chain.next, t->reachable,
+            tree_type_string(t->type), tree_desc_string[t->type]);
     switch (t->type) {
     case T_INTEGER:
         gmp_fprintf(stderr, " number %Zd", t->data.integer);

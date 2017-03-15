@@ -4,6 +4,7 @@
 #include "lex.h"
 #include "identifier.h"
 #include "evaluate.h"
+#include "gc.h"
 #include <stdio.h>
 #ifdef HAVE_LIBREADLINE
 #  if defined(HAVE_READLINE_READLINE_H)
@@ -22,6 +23,7 @@ char *cmdline = NULL;
 extern FILE* yyin;
 
 tree parse_head;
+GC_TREE_DECL(parse_head);
 
 /*
  * Parser's error callback.
@@ -85,6 +87,7 @@ static void add_call_to_main(tree head)
 int main(int argc, char *argv[])
 {
     int i;
+    top_of_stack = (ptrdiff_t)&i;
 
     identifier_init();
 
@@ -94,6 +97,7 @@ int main(int argc, char *argv[])
         for (i = 1; i < argc; i++)
             if (!parse_file(argv[i])) {
                 add_call_to_main(parse_head);
+                collect();
 
                 tree_dump(parse_head);
 

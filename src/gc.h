@@ -1,0 +1,15 @@
+#pragma once
+
+#include "tree.h"
+#include <stddef.h>
+
+extern ptrdiff_t top_of_stack;
+
+#define GC_TREE_DECL(name)                                      \
+    static volatile tree *__tree_##name                         \
+    __attribute__((__section__("static_trees"))) = &(name);
+
+/* Return an uninitialised tree object that will be tracked through
+ * GC. */
+tree alloc_tree(void);
+void collect(void);

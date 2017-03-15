@@ -87,6 +87,10 @@ struct tree {
     enum tree_type type;
     union tree_data data;
     list chain;
+
+    /* GC members. */
+    list alloc;
+    int reachable;
 };
 
 tree tree_make(enum tree_type);
