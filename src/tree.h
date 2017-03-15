@@ -116,6 +116,9 @@ void tree_dump(tree tree);
 #define DEFTYPE(ETYPE, DESC)                    \
     static inline int is_##ETYPE (tree t)       \
     {                                           \
+        if (!t)                                 \
+            return 0;                           \
+                                                \
         if (t->type == ETYPE)                   \
             return 1;                           \
         else                                    \
