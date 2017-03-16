@@ -177,6 +177,21 @@ static tree eval_decl(tree t, int depth)
     return NULL;
 }
 
+/* All types evaluate to themselves. */
+#define DEFCTYPE(TNAME, DESC, CTYPE)            \
+    static tree eval_##TNAME(tree t, int depth) \
+    {                                           \
+        return t;                               \
+    }
+#include "ctypes.def"
+#undef DEFCTYPE
+
+static tree eval_integer(tree t, int depth)
+{
+    /* An integer evaluates to itself. */
+    return t;
+}
+
 static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
@@ -190,6 +205,11 @@ static tree __evaluate_1(tree t, int depth)
     case T_FN_CALL:    result = eval_fn_call(t, depth + 1);    break;
     case T_FN_DEF:     result = eval_fn_def(t, depth + 1);     break;
     case T_DECL:       result = eval_decl(t, depth + 1);       break;
+    case T_INTEGER:    result = eval_integer(t, depth + 1);    break;
+#define DEFCTYPE(TNAME, DESC, CTYPE)                                    \
+    case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
+#include "ctypes.def"
+#undef DEFCTYPE
     default:           result = NULL;                          break;
     }
 
