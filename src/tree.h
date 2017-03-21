@@ -50,10 +50,22 @@ union value {
     #undef DEFCTYPE
 };
 
+typedef struct {
+    struct identifier *id;
+    tree t;
+    list mappings;
+} identifier_mapping;
+
 struct live_var {
     tree type;
     union value val;
 };
+
+typedef struct eval_ctx {
+    identifier_mapping id_map;
+    tree parent_ctx;
+    const char *name;
+} eval_ctx;
 
 union tree_data {
     /* T_INTEGER */
@@ -81,6 +93,9 @@ union tree_data {
 
     /* T_LIVE_VAR */
     struct live_var var;
+
+    /* E_CTX */
+    struct eval_ctx ectx;
 };
 
 struct tree {

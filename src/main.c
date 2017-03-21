@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
     top_of_stack = &top;
 
     identifier_init();
+    eval_init();
 
     if (argc == 1)
         bic_repl();

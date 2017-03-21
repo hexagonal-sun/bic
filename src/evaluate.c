@@ -5,55 +5,47 @@
 
 #include "evaluate.h"
 
-static eval_ctx toplevel_ctx = {
-    .parent = NULL,
-    .name = "top-level",
-    .id_map = {
-        .mappings = LIST_INIT(toplevel_ctx.id_map.mappings)
-    }
-};
+static tree cur_ctx = NULL;
 
 static tree __evaluate_1(tree t, int depth);
 static tree __evaluate(tree t, int depth);
 
-static eval_ctx *cur_ctx = &toplevel_ctx;
-
 /* Context management functions. */
 static void pop_ctx(void)
 {
-    if (!cur_ctx->parent) {
+    if (!cur_ctx->data.ectx.parent_ctx) {
         /* We attempted to pop off the top-level context.  This is a
          * serious error. */
         fprintf(stderr, "Error: attempted to pop top-level context\n");
         exit(EXIT_FAILURE);
     }
 
-    cur_ctx = cur_ctx->parent;
+    cur_ctx = cur_ctx->data.ectx.parent_ctx;
 }
 
 static void push_ctx(const char *name)
 {
-    eval_ctx *new_ctx = malloc(sizeof(*new_ctx));
+    tree new_ctx = tree_make(E_CTX);
 
     if (!new_ctx) {
         perror("Error creating new context");
         exit(EXIT_FAILURE);
     }
 
-    new_ctx->parent = cur_ctx;
-    new_ctx->name = name;
+    new_ctx->data.ectx.parent_ctx = cur_ctx;
+    new_ctx->data.ectx.name = name;
 
-    INIT_LIST(&new_ctx->id_map.mappings);
+    INIT_LIST(&new_ctx->data.ectx.id_map.mappings);
 
     cur_ctx = new_ctx;
 }
 
-static void __ctx_backtrace(eval_ctx *ctx, int depth)
+static void __ctx_backtrace(tree ctx, int depth)
 {
-    if (ctx->parent)
-        __ctx_backtrace(ctx->parent, depth + 1);
+    if (ctx->data.ectx.parent_ctx)
+        __ctx_backtrace(ctx->data.ectx.parent_ctx, depth + 1);
 
-    fprintf(stderr, "%2d: %s\n", depth, ctx->name);
+    fprintf(stderr, "%2d: %s\n", depth, ctx->data.ectx.name);
 }
 
 static void ctx_backtrace(void)
@@ -75,11 +67,11 @@ static void eval_die(const char *format, ...)
 }
 
 static tree resolve_identifier(struct identifier *id,
-                               eval_ctx *ctx)
+                               tree ctx)
 {
     identifier_mapping *i;
 
-    list_for_each(i, &ctx->id_map.mappings, mappings) {
+    list_for_each(i, &ctx->data.ectx.id_map.mappings, mappings) {
         if (i->id == id)
             return i->t;
     }
@@ -100,14 +92,14 @@ static void map_identifier(struct identifier *id, tree t)
     new_map->id = id;
     new_map->t = t;
 
-    list_add(&new_map->mappings, &cur_ctx->id_map.mappings);
+    list_add(&new_map->mappings, &cur_ctx->data.ectx.id_map.mappings);
 }
 
 static tree eval_identifier(tree t, int depth)
 {
     /* Search through the identifier mappings of the current context
      * stack to find the appropriate object. */
-    eval_ctx *search_ctx = cur_ctx;
+    tree search_ctx = cur_ctx;
     struct identifier *id = t->data.id;
 
     while (search_ctx) {
@@ -116,7 +108,7 @@ static tree eval_identifier(tree t, int depth)
         if (search_result)
             return search_result;
 
-        search_ctx = search_ctx->parent;
+        search_ctx = search_ctx->data.ectx.parent_ctx;
     }
 
     eval_die("Error: could not resolve identifier %s. Stopping.\n",
@@ -232,4 +224,9 @@ static tree __evaluate(tree head, int depth)
 void evaluate(tree t)
 {
     __evaluate(t, 0);
+}
+
+void eval_init(void)
+{
+    push_ctx("Toplevel");
 }
