@@ -174,7 +174,7 @@ static tree assign_integer(tree var, tree integer)
 {
     signed long int val = mpz_get_si(integer->data.integer);
     switch (var->data.var.type->type) {
-        #define DEFCTYPE(TNAME, DESC, CTYPE)             \
+        #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)        \
             case TNAME:                                  \
                 var->data.var.val.TNAME = (CTYPE)val;    \
                 break;
@@ -202,7 +202,7 @@ static tree eval_assign(tree t, int depth)
 }
 
 /* All types evaluate to themselves. */
-#define DEFCTYPE(TNAME, DESC, CTYPE)            \
+#define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
     static tree eval_##TNAME(tree t, int depth) \
     {                                           \
         return t;                               \
@@ -231,7 +231,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_DECL:       result = eval_decl(t, depth + 1);       break;
     case T_ASSIGN:     result = eval_assign(t, depth + 1);     break;
     case T_INTEGER:    result = eval_integer(t, depth + 1);    break;
-#define DEFCTYPE(TNAME, DESC, CTYPE)                                    \
+#define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
 #undef DEFCTYPE

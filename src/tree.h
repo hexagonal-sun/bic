@@ -11,7 +11,7 @@ enum tree_type {
     #define DEFTYPE(TNAME, DESC) TNAME ,
     #include "tree.def"
     #undef DEFTYPE
-    #define DEFCTYPE(TNAME, DESC, STDINTSZ) TNAME ,
+    #define DEFCTYPE(TNAME, DESC, STDINTSZ, FMT) TNAME ,
     #include "ctypes.def"
     #undef DEFCTYPE
 };
@@ -50,7 +50,7 @@ struct function_call {
 };
 
 union value {
-    #define DEFCTYPE(TNAME, DESC, STDINTSZ)     \
+    #define DEFCTYPE(TNAME, DESC, STDINTSZ, FMT) \
         STDINTSZ TNAME;
     #include "ctypes.def"
     #undef DEFCTYPE
