@@ -269,6 +269,54 @@ static tree eval_post_dec(tree t, int depth)
     return ret;
 }
 
+static tree eval_add(tree t, int depth)
+{
+    tree left = __evaluate_1(t->data.bin.left, depth + 1);
+    tree right = __evaluate_1(t->data.bin.right, depth + 1);
+
+    tree ret = tree_make(T_INTEGER);
+    mpz_init(ret->data.integer);
+
+    /* Resolve all identifiers. */
+    if (is_T_LIVE_VAR(left))
+        left = make_int_from_live_var(left);
+
+    if (is_T_LIVE_VAR(right))
+        right = make_int_from_live_var(right);
+
+    if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
+        eval_die("Error: could not add to non integer type\n");
+
+    mpz_add(ret->data.integer, left->data.integer,
+            right->data.integer);
+
+    return ret;
+}
+
+static tree eval_sub(tree t, int depth)
+{
+    tree left = __evaluate_1(t->data.bin.left, depth + 1);
+    tree right = __evaluate_1(t->data.bin.right, depth + 1);
+
+
+    tree ret = tree_make(T_INTEGER);
+    mpz_init(ret->data.integer);
+
+    if (is_T_LIVE_VAR(left))
+        left = make_int_from_live_var(left);
+
+    if (is_T_LIVE_VAR(right))
+        right = make_int_from_live_var(right);
+
+    if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
+        eval_die("Error: could not subtract to non integer type\n");
+
+    mpz_sub(ret->data.integer, left->data.integer,
+            right->data.integer);
+
+    return ret;
+}
+
 /* All types evaluate to themselves. */
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
     static tree eval_##TNAME(tree t, int depth) \
@@ -301,6 +349,8 @@ static tree __evaluate_1(tree t, int depth)
     case T_INTEGER:    result = eval_integer(t, depth + 1);    break;
     case T_P_INC:      result = eval_post_inc(t, depth + 1);   break;
     case T_P_DEC:      result = eval_post_dec(t, depth + 1);   break;
+    case T_ADD:        result = eval_add(t, depth + 1);        break;
+    case T_SUB:        result = eval_sub(t, depth + 1);        break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
