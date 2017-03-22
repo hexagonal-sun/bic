@@ -6,7 +6,7 @@
 extern tree *top_of_stack;
 
 #define GC_TREE_DECL(name)                                      \
-    static volatile tree *__tree_##name                         \
+    volatile tree *__tree_##name                                \
     __attribute__((__section__("static_trees"))) = &(name);
 
 /* Return an uninitialised tree object that will be tracked through
