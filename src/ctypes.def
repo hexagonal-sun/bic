@@ -1,12 +1,12 @@
 /* Declation type tree types */
 
 DEFCTYPE(D_T_CHAR, "Signed Char type", int8_t)
-DEFCTYPE(D_T_UCHAR, "Unsigned Char type", uint8_t)
 DEFCTYPE(D_T_SHORT, "Signed Short type", int16_t)
-DEFCTYPE(D_T_USHORT, "Unsigned Short type", uint16_t)
 DEFCTYPE(D_T_INT, "Signed Integer type", int32_t)
-DEFCTYPE(D_T_UINT, "Unsigned Integer type", uint32_t)
 DEFCTYPE(D_T_LONG, "Signed Long type", int64_t)
-DEFCTYPE(D_T_ULONG, "Unsigned Long type", uint64_t)
 DEFCTYPE(D_T_LONGLONG, "Signed Long Long type", int64_t)
+DEFCTYPE(D_T_UCHAR, "Unsigned Char type", uint8_t)
+DEFCTYPE(D_T_USHORT, "Signed Short type", int16_t)
+DEFCTYPE(D_T_UINT, "Unsigned Integer type", uint32_t)
+DEFCTYPE(D_T_ULONG, "Unsigned Long type", uint64_t)
 DEFCTYPE(D_T_ULONGLONG, "Unsigned Long Long type", uint64_t)
