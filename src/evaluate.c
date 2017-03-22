@@ -51,12 +51,12 @@ static void ctx_backtrace(void)
 
 static void eval_die(const char *format, ...)
 {
-    ctx_backtrace();
-
     va_list args;
     va_start(args, format);
     vfprintf(stderr, format, args);
     va_end(args);
+
+    ctx_backtrace();
 
     exit(EXIT_FAILURE);
 }
