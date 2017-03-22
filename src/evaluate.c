@@ -43,18 +43,10 @@ static void push_ctx(const char *name)
     cur_ctx = new_ctx;
 }
 
-static void __ctx_backtrace(tree ctx, int depth)
-{
-    if (ctx->data.ectx.parent_ctx)
-        __ctx_backtrace(ctx->data.ectx.parent_ctx, depth + 1);
-
-    fprintf(stderr, "%2d: %s\n", depth, ctx->data.ectx.name);
-}
-
 static void ctx_backtrace(void)
 {
     fprintf(stderr, "Evaluator Backtrace\n===================\n");
-    __ctx_backtrace(cur_ctx, 0);
+    tree_dump(cur_ctx);
 }
 
 static void eval_die(const char *format, ...)
