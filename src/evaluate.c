@@ -170,6 +170,37 @@ static tree eval_decl(tree t, int depth)
     return NULL;
 }
 
+static tree assign_integer(tree var, tree integer)
+{
+    signed long int val = mpz_get_si(integer->data.integer);
+    switch (var->data.var.type->type) {
+        #define DEFCTYPE(TNAME, DESC, CTYPE)             \
+            case TNAME:                                  \
+                var->data.var.val.TNAME = (CTYPE)val;    \
+                break;
+        #include "ctypes.def"
+        #undef DEFCTYPE
+    default:
+        eval_die("Error: could not assign to non-integer type");
+    }
+}
+
+static tree eval_assign(tree t, int depth)
+{
+    tree left = __evaluate_1(t->data.bin.left, depth + 1);
+    tree right = __evaluate_1(t->data.bin.right, depth + 1);
+
+    /* Ensure we have a valid lvalue. */
+    if (!is_T_LIVE_VAR(left))
+        eval_die("Error: not a valid lvalue.\n");
+
+    switch (right->type) {
+    case T_INTEGER:
+        assign_integer(left, right);
+        break;
+    }
+}
+
 /* All types evaluate to themselves. */
 #define DEFCTYPE(TNAME, DESC, CTYPE)            \
     static tree eval_##TNAME(tree t, int depth) \
@@ -198,6 +229,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_FN_CALL:    result = eval_fn_call(t, depth + 1);    break;
     case T_FN_DEF:     result = eval_fn_def(t, depth + 1);     break;
     case T_DECL:       result = eval_decl(t, depth + 1);       break;
+    case T_ASSIGN:     result = eval_assign(t, depth + 1);     break;
     case T_INTEGER:    result = eval_integer(t, depth + 1);    break;
 #define DEFCTYPE(TNAME, DESC, CTYPE)                                    \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
