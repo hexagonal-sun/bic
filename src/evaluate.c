@@ -193,6 +193,82 @@ static tree eval_assign(tree t, int depth)
     }
 }
 
+static tree make_int_from_live_var(tree var)
+{
+    tree ret = tree_make(T_INTEGER);
+    tree type = var->data.var.type;
+
+    switch (type->type) {
+    case D_T_CHAR ... D_T_LONGLONG:
+        /* Signed Types */
+        mpz_init_set_si(ret->data.integer, var->data.var.val.D_T_LONGLONG);
+        break;
+    case D_T_UCHAR ... D_T_ULONGLONG:
+        mpz_init_set_ui(ret->data.integer, var->data.var.val.D_T_ULONGLONG);
+        break;
+    default:
+        eval_die("error: could not create integer type from live var.");
+    }
+
+    return ret;
+}
+
+static void live_var_add(tree var, unsigned long int val)
+{
+    tree type = var->data.var.type;
+    switch (type->type) {
+#define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
+        case TNAME:                                     \
+            var->data.var.val.TNAME += val;             \
+            break;
+#include "ctypes.def"
+#undef DEFCTYPE
+    default:
+        eval_die("Error: Could not add to unknown live var type.");
+    }
+}
+
+static void live_var_sub(tree var, unsigned long int val)
+{
+    tree type = var->data.var.type;
+    switch (type->type) {
+#define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
+        case TNAME:                                     \
+            var->data.var.val.TNAME -= val;             \
+            break;
+#include "ctypes.def"
+#undef DEFCTYPE
+    default:
+        eval_die("Error: Could not subtract to unknown live var type.");
+    }
+}
+
+static tree eval_post_inc(tree t, int depth)
+{
+    tree ret;
+    tree exp = __evaluate_1(t->data.exp, depth + 1);
+    if (!is_T_LIVE_VAR(exp))
+        eval_die("Error: not a valid lvalue.\n");
+
+    ret = make_int_from_live_var(exp);
+
+    live_var_add(exp, 1);
+
+    return ret;
+}
+
+static tree eval_post_dec(tree t, int depth)
+{
+    tree ret;
+    tree exp = __evaluate_1(t->data.exp, depth + 1);
+    if (!is_T_LIVE_VAR(exp))
+        eval_die("Error: not a valid lvalue.\n");
+
+    ret = make_int_from_live_var(exp);
+    live_var_sub(exp, 1);
+    return ret;
+}
+
 /* All types evaluate to themselves. */
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
     static tree eval_##TNAME(tree t, int depth) \
@@ -223,6 +299,8 @@ static tree __evaluate_1(tree t, int depth)
     case T_DECL:       result = eval_decl(t, depth + 1);       break;
     case T_ASSIGN:     result = eval_assign(t, depth + 1);     break;
     case T_INTEGER:    result = eval_integer(t, depth + 1);    break;
+    case T_P_INC:      result = eval_post_inc(t, depth + 1);   break;
+    case T_P_DEC:      result = eval_post_dec(t, depth + 1);   break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
