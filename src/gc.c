@@ -61,6 +61,10 @@ static void mark_tree(tree t)
                 for_each_tree(i, t)
                     mark_tree(i);
             }
+            break;
+    case E_CTX:
+        mark_tree(t->data.ectx.parent_ctx);
+        break;
     }
 }
 

@@ -4,8 +4,10 @@
 #include <stdarg.h>
 
 #include "evaluate.h"
+#include "gc.h"
 
 static tree cur_ctx = NULL;
+GC_TREE_DECL(cur_ctx);
 
 static tree __evaluate_1(tree t, int depth);
 static tree __evaluate(tree t, int depth);
