@@ -138,6 +138,59 @@ static void tree_dump_type(tree t, int depth)
     eprintf(" TYPE");
 }
 
+static void tree_dump_eval_ctx(tree t, int depth)
+{
+    identifier_mapping *i;
+
+    /* Since the top-level context will contain all top-level
+     * declarations, we supress output of that context. */
+    if (!t->data.ectx.parent_ctx) {
+        eprintf(" (Top level output suppressed)");
+        return;
+    }
+
+    eprintf(" name %s\n", t->data.ectx.name);
+    tree_print_indent(depth);
+    eprintf(" mapping(s):\n");
+    list_for_each(i, &t->data.ectx.id_map.mappings, mappings) {
+        tree_print_indent(depth + 1);
+        eprintf("<mapping, identifier:\n");
+        __tree_dump(i->id, depth + 2);
+        tree_print_indent(depth + 1);
+        eprintf(" var:\n");
+        __tree_dump(i->t, depth + 2);
+        tree_print_indent(depth + 1);
+        eprintf(">\n");
+    }
+    tree_print_indent(depth);
+    eprintf(" parent(s):\n");
+    __tree_dump(t->data.ectx.parent_ctx, depth + 1);
+    tree_print_indent(depth);
+}
+
+static void tree_dump_live_var(tree t, int depth)
+{
+    tree type = t->data.var.type;
+
+    eprintf("\n");
+    tree_print_indent(depth);
+    eprintf(" type:\n");
+    __tree_dump(t->data.var.type, depth + 1);
+    tree_print_indent(depth);
+    eprintf(" val: ");
+
+    switch (type->type) {
+#define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
+        case TNAME:                                     \
+            eprintf("%" #FMT, t->data.var.val.TNAME);  \
+            break;
+#include "ctypes.def"
+#undef DEFCTYPE
+    }
+    eprintf("\n");
+    tree_print_indent(depth);
+}
+
 void __tree_dump_1(tree t, int depth)
 {
     tree_print_indent(depth);
@@ -186,6 +239,11 @@ void __tree_dump_1(tree t, int depth)
     case D_T_INT:
         tree_dump_type(t,  depth);
         break;
+    case E_CTX:
+        tree_dump_eval_ctx(t, depth);
+        break;
+    case T_LIVE_VAR:
+        tree_dump_live_var(t, depth);
     }
     eprintf(">\n");
 }
