@@ -152,9 +152,7 @@ primary_expression
 }
 | IDENTIFIER
 {
-    tree identifier = tree_make(T_IDENTIFIER);
-    identifier->data.id = get_identifier($1);
-    $$ = identifier;
+    $$ = get_identifier($1);
 }
 
 postfix_expression
@@ -253,9 +251,7 @@ assignment_expression
 decl
 : IDENTIFIER
 {
-    tree identifier = tree_make(T_IDENTIFIER);
-    identifier->data.id = get_identifier($1);
-    $$ = identifier;
+    $$ = get_identifier($1);
 }
 ;
 

@@ -41,9 +41,11 @@ static void mark_tree(tree t)
         mark_tree(t->data.decl.decls);
         break;
     case T_DECL_STRUCT:
+        mark_tree(t->data.structure.id);
         mark_tree(t->data.structure.decls);
         break;
     case T_FN_DEF:
+        mark_tree(t->data.function.id);
         mark_tree(t->data.function.return_type);
         mark_tree(t->data.function.arguments);
         mark_tree(t->data.function.stmts);
@@ -99,6 +101,22 @@ static void mark_static(void)
         mark_tree(**i);
 }
 
+static void dealloc_tree(tree t)
+{
+    switch (t->type)
+    {
+    case T_INTEGER:
+        mpz_clear(t->data.integer);
+        break;
+    case T_IDENTIFIER:
+        free(t->data.id.name);
+        break;
+    }
+
+    list_del(&t->alloc);
+    free (t);
+}
+
 static void sweep(void)
 {
     list *i, *n;
@@ -106,16 +124,8 @@ static void sweep(void)
     list_for_each_safe(i, n, &all_trees) {
         tree t = list_entry(i, typeof(*t), alloc);
 
-        if (!t->reachable) {
-            switch(t->type) {
-            case T_INTEGER:
-                mpz_clear(t->data.integer);
-                break;
-            }
-
-            list_del(&t->alloc);
-            free(t);
-        }
+        if (!t->reachable)
+            dealloc_tree(t);
     }
 }
 

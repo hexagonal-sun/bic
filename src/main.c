@@ -2,7 +2,6 @@
 #include "tree.h"
 #include "parser.h"
 #include "lex.h"
-#include "identifier.h"
 #include "evaluate.h"
 #include "gc.h"
 #include <stdio.h>
@@ -73,12 +72,9 @@ static int parse_file(char *fname)
 
 static void add_call_to_main(tree head)
 {
-    tree main_id = tree_make(T_IDENTIFIER);
     tree main_fncall = tree_make(T_FN_CALL);
 
-    main_id->data.id = get_identifier("main");
-
-    main_fncall->data.fncall.identifier = main_id;
+    main_fncall->data.fncall.identifier = get_identifier("main");
     main_fncall->data.fncall.arguments = NULL;
 
     tree_chain(main_fncall, head);
@@ -91,7 +87,6 @@ int main(int argc, char *argv[])
 
     top_of_stack = &top;
 
-    identifier_init();
     eval_init();
 
     if (argc == 1)

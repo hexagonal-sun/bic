@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "tree.h"
-#include "identifier.h"
 #include "gc.h"
 
 #define eprintf(args...) fprintf (stderr, args)
@@ -11,6 +10,13 @@ tree tree_make(enum tree_type type)
     tree ret = alloc_tree();
     ret->type = type;
     INIT_LIST(&ret->chain);
+    return ret;
+}
+
+tree get_identifier(char *name)
+{
+    tree ret = tree_make(T_IDENTIFIER);
+    ret->data.id.name = name;
     return ret;
 }
 
@@ -64,12 +70,6 @@ static void tree_dump_single_exp(tree t, int depth)
     __tree_dump(t->data.exp, depth + 1);
 }
 
-static void tree_dump_identifier(identifier *id, int depth)
-{
-    tree_print_indent(depth);
-    eprintf("<identifier at %p, name: %s>\n", id, id->name);
-}
-
 static void tree_dump_binary(tree t, int depth)
 {
     eprintf(" left:\n");
@@ -94,7 +94,7 @@ static void tree_dump_decl(tree t, int depth)
 
 static void tree_dump_function(tree t, int depth)
 {
-    eprintf(" name: %s\n", t->data.function.id->name);
+    eprintf(" name: %s\n", t->data.function.id->data.id.name);
     tree_print_indent(depth);
 
     eprintf(" Return Type:\n");
@@ -126,7 +126,7 @@ static void tree_dump_fncall(tree t, int depth)
 
 static void tree_dump_struct(tree t, int depth)
 {
-    eprintf(" name: %s\n", t->data.structure.id->name);
+    eprintf(" name: %s\n", t->data.structure.id->data.id.name);
     tree_print_indent(depth);
     eprintf(" decl(s):\n");
     __tree_dump(t->data.structure.decls, depth + 1);
@@ -161,9 +161,7 @@ void __tree_dump_1(tree t, int depth)
         tree_dump_single_exp(t,  depth);
         break;
     case T_IDENTIFIER:
-        eprintf(" id:\n");
-        tree_dump_identifier(t->data.id, depth + 1);
-        tree_print_indent(depth);
+        eprintf(" name %s", t->data.id.name);
         break;
     case T_MUL:
     case T_DIV:

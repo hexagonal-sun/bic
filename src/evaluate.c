@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdarg.h>
+#include <string.h>
 
 #include "evaluate.h"
 #include "gc.h"
@@ -68,26 +69,25 @@ static void eval_die(const char *format, ...)
     exit(EXIT_FAILURE);
 }
 
-static tree resolve_identifier(struct identifier *id,
-                               tree ctx)
+static tree resolve_identifier(tree id, tree ctx)
 {
     identifier_mapping *i;
 
     list_for_each(i, &ctx->data.ectx.id_map.mappings, mappings) {
-        if (i->id == id)
+        if (strcmp(i->id->data.id.name, id->data.id.name) == 0)
             return i->t;
     }
 
     return NULL;
 }
 
-static void map_identifier(struct identifier *id, tree t)
+static void map_identifier(tree id, tree t)
 {
     identifier_mapping *new_map;
 
     if (resolve_identifier(id, cur_ctx))
         eval_die("Error: attempted to map already existing identifier %s. Stopping.\n",
-                id->name);
+                id->data.id.name);
 
     new_map = malloc(sizeof(*new_map));
 
@@ -102,10 +102,9 @@ static tree eval_identifier(tree t, int depth)
     /* Search through the identifier mappings of the current context
      * stack to find the appropriate object. */
     tree search_ctx = cur_ctx;
-    struct identifier *id = t->data.id;
 
     while (search_ctx) {
-        tree search_result = resolve_identifier(id, search_ctx);
+        tree search_result = resolve_identifier(t, search_ctx);
 
         if (search_result)
             return search_result;
@@ -114,7 +113,7 @@ static tree eval_identifier(tree t, int depth)
     }
 
     eval_die("Error: could not resolve identifier %s. Stopping.\n",
-            id->name);
+            t->data.id.name);
 }
 
 static tree eval_fn_call(tree t, int depth)
@@ -136,7 +135,7 @@ static tree eval_fn_call(tree t, int depth)
     tree function = __evaluate_1(t->data.fncall.identifier, depth + 1);
 
     if (is_T_FN_DEF(function)) {
-        push_ctx(function->data.function.id->name);
+        push_ctx(function->data.function.id->data.id.name);
 
         /* TODO: argument evaluation. */
         __evaluate(function->data.function.stmts, depth + 1);
@@ -156,7 +155,7 @@ static void make_and_map_live_var(tree id, tree type)
 
     live_var->data.var.type = type;
 
-    map_identifier(id->data.id, live_var);
+    map_identifier(id, live_var);
 }
 
 static tree eval_decl(tree t, int depth)

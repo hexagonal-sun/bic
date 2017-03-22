@@ -3,7 +3,7 @@
 
 #include <gmp.h>
 #include <stdint.h>
-#include "identifier.h"
+#include "list.h"
 
 typedef struct tree *tree;
 
@@ -26,13 +26,19 @@ struct declaration {
     tree decls;
 };
 
+typedef struct identifier identifier;
+
+struct identifier {
+    char *name;
+};
+
 struct struct_data {
-    identifier *id;
+    tree id;
     tree decls;
 };
 
 struct function_data {
-    identifier *id;
+    tree id;
     tree return_type;
     tree arguments;
     tree stmts;
@@ -51,7 +57,7 @@ union value {
 };
 
 typedef struct {
-    struct identifier *id;
+    tree id;
     tree t;
     list mappings;
 } identifier_mapping;
@@ -75,7 +81,7 @@ union tree_data {
     tree exp;
 
     /* T_IDENTIFIER */
-    identifier *id;
+    identifier id;
 
     /* T_MULTIPLY */
     struct binary_exp bin;
@@ -109,6 +115,7 @@ struct tree {
 };
 
 tree tree_make(enum tree_type);
+tree get_identifier(char *name);
 
 static inline tree tree_chain_head(tree head)
 {
