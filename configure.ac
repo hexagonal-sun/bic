@@ -5,6 +5,7 @@ AC_PREREQ([2.69])
 AC_INIT([bic], [v0.9], [dev@mattleach.net])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
+AC_CANONICAL_BUILD
 
 AM_INIT_AUTOMAKE([foreign])
 AM_SILENT_RULES([yes])
@@ -45,6 +46,21 @@ BIC_PROMPT="BIC> "
 AC_DEFINE_UNQUOTED([BIC_PROMPT], ["$BIC_PROMPT"],
                         [Interactive prompt for BIC])
 AC_SUBST([BIC_PROMPT])
+
+
+case "${build_os}" in
+     linux*)
+        AC_DEFINE([BUILD_LINUX], [1],
+                  [bic is to be built for the Linux OS])
+        ;;
+     darwin*)
+        AC_DEFINE([BUILD_DARWIN], [1],
+                  [bic is to be built for the Darwin OS])
+        ;;
+     *)
+        AC_MSG_ERROR(["OS ${build_os} not supported"])
+        ;;
+esac
 
 # Checks for library functions.
 AC_FUNC_MALLOC
