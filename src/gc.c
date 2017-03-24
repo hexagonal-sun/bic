@@ -91,8 +91,15 @@ static void mark_stack(void)
     }
 }
 
+#if defined(BUILD_LINUX)
 extern tree *__start_static_trees;
 extern tree *__stop_static_trees;
+#elif defined(BUILD_DARWIN)
+extern tree *__start_static_trees __asm("section$start$__DATA$static_trees");
+extern tree *__stop_static_trees __asm("section$end$__DATA$static_trees");
+#else
+#error "Unknown build OS"
+#endif
 
 static void mark_static(void)
 {
