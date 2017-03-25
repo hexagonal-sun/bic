@@ -49,7 +49,7 @@ static void ctx_backtrace(void)
     tree_dump(cur_ctx);
 }
 
-static void eval_die(const char *format, ...)
+static void __attribute__((noreturn)) eval_die(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
