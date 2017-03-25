@@ -76,6 +76,10 @@ static void mark_tree(tree t)
             mark_tree(t->data.ectx.parent_ctx);
         }
         break;
+    default:
+        /* All other types don't need to recurse as they don't contain
+         * any other objects. */
+        break;
     }
 }
 
@@ -126,6 +130,10 @@ static void dealloc_tree(tree t)
         break;
     case T_IDENTIFIER:
         free(t->data.id.name);
+        break;
+    default:
+        /* All other types don't contain any other referencies to
+         * dynamic memory. */
         break;
     }
 
