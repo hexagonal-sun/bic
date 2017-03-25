@@ -20,6 +20,7 @@ char *cmdline = NULL;
 
 
 extern FILE* yyin;
+extern int yyparse();
 
 tree parse_head;
 GC_TREE_DECL(parse_head);
