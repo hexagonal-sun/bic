@@ -341,6 +341,30 @@ static tree eval_mul(tree t, int depth)
     return ret;
 }
 
+static tree eval_div(tree t, int depth)
+{
+    tree left = __evaluate_1(t->data.bin.left, depth + 1);
+    tree right = __evaluate_1(t->data.bin.right, depth + 1);
+
+
+    tree ret = tree_make(T_INTEGER);
+    mpz_init(ret->data.integer);
+
+    if (is_T_LIVE_VAR(left))
+        left = make_int_from_live_var(left);
+
+    if (is_T_LIVE_VAR(right))
+        right = make_int_from_live_var(right);
+
+    if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
+        eval_die("Error: could not subtract to non integer type\n");
+
+    mpz_div(ret->data.integer, left->data.integer,
+            right->data.integer);
+
+    return ret;
+}
+
 /* All types evaluate to themselves. */
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
     static tree eval_##TNAME(tree t, int depth) \
@@ -376,6 +400,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_ADD:        result = eval_add(t, depth + 1);        break;
     case T_SUB:        result = eval_sub(t, depth + 1);        break;
     case T_MUL:        result = eval_mul(t, depth + 1);        break;
+    case T_DIV:        result = eval_div(t, depth + 1);        break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
