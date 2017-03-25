@@ -132,11 +132,15 @@ static tree eval_fn_call(tree t, int depth)
         /* TODO: argument evaluation. */
         __evaluate(function->data.function.stmts, depth + 1);
     }
+
+    return NULL;
 }
 
 static tree eval_fn_def(tree t, int depth)
 {
     map_identifier(t->data.function.id, t);
+
+    return NULL;
 }
 
 static void make_and_map_live_var(tree id, tree type)
@@ -162,7 +166,7 @@ static tree eval_decl(tree t, int depth)
     return NULL;
 }
 
-static tree assign_integer(tree var, tree integer)
+static void assign_integer(tree var, tree integer)
 {
     signed long int val = mpz_get_si(integer->data.integer);
     switch (var->data.var.type->type) {
@@ -191,6 +195,8 @@ static tree eval_assign(tree t, int depth)
         assign_integer(left, right);
         break;
     }
+
+    return NULL;
 }
 
 static tree make_int_from_live_var(tree var)
