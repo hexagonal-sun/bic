@@ -186,6 +186,9 @@ static void tree_dump_live_var(tree t, int depth)
             break;
 #include "ctypes.def"
 #undef DEFCTYPE
+    default:
+        eprintf("<Unprintable>");
+        break;
     }
     eprintf("\n");
     tree_print_indent(depth);
