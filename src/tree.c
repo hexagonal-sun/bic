@@ -251,6 +251,8 @@ void __tree_dump_1(tree t, int depth)
         break;
 #include "ctypes.def"
 #undef DEFCTYPE
+    case CHAIN_HEAD:
+        break;
     }
     eprintf(">\n");
 }
