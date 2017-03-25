@@ -65,7 +65,16 @@ static void mark_tree(tree t)
             }
             break;
     case E_CTX:
-        mark_tree(t->data.ectx.parent_ctx);
+        {
+            identifier_mapping *i;
+
+            list_for_each(i, &t->data.ectx.id_map.mappings, mappings) {
+                mark_tree(i->id);
+                mark_tree(i->t);
+            }
+
+            mark_tree(t->data.ectx.parent_ctx);
+        }
         break;
     }
 }
