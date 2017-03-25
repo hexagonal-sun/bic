@@ -236,14 +236,18 @@ void __tree_dump_1(tree t, int depth)
     case T_FN_CALL:
         tree_dump_fncall(t,  depth);
         break;
-    case D_T_INT:
-        tree_dump_type(t,  depth);
-        break;
     case E_CTX:
         tree_dump_eval_ctx(t, depth);
         break;
     case T_LIVE_VAR:
         tree_dump_live_var(t, depth);
+        break;
+#define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
+    case TNAME:                             \
+        tree_dump_type(t, depth);           \
+        break;
+#include "ctypes.def"
+#undef DEFCTYPE
     }
     eprintf(">\n");
 }
