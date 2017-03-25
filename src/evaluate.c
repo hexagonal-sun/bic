@@ -194,6 +194,8 @@ static tree eval_assign(tree t, int depth)
     case T_INTEGER:
         assign_integer(left, right);
         break;
+    default:
+        eval_die("Error: unknown assignment rvalue type.");
     }
 
     return NULL;
