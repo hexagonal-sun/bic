@@ -167,4 +167,18 @@ void tree_dump(tree tree);
 #include "tree.def"
 #undef DEFTYPE
 
+#define DEFCTYPE(ETYPE, DESC, FMT, CTYPE)       \
+    static inline int is_##ETYPE (tree t)       \
+    {                                           \
+        if (!t)                                 \
+            return 0;                           \
+                                                \
+        if (t->type == ETYPE)                   \
+            return 1;                           \
+        else                                    \
+            return 0;                           \
+    }
+#include "ctypes.def"
+#undef DEFCTYPE
+
 #endif
