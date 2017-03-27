@@ -136,6 +136,9 @@ static void dealloc_tree(tree t)
     case T_IDENTIFIER:
         free(t->data.id.name);
         break;
+    case T_STRING:
+        free(t->data.string);
+        break;
     default:
         /* All other types don't contain any other referencies to
          * dynamic memory. */

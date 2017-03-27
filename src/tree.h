@@ -86,6 +86,9 @@ union tree_data {
     /* T_INTEGER */
     mpz_t integer;
 
+    /* T_STRING */
+    char *string;
+
     /* T_P_INC, T_P_DEC, T_INC, T_DEC */
     tree exp;
 
