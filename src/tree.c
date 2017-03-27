@@ -271,8 +271,11 @@ static void __tree_dump(tree head, int depth)
 {
     tree i;
 
-    if (!head)
+    if (!head) {
+        tree_print_indent(depth);
+        eprintf("<null>\n");
         return;
+    }
 
     if (is_CHAIN_HEAD(head)) {
         tree_print_indent(depth);
