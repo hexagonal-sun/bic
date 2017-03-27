@@ -36,6 +36,9 @@ static void mark_tree(tree t)
         mark_tree(t->data.bin.left);
         mark_tree(t->data.bin.right);
         break;
+    case T_POINTER:
+        mark_tree(t->data.ptr.id);
+        break;
     case T_DECL:
         mark_tree(t->data.decl.type);
         mark_tree(t->data.decl.decls);

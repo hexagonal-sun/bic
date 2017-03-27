@@ -80,6 +80,13 @@ static void tree_dump_binary(tree t, int depth)
     tree_print_indent(depth);
 }
 
+static void tree_dump_ptr(tree t, int depth)
+{
+    eprintf(" id:\n");
+    __tree_dump(t->data.ptr.id, depth + 1);
+    tree_print_indent(depth);
+}
+
 static void tree_dump_decl(tree t, int depth)
 {
     eprintf("\n");
@@ -226,6 +233,9 @@ void __tree_dump_1(tree t, int depth)
     case T_SUB:
     case T_ASSIGN:
         tree_dump_binary(t,  depth);
+        break;
+    case T_POINTER:
+        tree_dump_ptr(t, depth);
         break;
     case T_DECL:
         tree_dump_decl(t,  depth);

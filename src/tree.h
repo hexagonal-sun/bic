@@ -62,6 +62,10 @@ typedef struct {
     list mappings;
 } identifier_mapping;
 
+struct pointer {
+    tree id;
+};
+
 struct live_var {
     tree type;
     union value val;
@@ -72,6 +76,7 @@ typedef struct eval_ctx {
     tree parent_ctx;
     const char *name;
 } eval_ctx;
+
 
 union tree_data {
     /* T_INTEGER */
@@ -87,6 +92,9 @@ union tree_data {
     struct binary_exp bin;
 
     struct declaration decl;
+
+    /* T_POINTER */
+    struct pointer ptr;
 
     /* T_STRUCT_DECL */
     struct struct_data structure;
