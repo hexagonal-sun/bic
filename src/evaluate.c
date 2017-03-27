@@ -179,9 +179,20 @@ static tree eval_decl(tree t, int depth)
     return NULL;
 }
 
-static void assign_integer(tree var, tree integer)
+static void assign_integer(tree var, tree right)
 {
-    signed long int val = mpz_get_si(integer->data.integer);
+    signed long int val;
+
+    /* Obtain the value with which to assign. */
+    switch (right->type)
+    {
+    case T_INTEGER:
+         val = mpz_get_si(right->data.integer);
+         break;
+    default:
+        eval_die("Error: unknown rvalue assignment to integer.\n");
+    }
+
     switch (var->data.var.type->type) {
         #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)        \
             case TNAME:                                  \
@@ -194,12 +205,20 @@ static void assign_integer(tree var, tree integer)
     }
 }
 
-static void assign_string(tree var, tree str)
+static void assign_ptr(tree var, tree right)
 {
-    if (!is_D_T_PTR(var->data.var.type))
-        eval_die("Error: could not assign to non-string pointer type\n");
+    void *ptr;
 
-    var->data.var.val.D_T_PTR = str->data.string;
+    switch (right->type)
+    {
+    case T_STRING:
+        ptr = right->data.string;
+        break;
+    default:
+        eval_die("Error: could not assign to non-pointer type");
+    }
+
+    var->data.var.val.D_T_PTR = ptr;
 }
 
 static tree eval_assign(tree t, int depth)
@@ -211,12 +230,12 @@ static tree eval_assign(tree t, int depth)
     if (!is_T_LIVE_VAR(left))
         eval_die("Error: not a valid lvalue.\n");
 
-    switch (right->type) {
-    case T_INTEGER:
+    switch (left->data.var.type->type) {
+    case D_T_CHAR ... D_T_ULONGLONG:
         assign_integer(left, right);
         break;
-    case T_STRING:
-        assign_string(left, right);
+    case D_T_PTR:
+        assign_ptr(left, right);
         break;
     default:
         eval_die("Error: unknown assignment rvalue type.");
