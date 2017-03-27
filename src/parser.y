@@ -253,6 +253,12 @@ decl
 {
     $$ = get_identifier($1);
 }
+| '*' IDENTIFIER
+{
+    tree ptr = tree_make(T_POINTER);
+    ptr->data.ptr.id = get_identifier($2);
+    $$ = ptr;
+}
 ;
 
 initialiser
