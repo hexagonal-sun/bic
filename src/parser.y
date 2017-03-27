@@ -34,6 +34,7 @@ extern tree parse_head;
 %token <string> IDENTIFIER
 %token <string> CONST_BITS
 %token <string> CONST_HEX
+%token <string> CONST_STRING
 %token <integer> INTEGER;
 
 %type <tree> translation_unit
