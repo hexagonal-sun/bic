@@ -87,6 +87,13 @@ static void tree_dump_ptr(tree t, int depth)
     tree_print_indent(depth);
 }
 
+static void tree_dump_ptr_type(tree t, int depth)
+{
+    eprintf(" type:\n");
+    __tree_dump(t->data.ptr_type.type, depth + 1);
+    tree_print_indent(depth);
+}
+
 static void tree_dump_decl(tree t, int depth)
 {
     eprintf("\n");
@@ -255,12 +262,12 @@ void __tree_dump_1(tree t, int depth)
     case T_LIVE_VAR:
         tree_dump_live_var(t, depth);
         break;
-#define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
-    case TNAME:                             \
-        tree_dump_type(t, depth);           \
+    case D_T_CHAR ... D_T_ULONGLONG:
+        tree_dump_type(t, depth);
         break;
-#include "ctypes.def"
-#undef DEFCTYPE
+    case D_T_PTR:
+        tree_dump_ptr_type(t, depth);
+        break;
     case CHAIN_HEAD:
         break;
     }

@@ -60,6 +60,8 @@ static void mark_tree(tree t)
     case T_LIVE_VAR:
         mark_tree(t->data.var.type);
         break;
+    case D_T_PTR:
+        mark_tree(t->data.ptr_type.type);
     case CHAIN_HEAD:
             {
                 tree i;
@@ -114,7 +116,7 @@ extern tree *__stop_static_trees;
 extern tree *__start_static_trees __asm("section$start$__DATA$static_trees");
 extern tree *__stop_static_trees __asm("section$end$__DATA$static_trees");
 #else
-#error "Unknown build OS"
+#error "build OS"
 #endif
 
 static void mark_static(void)

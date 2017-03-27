@@ -66,6 +66,10 @@ struct pointer {
     tree id;
 };
 
+struct pointer_type {
+    tree type;
+};
+
 struct live_var {
     tree type;
     union value val;
@@ -95,6 +99,9 @@ union tree_data {
 
     /* T_POINTER */
     struct pointer ptr;
+
+    /* D_T_PTR */
+    struct pointer_type ptr_type;
 
     /* T_STRUCT_DECL */
     struct struct_data structure;
