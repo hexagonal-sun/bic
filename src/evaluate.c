@@ -194,6 +194,14 @@ static void assign_integer(tree var, tree integer)
     }
 }
 
+static void assign_string(tree var, tree str)
+{
+    if (!is_D_T_PTR(var->data.var.type))
+        eval_die("Error: could not assign to non-string pointer type\n");
+
+    var->data.var.val.D_T_PTR = str->data.string;
+}
+
 static tree eval_assign(tree t, int depth)
 {
     tree left = __evaluate_1(t->data.bin.left, depth + 1);
@@ -206,6 +214,9 @@ static tree eval_assign(tree t, int depth)
     switch (right->type) {
     case T_INTEGER:
         assign_integer(left, right);
+        break;
+    case T_STRING:
+        assign_string(left, right);
         break;
     default:
         eval_die("Error: unknown assignment rvalue type.");
@@ -401,6 +412,12 @@ static tree eval_integer(tree t, int depth)
     return t;
 }
 
+static tree eval_string(tree t, int depth)
+{
+    /* A string evaluates to itself. */
+    return t;
+}
+
 static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
@@ -416,6 +433,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_DECL:       result = eval_decl(t, depth + 1);       break;
     case T_ASSIGN:     result = eval_assign(t, depth + 1);     break;
     case T_INTEGER:    result = eval_integer(t, depth + 1);    break;
+    case T_STRING:     result = eval_string(t, depth + 1);     break;
     case T_P_INC:      result = eval_post_inc(t, depth + 1);   break;
     case T_P_DEC:      result = eval_post_dec(t, depth + 1);   break;
     case T_ADD:        result = eval_add(t, depth + 1);        break;
