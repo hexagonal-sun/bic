@@ -161,7 +161,20 @@ static tree eval_decl(tree t, int depth)
         i;
 
     for_each_tree(i, decls)
-        make_and_map_live_var(i, type);
+        switch (i->type) {
+        case T_POINTER:
+        {
+            tree ptr_type = tree_make(D_T_PTR);
+            ptr_type->data.ptr_type.type = type;
+            make_and_map_live_var(i->data.ptr.id, ptr_type);
+            break;
+        }
+        case T_IDENTIFIER:
+            make_and_map_live_var(i, type);
+            break;
+        default:
+            eval_die("Error: unknown rvalue in declaration.\n");
+        }
 
     return NULL;
 }
