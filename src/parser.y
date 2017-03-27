@@ -155,6 +155,13 @@ primary_expression
 {
     $$ = get_identifier($1);
 }
+| CONST_STRING
+{
+    tree str = tree_make(T_STRING);
+    str->data.string = $1;
+    $$ = str;
+}
+;
 
 postfix_expression
 : primary_expression
