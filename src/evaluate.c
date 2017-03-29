@@ -137,6 +137,7 @@ static tree eval_fn_call(tree t, int depth)
     }
 
     if (is_T_DECL_FN(function)) {
+        tree arg, fn_arg_chain = NULL, args = t->data.fncall.arguments;
         char *function_name = function->data.function.id->data.id.name;
         push_ctx(function_name);
 
@@ -145,7 +146,16 @@ static tree eval_fn_call(tree t, int depth)
         if (function_address == NULL)
             eval_die("Error: could not resolve external symbol: %s\n", function_name);
 
-        do_call(function_address, t->data.fncall.arguments);
+        /* Evaluate all arguments before passing into the marshalling
+         * function. */
+        fn_arg_chain = tree_make(CHAIN_HEAD);
+        for_each_tree(arg, args) {
+            tree fn_arg = tree_make(T_FN_ARG);
+            fn_arg->data.exp = __evaluate_1(arg, depth + 1);
+            tree_chain(fn_arg, fn_arg_chain);
+        }
+
+        do_call(function_address, fn_arg_chain);
     }
 
     return NULL;
