@@ -172,6 +172,10 @@ static tree eval_decl(tree t, int depth)
         case T_IDENTIFIER:
             make_and_map_live_var(i, type);
             break;
+        case T_DECL_FN:
+            i->data.function.return_type = type;
+            map_identifier(i->data.function.id, i);
+            break;
         default:
             eval_die("Error: unknown rvalue in declaration.\n");
         }
