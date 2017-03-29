@@ -28,6 +28,8 @@ AX_LIB_READLINE
 AC_CHECK_LIB(gmp, __gmpz_init, ,
        [AC_MSG_ERROR([GNU MP not found, see https://gmplib.org/])])
 
+AC_CHECK_LIB(dl, dlsym, ,
+       [AC_MSG_ERROR([Dynamic linker not found])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h libintl.h malloc.h stddef.h \

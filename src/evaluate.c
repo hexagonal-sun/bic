@@ -1,10 +1,13 @@
+#define _GNU_SOURCE 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <stdarg.h>
 #include <string.h>
+#include <dlfcn.h>
 
 #include "evaluate.h"
+#include "function_call.h"
 #include "gc.h"
 
 static tree cur_ctx = NULL;
@@ -119,7 +122,7 @@ static tree eval_fn_call(tree t, int depth)
      *
      * 2: The function call is an external symbol, i.e. the function
      *    should have been declared and should have a corresponding
-     *    T_FN_DECL.  If that is the case, evaluate the arguments and
+     *    T_DECL_FN.  If that is the case, evaluate the arguments and
      *    use the symbolic linker to find the function.
      *
      * 3: The function couldn't be found.  In that case, error.
@@ -131,6 +134,18 @@ static tree eval_fn_call(tree t, int depth)
 
         /* TODO: argument evaluation. */
         __evaluate(function->data.function.stmts, depth + 1);
+    }
+
+    if (is_T_DECL_FN(function)) {
+        char *function_name = function->data.function.id->data.id.name;
+        push_ctx(function_name);
+
+        void *function_address = dlsym(RTLD_DEFAULT, function_name);
+
+        if (function_address == NULL)
+            eval_die("Error: could not resolve external symbol: %s\n", function_name);
+
+        do_call(function_address, t->data.fncall.arguments);
     }
 
     return NULL;
