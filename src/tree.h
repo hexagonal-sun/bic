@@ -109,7 +109,7 @@ union tree_data {
     /* T_STRUCT_DECL */
     struct struct_data structure;
 
-    /* T_FN_DEF */
+    /* T_FN_DEF, T_DECL_FN */
     struct function_data function;
 
     /* T_FN_CALL */

@@ -254,6 +254,7 @@ void __tree_dump_1(tree t, int depth)
         tree_dump_struct(t,  depth);
         break;
     case T_FN_DEF:
+    case T_DECL_FN:
         tree_dump_function(t,  depth);
         break;
     case T_FN_CALL:

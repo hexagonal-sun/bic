@@ -47,6 +47,7 @@ static void mark_tree(tree t)
         mark_tree(t->data.structure.id);
         mark_tree(t->data.structure.decls);
         break;
+    case T_DECL_FN:
     case T_FN_DEF:
         mark_tree(t->data.function.id);
         mark_tree(t->data.function.return_type);
