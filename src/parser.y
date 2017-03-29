@@ -267,6 +267,13 @@ decl
     ptr->data.ptr.id = get_identifier($2);
     $$ = ptr;
 }
+| IDENTIFIER argument_specifier
+{
+    tree fn_decl = tree_make(T_DECL_FN);
+    fn_decl->data.function.id = get_identifier($1);
+    fn_decl->data.function.arguments = $2;
+    $$ = fn_decl;
+}
 ;
 
 initialiser
