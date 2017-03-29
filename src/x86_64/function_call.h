@@ -20,4 +20,4 @@ struct arg {
     enum argument_class class;
 } __attribute__((packed)) ;
 
-void do_call(void *function_address, tree args);
+ptrdiff_t do_call(void *function_address, tree args);

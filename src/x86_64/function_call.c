@@ -5,12 +5,12 @@
 #include "function_call.h"
 
 struct arg *arg_head = NULL;
-extern void __do_call(void *fn, struct arg *args);
+extern ptrdiff_t __do_call(void *fn, struct arg *args);
 
 
 /* Here we simplify the interface for accessing arguments so that
  * it is reasonable to be done in assembly. */
-void do_call(void *function_address, tree args)
+ptrdiff_t do_call(void *function_address, tree args)
 {
     tree arg;
     ptrdiff_t ret;
@@ -31,7 +31,7 @@ void do_call(void *function_address, tree args)
             arg_head = new_arg;
         }
 
-    __do_call(function_address, arg_head);
+    ret = __do_call(function_address, arg_head);
 
     /* Cleanup consumed arguments. */
     while (arg_head) {
@@ -39,4 +39,6 @@ void do_call(void *function_address, tree args)
         arg_head = arg_head->next;
         free(old_arg);
     }
+
+    return ret;
 }
