@@ -21,7 +21,7 @@ ptrdiff_t do_call(void *function_address, tree args)
             new_arg->next = arg_head;
             switch(arg->type) {
             case T_STRING:
-                new_arg->val = (ptrdiff_t)strdup(arg->data.string);
+                new_arg->val = (ptrdiff_t)arg->data.string;
                 new_arg->class = POINTER;
                 break;
             default:
