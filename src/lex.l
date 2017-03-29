@@ -34,6 +34,7 @@ static void sl_append_char(char c)
     s[0] = c;
     s[1] = '\0';
     sl_append_str(s);
+    free(s);
 }
 
 static void lex_err(char *fmt, ...)
