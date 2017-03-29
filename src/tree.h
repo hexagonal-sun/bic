@@ -148,7 +148,7 @@ static inline void tree_chain(tree new, tree chain)
 }
 
 #define for_each_tree(pos, head)                \
-    list_for_each((i), &(head)->chain, chain)
+    list_for_each((pos), &(head)->chain, chain)
 
 tree tree_build_bin(enum tree_type, tree left, tree right);
 void tree_dump(tree tree);
