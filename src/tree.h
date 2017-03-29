@@ -89,7 +89,7 @@ union tree_data {
     /* T_STRING */
     char *string;
 
-    /* T_P_INC, T_P_DEC, T_INC, T_DEC */
+    /* T_P_INC, T_P_DEC, T_INC, T_DEC, T_FN_ARG */
     tree exp;
 
     /* T_IDENTIFIER */

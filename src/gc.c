@@ -25,6 +25,7 @@ static void mark_tree(tree t)
     case T_P_DEC:
     case T_INC:
     case T_DEC:
+    case T_FN_ARG:
         mark_tree(t->data.exp);
         break;
     case T_MUL:
