@@ -7,6 +7,7 @@ AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CANONICAL_BUILD
 
+LT_INIT
 AM_INIT_AUTOMAKE([foreign])
 AM_SILENT_RULES([yes])
 
@@ -20,7 +21,7 @@ AC_PROG_AWK
 AC_PROG_INSTALL
 AC_PROG_CPP
 AC_PROG_MKDIR_P
-AC_PROG_RANLIB
+AM_PROG_AS
 
 # Checks for libraries.
 AX_LIB_READLINE
@@ -62,6 +63,16 @@ case "${build_os}" in
         ;;
 esac
 
+BUILD_CPU=${build_cpu}
+AC_SUBST([BUILD_CPU])
+
+LT_SYS_SYMBOL_USCORE
+if test "x${sys_symbol_underscore}" = xyes; then
+AC_DEFINE([SYMBOL_USCORE], [1],
+          [defined when compiled symbols are prefiex with and underscore])
+fi
+
+
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
@@ -70,6 +81,7 @@ AC_CHECK_FUNCS([memset strdup])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
+                 src/x86_64/Makefile
                  testsuite/Makefile
                  testsuite/prompt.exp])
 
