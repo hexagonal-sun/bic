@@ -238,6 +238,9 @@ static void assign_integer(tree var, tree right)
     case T_INTEGER:
          val = mpz_get_si(right->data.integer);
          break;
+    case T_LIVE_VAR:
+        val = right->data.var.val.D_T_LONG;
+        break;
     default:
         eval_die("Error: unknown rvalue assignment to integer.\n");
     }
