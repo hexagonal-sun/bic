@@ -111,6 +111,25 @@ static tree eval_identifier(tree t, int depth)
             t->data.id.name);
 }
 
+static tree make_fncall_result(tree type, ptrdiff_t result)
+{
+    tree ret = tree_make(T_LIVE_VAR);
+
+    switch (type->type)
+    {
+#define DEFCTYPE(TNAME, DESC, CTYPE, FMT)             \
+        case TNAME:                                   \
+            ret->data.var.val.TNAME = (CTYPE)result;  \
+            break;
+#include "ctypes.def"
+#undef DEFCTYPE
+    default:
+        eval_die("Error: could not create function return value\n");
+    }
+
+    return ret;
+}
+
 static tree eval_fn_call(tree t, int depth)
 {
     /* There are three possibilities here:
@@ -139,8 +158,7 @@ static tree eval_fn_call(tree t, int depth)
     if (is_T_DECL_FN(function)) {
         tree arg, fn_arg_chain = NULL, args = t->data.fncall.arguments;
         char *function_name = function->data.function.id->data.id.name;
-        push_ctx(function_name);
-
+        ptrdiff_t res;
         void *function_address = dlsym(RTLD_DEFAULT, function_name);
 
         if (function_address == NULL)
@@ -155,7 +173,9 @@ static tree eval_fn_call(tree t, int depth)
             tree_chain(fn_arg, fn_arg_chain);
         }
 
-        do_call(function_address, fn_arg_chain);
+         res = do_call(function_address, fn_arg_chain);
+
+         return make_fncall_result(function->data.function.return_type, res);
     }
 
     return NULL;
