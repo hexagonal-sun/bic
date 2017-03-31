@@ -20,7 +20,7 @@ static void sl_begin(void)
 static void sl_append_str(const char *s)
 {
     char *buf, *oldbuf = sl_buf;
-    buf = malloc(strlen(sl_buf) + strlen(s));
+    buf = malloc(strlen(sl_buf) + strlen(s) + 1);
     buf[0] = '\0';
     strcat(buf, sl_buf);
     strcat(buf, s);
