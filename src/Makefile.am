@@ -4,7 +4,7 @@ AM_YFLAGS = -d
 bin_PROGRAMS = bic
 
 noinst_LIBRARIES = libbic.a
-libbic_a_CFLAGS = -I$(BUILD_CPU)
+libbic_a_CFLAGS = -I$(srcdir)/$(BUILD_CPU)
 
 libbic_a_SOURCES = parser.y lex.l lex.h tree.c tree.h tree.def list.h	\
 list.c hash_table.c hash_table.h evaluate.c evaluate.h ctypes.def	\
