@@ -80,13 +80,6 @@ static void tree_dump_binary(tree t, int depth)
     tree_print_indent(depth);
 }
 
-static void tree_dump_ptr_type(tree t, int depth)
-{
-    eprintf(" type:\n");
-    __tree_dump(t->data.ptr_type.type, depth + 1);
-    tree_print_indent(depth);
-}
-
 static void tree_dump_decl(tree t, int depth)
 {
     eprintf("\n");
@@ -266,7 +259,7 @@ void __tree_dump_1(tree t, int depth)
         tree_dump_type(t, depth);
         break;
     case D_T_PTR:
-        tree_dump_ptr_type(t, depth);
+        tree_dump_single_exp(t, depth);
         break;
     case CHAIN_HEAD:
         break;

@@ -27,6 +27,7 @@ static void mark_tree(tree t)
     case T_DEC:
     case T_FN_ARG:
     case T_POINTER:
+    case D_T_PTR:
         mark_tree(t->data.exp);
         break;
     case T_MUL:
@@ -60,8 +61,6 @@ static void mark_tree(tree t)
     case T_LIVE_VAR:
         mark_tree(t->data.var.type);
         break;
-    case D_T_PTR:
-        mark_tree(t->data.ptr_type.type);
     case CHAIN_HEAD:
             {
                 tree i;

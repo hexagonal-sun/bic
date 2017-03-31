@@ -62,10 +62,6 @@ typedef struct {
     list mappings;
 } identifier_mapping;
 
-struct pointer_type {
-    tree type;
-};
-
 struct live_var {
     tree type;
     union value val;
@@ -95,9 +91,6 @@ union tree_data {
     struct binary_exp bin;
 
     struct declaration decl;
-
-    /* D_T_PTR */
-    struct pointer_type ptr_type;
 
     /* T_STRUCT_DECL */
     struct struct_data structure;
