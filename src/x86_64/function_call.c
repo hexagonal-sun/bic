@@ -14,13 +14,12 @@ ptrdiff_t do_call(void *function_address, tree args)
 {
     tree fn_arg;
     ptrdiff_t ret;
+    struct arg *arg_rear;
 
     if (args)
         for_each_tree(fn_arg, args) {
             tree arg = fn_arg->data.exp;
             struct arg *new_arg = malloc(sizeof(*new_arg));
-
-            new_arg->next = arg_head;
 
             switch(arg->type) {
             case T_STRING:
@@ -39,7 +38,15 @@ ptrdiff_t do_call(void *function_address, tree args)
                 fprintf(stderr, "Error: Unknown tree type to marshall.\n");
                 exit(1);
             }
-            arg_head = new_arg;
+
+            new_arg->next = NULL;
+
+            if (!arg_head)
+                arg_head = arg_rear = new_arg;
+            else
+                arg_rear->next = new_arg;
+
+            arg_rear = new_arg;
         }
 
     ret = __do_call(function_address, arg_head);
