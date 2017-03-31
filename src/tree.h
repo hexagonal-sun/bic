@@ -62,10 +62,6 @@ typedef struct {
     list mappings;
 } identifier_mapping;
 
-struct pointer {
-    tree id;
-};
-
 struct pointer_type {
     tree type;
 };
@@ -89,7 +85,7 @@ union tree_data {
     /* T_STRING */
     char *string;
 
-    /* T_P_INC, T_P_DEC, T_INC, T_DEC, T_FN_ARG */
+    /* T_P_INC, T_P_DEC, T_INC, T_DEC, T_FN_ARG, T_POINTER */
     tree exp;
 
     /* T_IDENTIFIER */
@@ -99,9 +95,6 @@ union tree_data {
     struct binary_exp bin;
 
     struct declaration decl;
-
-    /* T_POINTER */
-    struct pointer ptr;
 
     /* D_T_PTR */
     struct pointer_type ptr_type;

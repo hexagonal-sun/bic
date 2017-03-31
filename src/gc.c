@@ -26,6 +26,7 @@ static void mark_tree(tree t)
     case T_INC:
     case T_DEC:
     case T_FN_ARG:
+    case T_POINTER:
         mark_tree(t->data.exp);
         break;
     case T_MUL:
@@ -36,9 +37,6 @@ static void mark_tree(tree t)
     case T_ASSIGN:
         mark_tree(t->data.bin.left);
         mark_tree(t->data.bin.right);
-        break;
-    case T_POINTER:
-        mark_tree(t->data.ptr.id);
         break;
     case T_DECL:
         mark_tree(t->data.decl.type);

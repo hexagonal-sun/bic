@@ -211,7 +211,7 @@ static tree eval_decl(tree t, int depth)
         {
             tree ptr_type = tree_make(D_T_PTR);
             ptr_type->data.ptr_type.type = type;
-            make_and_map_live_var(i->data.ptr.id, ptr_type);
+            make_and_map_live_var(i->data.exp, ptr_type);
             break;
         }
         case T_IDENTIFIER:

@@ -264,7 +264,7 @@ decl
 | '*' IDENTIFIER
 {
     tree ptr = tree_make(T_POINTER);
-    ptr->data.ptr.id = get_identifier($2);
+    ptr->data.exp = get_identifier($2);
     $$ = ptr;
 }
 | IDENTIFIER argument_specifier
