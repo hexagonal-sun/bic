@@ -8,12 +8,12 @@ BIC="../src/bic"
 
 if [ ! -f "${SRCFILE}" ]; then
     echo "Error: Source file not found";
-    exit 1;
+    exit 99;
 fi
 
 if [ -! -x "$BIC" ]; then
     echo "Error: could not find the BIC interpreter"
-    exit 1;
+    exit 99;
 fi
 
 COMPILED_OUTPUT=$(mktemp)
