@@ -53,6 +53,7 @@ extern tree parse_head;
 %type <tree> additive_expression
 %type <tree> assignment_expression
 %type <tree> decl
+%type <tree> decl_possible_pointer
 %type <tree> declarator
 %type <tree> initialiser
 %type <tree> declarator_list
@@ -120,7 +121,7 @@ argument_list
 };
 
 argument_decl
-: type_specifier decl
+: type_specifier decl_possible_pointer
 {
     tree decl = tree_make(T_DECL);
     decl->data.decl.type = $1;
@@ -261,12 +262,6 @@ decl
 {
     $$ = get_identifier($1);
 }
-| '*' IDENTIFIER
-{
-    tree ptr = tree_make(T_POINTER);
-    ptr->data.exp = get_identifier($2);
-    $$ = ptr;
-}
 | IDENTIFIER argument_specifier
 {
     tree fn_decl = tree_make(T_DECL_FN);
@@ -276,13 +271,23 @@ decl
 }
 ;
 
+decl_possible_pointer
+: decl
+| '*' decl
+{
+    tree ptr = tree_make(T_POINTER);
+    ptr->data.exp = $2;
+    $$ = ptr;
+}
+;
+
 initialiser
 : additive_expression
 ;
 
 declarator
-: decl
-| decl '=' initialiser
+: decl_possible_pointer
+| decl_possible_pointer '=' initialiser
 {
     $$ = tree_build_bin(T_ASSIGN, $1, $3);
 }
@@ -300,11 +305,11 @@ declarator_list
 ;
 
 direct_declarator_list
-: decl
+: decl_possible_pointer
 {
     $$ = tree_chain_head($1);
 }
-| decl ',' direct_declarator_list
+| decl_possible_pointer ',' direct_declarator_list
 {
     tree_chain($3, $1);
 }
