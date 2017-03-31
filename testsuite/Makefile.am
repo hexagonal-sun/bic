@@ -1,4 +1,4 @@
-check_PROGRAMS = puts
+check_PROGRAMS = puts strcat
 
 TESTS = $(check_PROGRAMS)
 
