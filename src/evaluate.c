@@ -199,31 +199,39 @@ static void make_and_map_live_var(tree id, tree type)
     map_identifier(id, live_var);
 }
 
+static void handle_decl(tree decl, tree base_type)
+{
+    tree decl_type = base_type;
+
+    /* Strip off any pointer objects and add them to the base type. */
+    while (is_T_POINTER(decl)) {
+        tree ptr_type = tree_make(D_T_PTR);
+        ptr_type->data.exp = decl_type;
+        decl_type = ptr_type;
+        decl = decl->data.exp;
+    }
+
+    switch (decl->type) {
+    case T_IDENTIFIER:
+        make_and_map_live_var(decl, decl_type);
+        break;
+    case T_DECL_FN:
+        decl->data.function.return_type = decl_type;
+        map_identifier(decl->data.function.id, decl);
+        break;
+    default:
+        eval_die("Error: unknown rvalue in declaration.\n");
+    }
+}
+
 static tree eval_decl(tree t, int depth)
 {
-    tree type = __evaluate_1(t->data.decl.type, depth + 1),
+    tree base_type = __evaluate_1(t->data.decl.type, depth + 1),
         decls = t->data.decl.decls,
         i;
 
     for_each_tree(i, decls)
-        switch (i->type) {
-        case T_POINTER:
-        {
-            tree ptr_type = tree_make(D_T_PTR);
-            ptr_type->data.ptr_type.type = type;
-            make_and_map_live_var(i->data.exp, ptr_type);
-            break;
-        }
-        case T_IDENTIFIER:
-            make_and_map_live_var(i, type);
-            break;
-        case T_DECL_FN:
-            i->data.function.return_type = type;
-            map_identifier(i->data.function.id, i);
-            break;
-        default:
-            eval_die("Error: unknown rvalue in declaration.\n");
-        }
+        handle_decl(i, base_type);
 
     return NULL;
 }
