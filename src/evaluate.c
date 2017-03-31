@@ -115,6 +115,8 @@ static tree make_fncall_result(tree type, ptrdiff_t result)
 {
     tree ret = tree_make(T_LIVE_VAR);
 
+    ret->data.var.type = type;
+
     switch (type->type)
     {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)             \
