@@ -27,6 +27,10 @@ ptrdiff_t do_call(void *function_address, tree args)
                 new_arg->val = (ptrdiff_t)arg->data.string;
                 new_arg->class = POINTER;
                 break;
+            case T_LIVE_VAR:
+                new_arg->val = (ptrdiff_t)arg->data.var.val.D_T_PTR;
+                new_arg->class = POINTER;
+                break;
             default:
                 fprintf(stderr, "Error: Unknown tree type to marshall.\n");
                 exit(1);
