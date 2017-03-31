@@ -31,6 +31,7 @@ GC_TREE_DECL(parse_head);
 void yyerror(const char *str)
 {
     fprintf(stderr, "Parser Error: %s:%d %s.\n", "<stdin>", yylloc.first_line, str);
+    exit(1);
 }
 
 static void bic_repl(void)
