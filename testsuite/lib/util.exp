@@ -1,8 +1,0 @@
-load_lib prompt.exp
-
-proc finish_test { } {
-    global prompt
-    expect {
-        -re ".*$prompt" {}
-    }
-}

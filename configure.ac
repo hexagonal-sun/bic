@@ -84,7 +84,6 @@ AC_CHECK_FUNCS([memset strdup])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/x86_64/Makefile
-                 testsuite/Makefile
-                 testsuite/prompt.exp])
+                 testsuite/Makefile])
 
 AC_OUTPUT
