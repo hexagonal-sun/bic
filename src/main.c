@@ -98,10 +98,6 @@ int main(int argc, char *argv[])
             if (!parse_file(argv[i])) {
                 add_call_to_main(parse_head);
                 collect();
-
-                tree_dump(parse_head);
-
-                printf("Evaluating...\n");
                 evaluate(parse_head);
             }
 }
