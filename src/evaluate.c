@@ -276,6 +276,9 @@ static void assign_ptr(tree var, tree right)
     case T_STRING:
         ptr = right->data.string;
         break;
+    case T_LIVE_VAR:
+        ptr = (void *)right->data.var.val.D_T_PTR;
+        break;
     default:
         eval_die("Error: could not assign to non-pointer type");
     }
