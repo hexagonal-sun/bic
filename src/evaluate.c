@@ -236,7 +236,7 @@ static void make_and_map_live_var(tree id, tree type)
     map_identifier(id, live_var);
 }
 
-static void handle_decl(tree decl, tree base_type)
+static tree handle_decl(tree decl, tree base_type)
 {
     tree decl_type = base_type;
 
@@ -251,11 +251,11 @@ static void handle_decl(tree decl, tree base_type)
     switch (decl->type) {
     case T_IDENTIFIER:
         make_and_map_live_var(decl, decl_type);
-        break;
+        return decl;
     case T_DECL_FN:
         decl->data.function.return_type = decl_type;
         map_identifier(decl->data.function.id, decl);
-        break;
+        return decl;
     default:
         eval_die("Error: unknown rvalue in declaration.\n");
     }
@@ -265,15 +265,15 @@ static tree eval_decl(tree t, int depth)
 {
     tree base_type = __evaluate_1(t->data.decl.type, depth + 1),
         decls = t->data.decl.decls,
-        i;
+        i, ret;
 
     if (is_CHAIN_HEAD(decls))
         for_each_tree(i, decls)
-            handle_decl(i, base_type);
+            ret = handle_decl(i, base_type);
     else
-        handle_decl(decls, base_type);
+        ret = handle_decl(decls, base_type);
 
-    return NULL;
+    return ret;
 }
 
 static void assign_integer(tree var, tree right)
