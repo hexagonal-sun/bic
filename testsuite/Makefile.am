@@ -1,4 +1,4 @@
-check_PROGRAMS = puts strcat pass_parameter_printf
+check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign
 
 TESTS = $(check_PROGRAMS)
 
