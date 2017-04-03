@@ -153,7 +153,7 @@ static tree eval_fn_call(tree t, int depth)
     if (is_T_FN_DEF(function)) {
         tree arg_decls = function->data.function.arguments,
             arg_vals = t->data.fncall.arguments,
-            arg_decl, arg_val;
+            arg_decl, arg_val, evaled_arg_vals;
 
         push_ctx(function->data.function.id->data.id.name);
 
@@ -175,13 +175,37 @@ static tree eval_fn_call(tree t, int depth)
             arg_val = arg_vals;
 
             for_each_tree(arg_decl, arg_decls) {
-                /* Evaluate all declarations. */
-                tree decl_identifier = __evaluate_1(arg_decl, depth + 1);
+                tree eval_arg_val,
+                    decl_identifier;
 
                 arg_val = list_entry(arg_val->chain.next,
                                      typeof(*arg_val), chain);
 
-                __evaluate_1(tree_build_bin(T_ASSIGN, decl_identifier, arg_val),
+                /* We need to evaluate the argument value before
+                 * adding the declaration on to the new context.  This
+                 * prevents bugs with things such as:
+                 *
+                 * 0: int foo(int a)
+                 * 1: {
+                 * 2:      use(a);
+                 * 3: }
+                 * 4:
+                 * 5: int main()
+                 * 6: {
+                 * 7:     int a = 10;
+                 * 8:     foo(a);
+                 * 9: }
+                 *
+                 * Notice that if we evaluated 'int a' on line 0
+                 * first, then we evaluate the assignment 'a = a' the
+                 * lhs would evaluate to the newly declared 'a' value.
+                 * Therefore, if we evaluate 'a' on line 8 before the
+                 * declaration on line 0, we obtain the correct lvalue
+                 * for assignment. */
+                eval_arg_val = __evaluate_1(arg_val, depth + 1);
+                decl_identifier = __evaluate_1(arg_decl, depth + 1);
+
+                __evaluate_1(tree_build_bin(T_ASSIGN, decl_identifier, eval_arg_val),
                              depth + 1);
             }
         }

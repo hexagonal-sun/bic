@@ -1,4 +1,5 @@
-check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign
+check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
+                 fn_param_name_val_name_same
 
 TESTS = $(check_PROGRAMS)
 
