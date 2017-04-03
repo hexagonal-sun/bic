@@ -159,10 +159,6 @@ static tree eval_fn_call(tree t, int depth)
 
         if (arg_decls) {
             size_t no_decls = 0, no_vals = 0;
-            /* Evaluate all declarations. */
-            for_each_tree(arg_decl, arg_decls)
-                __evaluate_1(arg_decl, depth + 1);
-
             /* Ensure that the number of parameters passed to the
              * function matches the number in the function
              * declaration. */
@@ -179,7 +175,8 @@ static tree eval_fn_call(tree t, int depth)
             arg_val = arg_vals;
 
             for_each_tree(arg_decl, arg_decls) {
-                tree decl_identifier = arg_decl->data.decl.decls;
+                /* Evaluate all declarations. */
+                tree decl_identifier = __evaluate_1(arg_decl, depth + 1);
 
                 arg_val = list_entry(arg_val->chain.next,
                                      typeof(*arg_val), chain);
