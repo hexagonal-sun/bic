@@ -543,6 +543,12 @@ static tree eval_string(tree t, int depth)
     return t;
 }
 
+static tree eval_live_var(tree t, int depth)
+{
+    /* A live var evaluates to itself. */
+    return t;
+}
+
 static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
@@ -565,6 +571,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_SUB:        result = eval_sub(t, depth + 1);        break;
     case T_MUL:        result = eval_mul(t, depth + 1);        break;
     case T_DIV:        result = eval_div(t, depth + 1);        break;
+    case T_LIVE_VAR:   result = eval_live_var(t, depth + 1);   break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
