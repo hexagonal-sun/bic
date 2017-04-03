@@ -440,6 +440,20 @@ static tree eval_post_inc(tree t, int depth)
     return ret;
 }
 
+static tree eval_inc(tree t, int depth)
+{
+    tree ret;
+    tree exp = __evaluate_1(t->data.exp, depth + 1);
+    if (!is_T_LIVE_VAR(exp))
+        eval_die("Error: not a valid lvalue.\n");
+
+    live_var_add(exp, 1);
+
+    ret = make_int_from_live_var(exp);
+
+    return ret;
+}
+
 static tree eval_post_dec(tree t, int depth)
 {
     tree ret;
@@ -593,6 +607,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_STRING:     result = eval_string(t, depth + 1);     break;
     case T_P_INC:      result = eval_post_inc(t, depth + 1);   break;
     case T_P_DEC:      result = eval_post_dec(t, depth + 1);   break;
+    case T_INC:        result = eval_inc(t, depth + 1);        break;
     case T_ADD:        result = eval_add(t, depth + 1);        break;
     case T_SUB:        result = eval_sub(t, depth + 1);        break;
     case T_MUL:        result = eval_mul(t, depth + 1);        break;
