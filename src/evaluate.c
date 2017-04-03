@@ -211,6 +211,8 @@ static tree eval_fn_call(tree t, int depth)
         }
 
         __evaluate(function->data.function.stmts, depth + 1);
+
+        pop_ctx();
     }
 
     if (is_T_DECL_FN(function)) {
