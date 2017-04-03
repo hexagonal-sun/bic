@@ -232,8 +232,11 @@ static tree eval_decl(tree t, int depth)
         decls = t->data.decl.decls,
         i;
 
-    for_each_tree(i, decls)
-        handle_decl(i, base_type);
+    if (is_CHAIN_HEAD(decls))
+        for_each_tree(i, decls)
+            handle_decl(i, base_type);
+    else
+        handle_decl(decls, base_type);
 
     return NULL;
 }
