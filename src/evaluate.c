@@ -151,9 +151,44 @@ static tree eval_fn_call(tree t, int depth)
     tree function = __evaluate_1(t->data.fncall.identifier, depth + 1);
 
     if (is_T_FN_DEF(function)) {
+        tree arg_decls = function->data.function.arguments,
+            arg_vals = t->data.fncall.arguments,
+            arg_decl, arg_val;
+
         push_ctx(function->data.function.id->data.id.name);
 
-        /* TODO: argument evaluation. */
+        if (arg_decls) {
+            size_t no_decls = 0, no_vals = 0;
+            /* Evaluate all declarations. */
+            for_each_tree(arg_decl, arg_decls)
+                __evaluate_1(arg_decl, depth + 1);
+
+            /* Ensure that the number of parameters passed to the
+             * function matches the number in the function
+             * declaration. */
+            for_each_tree(arg_decl, arg_decls)
+                no_decls++;
+
+            for_each_tree(arg_val, arg_vals)
+                no_vals++;
+
+            if (no_vals != no_decls)
+                eval_die("Error: Invalid number of parameters to function");
+
+            /* Evaluate an assignment for each passed value. */
+            arg_val = arg_vals;
+
+            for_each_tree(arg_decl, arg_decls) {
+                tree decl_identifier = arg_decl->data.decl.decls;
+
+                arg_val = list_entry(arg_val->chain.next,
+                                     typeof(*arg_val), chain);
+
+                __evaluate_1(tree_build_bin(T_ASSIGN, decl_identifier, arg_val),
+                             depth + 1);
+            }
+        }
+
         __evaluate(function->data.function.stmts, depth + 1);
     }
 
