@@ -225,6 +225,9 @@ void __tree_dump_1(tree t, int depth)
     case T_POINTER:
         tree_dump_single_exp(t, depth);
         break;
+    case T_TYPEDEF:
+        tree_dump_single_exp(t, depth);
+        break;
     case T_IDENTIFIER:
         eprintf(" name %s", t->data.id.name);
         break;
