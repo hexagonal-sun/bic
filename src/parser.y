@@ -61,6 +61,8 @@ extern tree parse_head;
 %type <tree> struct_specifier
 %type <tree> struct_decl_list
 %type <tree> struct_decl
+%type <tree> storage_class_specifier
+%type <tree> direct_type_specifier
 %type <tree> type_specifier
 %type <tree> declaration
 
@@ -315,7 +317,13 @@ direct_declarator_list
 }
 ;
 
-type_specifier
+storage_class_specifier
+: TYPEDEF
+{
+    $$ = tree_make(T_TYPEDEF);
+}
+
+direct_type_specifier
 : CHAR
 {
     $$ = tree_make(D_T_CHAR);
@@ -411,6 +419,19 @@ type_specifier
 | UNSIGNED LONG LONG INT
 {
     $$ = tree_make(D_T_ULONGLONG);
+}
+| IDENTIFIER
+{
+    $$ = get_identifier($1);
+}
+;
+
+type_specifier
+: direct_type_specifier
+| storage_class_specifier direct_type_specifier
+{
+    $1->data.exp = $2;
+    $$ = $1;
 }
 ;
 
