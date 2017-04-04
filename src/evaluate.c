@@ -290,11 +290,38 @@ static tree handle_decl(tree decl, tree base_type, int depth)
     }
 }
 
+static tree map_typedef(tree id, tree type)
+{
+    if (!is_T_IDENTIFIER(id))
+        eval_die("Attempted to map type to non-identifier\n");
+
+    map_identifier(id, type);
+
+    return id;
+}
+
+static tree handle_typedef(tree typedef_type, tree decls, int depth)
+{
+    tree ret;
+    tree type = __evaluate_1(typedef_type->data.exp, depth + 1), i;
+
+    if (is_CHAIN_HEAD(decls))
+        for_each_tree(i, decls)
+            ret = map_typedef(i, type);
+    else
+        ret = map_typedef(decls, type);
+
+    return ret;
+}
+
 static tree eval_decl(tree t, int depth)
 {
     tree base_type = __evaluate_1(t->data.decl.type, depth + 1),
         decls = t->data.decl.decls,
         i, ret;
+
+    if (is_T_TYPEDEF(base_type))
+        return handle_typedef(base_type, decls, depth + 1);
 
     if (is_CHAIN_HEAD(decls))
         for_each_tree(i, decls)
@@ -601,6 +628,12 @@ static tree eval_live_var(tree t, int depth)
     return t;
 }
 
+static tree eval_typedef(tree t, int depth)
+{
+    /* A typedef will evaluate to itself. */
+    return t;
+}
+
 static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
@@ -626,6 +659,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_MUL:        result = eval_mul(t, depth + 1);        break;
     case T_DIV:        result = eval_div(t, depth + 1);        break;
     case T_LIVE_VAR:   result = eval_live_var(t, depth + 1);   break;
+    case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
