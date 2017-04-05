@@ -71,6 +71,7 @@ typedef struct eval_ctx {
     identifier_mapping id_map;
     tree parent_ctx;
     const char *name;
+    int is_compound;
 } eval_ctx;
 
 

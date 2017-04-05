@@ -144,7 +144,7 @@ static void tree_dump_eval_ctx(tree t, int depth)
 
     /* Since the top-level context will contain all top-level
      * declarations, we supress output of that context. */
-    if (!t->data.ectx.parent_ctx) {
+    if (!t->data.ectx.parent_ctx && !t->data.ectx.is_compound) {
         eprintf(" (Top level output suppressed)");
         return;
     }
