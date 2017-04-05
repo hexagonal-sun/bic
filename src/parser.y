@@ -194,6 +194,13 @@ postfix_expression
     dec->data.exp = $1;
     $$ = dec;
 }
+| postfix_expression '.' IDENTIFIER
+{
+    tree access = tree_make(T_ACCESS);
+    access->data.bin.left = $1;
+    access->data.bin.right = get_identifier($3);
+    $$ = access;
+}
 ;
 
 argument_expression_list
