@@ -637,6 +637,12 @@ static tree eval_typedef(tree t, int depth)
     return t;
 }
 
+static tree eval_decl_struct(tree t, int depth)
+{
+    map_identifier(t->data.structure.id, t);
+    return t;
+}
+
 static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
@@ -663,6 +669,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_DIV:        result = eval_div(t, depth + 1);        break;
     case T_LIVE_VAR:   result = eval_live_var(t, depth + 1);   break;
     case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
+    case T_DECL_STRUCT:result = eval_decl_struct(t, depth + 1);break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
