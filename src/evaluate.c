@@ -271,6 +271,24 @@ static tree handle_decl(tree decl, tree base_type, int depth)
         decl = decl->data.exp;
     }
 
+    if (is_T_DECL_STRUCT(base_type) && is_T_IDENTIFIER(decl)) {
+        tree i, ctx;
+
+        push_ctx("Structure Declaration");
+
+        for_each_tree(i, base_type->data.structure.decls)
+            __evaluate_1(i, depth + 1);
+
+        decl_type = cur_ctx;
+        pop_ctx();
+
+        decl_type->data.ectx.parent_ctx = NULL;
+        decl_type->data.ectx.is_compound = 1;
+
+        map_identifier(decl, decl_type);
+        return decl;
+    }
+
     switch (decl->type) {
     case T_IDENTIFIER:
         make_and_map_live_var(decl, decl_type);
