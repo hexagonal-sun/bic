@@ -657,7 +657,9 @@ static tree eval_typedef(tree t, int depth)
 
 static tree eval_decl_struct(tree t, int depth)
 {
-    map_identifier(t->data.structure.id, t);
+    if (t->data.structure.id)
+        map_identifier(t->data.structure.id, t);
+
     return t;
 }
 

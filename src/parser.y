@@ -451,6 +451,13 @@ struct_specifier
     decl->data.structure.decls = $4;
     $$ = decl;
 }
+| STRUCT '{' struct_decl_list '}'
+{
+    tree decl = tree_make(T_DECL_STRUCT);
+    decl->data.structure.id = NULL;
+    decl->data.structure.decls = $3;
+    $$ = decl;
+}
 | STRUCT IDENTIFIER
 {
     $$ = get_identifier($2);

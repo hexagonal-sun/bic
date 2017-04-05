@@ -126,7 +126,8 @@ static void tree_dump_fncall(tree t, int depth)
 
 static void tree_dump_struct(tree t, int depth)
 {
-    eprintf(" name: %s\n", t->data.structure.id->data.id.name);
+    eprintf(" name:\n");
+    __tree_dump(t->data.structure.id, depth + 1);
     tree_print_indent(depth);
     eprintf(" decl(s):\n");
     __tree_dump(t->data.structure.decls, depth + 1);
