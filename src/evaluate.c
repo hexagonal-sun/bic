@@ -323,6 +323,9 @@ static tree eval_decl(tree t, int depth)
     if (is_T_TYPEDEF(base_type))
         return handle_typedef(base_type, decls, depth + 1);
 
+    if (!decls)
+        return NULL;
+
     if (is_CHAIN_HEAD(decls))
         for_each_tree(i, decls)
             ret = handle_decl(i, base_type, depth);

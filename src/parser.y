@@ -424,6 +424,7 @@ direct_type_specifier
 {
     $$ = get_identifier($1);
 }
+| struct_specifier
 ;
 
 type_specifier
@@ -442,6 +443,10 @@ struct_specifier
     decl->data.structure.id = get_identifier($2);
     decl->data.structure.decls = $4;
     $$ = decl;
+}
+| STRUCT IDENTIFIER
+{
+    $$ = get_identifier($2);
 }
 ;
 
@@ -473,5 +478,11 @@ declaration
     decl->data.decl.decls = $2;
     $$ = decl;
 }
-| struct_specifier
+| type_specifier
+{
+    tree decl = tree_make(T_DECL);
+    decl->data.decl.type = $1;
+    decl->data.decl.decls = NULL;
+    $$ = decl;
+}
 ;
