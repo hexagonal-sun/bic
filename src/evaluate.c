@@ -661,6 +661,20 @@ static tree eval_decl_struct(tree t, int depth)
     return t;
 }
 
+static tree eval_access(tree t, int depth)
+{
+    tree left = __evaluate_1(t->data.bin.left, depth + 1),
+           id = t->data.bin.right;
+
+    if (!is_E_CTX(left) && !left->data.ectx.is_compound)
+        eval_die("Unknown compound type in access\n");
+
+    if (!is_T_IDENTIFIER(id))
+        eval_die("Unknown accessor in access\n");
+
+    return resolve_identifier(id, left);
+}
+
 static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
@@ -688,6 +702,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_LIVE_VAR:   result = eval_live_var(t, depth + 1);   break;
     case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
     case T_DECL_STRUCT:result = eval_decl_struct(t, depth + 1);break;
+    case T_ACCESS:     result = eval_access(t, depth + 1);     break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
