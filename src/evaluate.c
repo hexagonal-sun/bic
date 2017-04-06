@@ -394,6 +394,9 @@ static void assign_ptr(tree var, tree right)
     case T_LIVE_VAR:
         ptr = (void *)right->data.var.val.D_T_PTR;
         break;
+    case T_INTEGER:
+        ptr = (void *)mpz_get_ui(right->data.integer);
+        break;
     default:
         eval_die("Error: could not assign to non-pointer type");
     }
@@ -677,6 +680,16 @@ static tree eval_access(tree t, int depth)
     return resolve_identifier(id, left);
 }
 
+static tree eval_addr(tree t, int depth)
+{
+    tree exp = __evaluate_1(t->data.exp, depth + 1),
+        ret = tree_make(T_INTEGER);
+
+    mpz_init_set_ui(ret->data.integer, (ptrdiff_t)exp);
+
+    return ret;
+}
+
 static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
@@ -705,6 +718,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
     case T_DECL_STRUCT:result = eval_decl_struct(t, depth + 1);break;
     case T_ACCESS:     result = eval_access(t, depth + 1);     break;
+    case T_ADDR:       result = eval_addr(t, depth + 1);       break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
