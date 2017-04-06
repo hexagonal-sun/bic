@@ -235,6 +235,12 @@ unary_expression
     addr->data.exp = $2;
     $$ = addr;
 }
+| '*' unary_expression
+{
+    tree deref = tree_make(T_DEREF);
+    deref->data.exp = $2;
+    $$ = deref;
+}
 ;
 
 multiplicative_expression
