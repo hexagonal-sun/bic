@@ -41,6 +41,9 @@ static void mark_tree(tree t)
         mark_tree(t->data.bin.left);
         mark_tree(t->data.bin.right);
         break;
+    case T_ARRAY:
+        mark_tree(t->data.array.decl);
+        mark_tree(t->data.array.exp);
     case T_DECL:
         mark_tree(t->data.decl.type);
         mark_tree(t->data.decl.decls);
