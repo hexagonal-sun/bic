@@ -279,6 +279,13 @@ decl
     fn_decl->data.function.arguments = $2;
     $$ = fn_decl;
 }
+| decl '[' additive_expression ']'
+{
+    tree array = tree_make(T_ARRAY);
+    array->data.array.decl = $1;
+    array->data.array.exp = $3;
+    $$ = array;
+}
 ;
 
 decl_possible_pointer
