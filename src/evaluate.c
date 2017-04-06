@@ -690,6 +690,19 @@ static tree eval_addr(tree t, int depth)
     return ret;
 }
 
+static tree eval_deref(tree t, int depth)
+{
+    tree exp = __evaluate_1(t->data.exp, depth + 1);
+
+    if (!is_T_LIVE_VAR(exp))
+        eval_die("Derefencing something that isn't live\n");
+
+    if (!is_D_T_PTR(exp->data.var.type))
+        eval_die("Attempted to dereference a non-pointer\n");
+
+    return (tree)exp->data.var.val.D_T_PTR;
+}
+
 static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
@@ -719,6 +732,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_DECL_STRUCT:result = eval_decl_struct(t, depth + 1);break;
     case T_ACCESS:     result = eval_access(t, depth + 1);     break;
     case T_ADDR:       result = eval_addr(t, depth + 1);       break;
+    case T_DEREF:      result = eval_deref(t, depth + 1);      break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
