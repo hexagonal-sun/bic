@@ -27,6 +27,7 @@ static void mark_tree(tree t)
     case T_DEC:
     case T_FN_ARG:
     case T_POINTER:
+    case T_ADDR:
     case T_TYPEDEF:
     case D_T_PTR:
         mark_tree(t->data.exp);
