@@ -151,7 +151,8 @@ primary_expression
 : INTEGER
 {
     tree number = tree_make(T_INTEGER);
-    mpz_set(number->data.integer, $1);
+    mpz_init_set(number->data.integer, $1);
+    mpz_clear($1);
     $$ = number;
 }
 | IDENTIFIER
