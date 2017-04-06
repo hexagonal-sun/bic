@@ -229,6 +229,12 @@ unary_expression
     dec->data.exp = $2;
     $$ = dec;
 }
+| '&' unary_expression
+{
+    tree addr = tree_make(T_ADDR);
+    addr->data.exp = $2;
+    $$ = addr;
+}
 ;
 
 multiplicative_expression

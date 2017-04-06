@@ -130,6 +130,7 @@ X                               [0-9A-F]
 "%"                             return '%';
 "{"                             return '{';
 "}"                             return '}';
+"&"                             return '&';
 "<<"                            return SHIFT_LEFT;
 ">>"                            return SHIFT_RIGHT;
 "++"                            return INC;
