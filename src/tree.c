@@ -68,6 +68,7 @@ static void tree_dump_single_exp(tree t, int depth)
 {
     eprintf(" exp:\n");
     __tree_dump(t->data.exp, depth + 1);
+    tree_print_indent(depth);
 }
 
 static void tree_dump_binary(tree t, int depth)
