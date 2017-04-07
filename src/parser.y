@@ -42,6 +42,7 @@ extern tree parse_head;
 %type <tree> compound_statement
 %type <tree> function_definition
 %type <tree> argument_specifier
+%type <tree> direct_argument_list
 %type <tree> argument_list
 %type <tree> argument_decl
 %type <tree> statement
@@ -112,15 +113,23 @@ argument_specifier
 }
 ;
 
-argument_list
+direct_argument_list
 : argument_decl
 {
     $$ = tree_chain_head($1);
 }
-| argument_list ',' argument_decl
+| direct_argument_list ',' argument_decl
 {
     tree_chain($3, $1);
 };
+
+argument_list
+: direct_argument_list
+| direct_argument_list ',' ELLIPSIS
+{
+    tree variadic = tree_make(T_VARIADIC);
+    tree_chain(variadic, $1);
+}
 
 argument_decl
 : type_specifier decl_possible_pointer
