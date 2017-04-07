@@ -456,6 +456,10 @@ direct_type_specifier
 {
     $$ = tree_make(D_T_ULONGLONG);
 }
+| VOID
+{
+    $$ = tree_make(D_T_VOID);
+}
 | IDENTIFIER
 {
     $$ = get_identifier($1);
