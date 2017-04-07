@@ -106,6 +106,7 @@ X                               [0-9A-F]
 
 [ \t\n\r]                       /* skip whitespace */
 
+"..."                           return ELLIPSIS;
 "=="                            return EQUATE;
 "!="                            return NOT_EQUATE;
 "="                             return '=';
