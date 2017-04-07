@@ -1,4 +1,4 @@
-int printf(char *s, int d, int e);
+int printf(char *s, ...);
 
 int main()
 {

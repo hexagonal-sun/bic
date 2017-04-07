@@ -1,4 +1,4 @@
-int printf(char *fmt, int n);
+int printf(char *fmt, ...); 
 
 int foobar(int a)
 {

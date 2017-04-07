@@ -1,4 +1,4 @@
-int printf(char *s, int d);
+int printf(char *s, ...);
 
 struct foobar {
     int a;

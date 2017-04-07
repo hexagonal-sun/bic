@@ -1,5 +1,6 @@
-char *malloc(int len);
-int strlen(char *s);
+typedef unsigned long int size_t;
+void *malloc(size_t len);
+size_t strlen(char *s);
 int puts(char *s);
 char *strcpy(char *dest, char *src);
 char *strcat(char *s1, char *s2);

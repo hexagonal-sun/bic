@@ -1,6 +1,6 @@
 typedef unsigned int footype;
 
-int printf(char *fmt, int d);
+int printf(char *fmt, ...);
 
 int foobar(footype a)
 {
