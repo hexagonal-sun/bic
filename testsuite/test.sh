@@ -27,4 +27,6 @@ if ! diff "${COMPILED_OUTPUT}" "${BIC_OUTPUT}"; then
     exit 1;
 fi
 
+rm "${COMPILED_OUTPUT}" "${BIC_OUTPUT}"
+
 exit 0
