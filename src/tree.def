@@ -27,3 +27,8 @@ DEFTYPE(T_FN_ARG, "Function Argument")
 DEFTYPE(T_LIVE_VAR, "Live Variable")
 DEFTYPE(CHAIN_HEAD, "Tree Chain Head")
 DEFTYPE(E_CTX, "Evaluator Context")
+
+/* We have to declare the void type here as using it as a DEFCTYPE
+ * would cause a compilation error since we can't declare a variable
+ * as a void type. */
+DEFTYPE(D_T_VOID, "Void type")
