@@ -640,6 +640,12 @@ static tree eval_integer(tree t, int depth)
     return t;
 }
 
+static tree eval_float(tree t, int depth)
+{
+    /* A float evaluates to itself. */
+    return t;
+}
+
 static tree eval_string(tree t, int depth)
 {
     /* A string evaluates to itself. */
@@ -717,6 +723,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_FN_DEF:     result = eval_fn_def(t, depth + 1);     break;
     case T_DECL:       result = eval_decl(t, depth + 1);       break;
     case T_ASSIGN:     result = eval_assign(t, depth + 1);     break;
+    case T_FLOAT:      result = eval_float(t, depth + 1);      break;
     case T_INTEGER:    result = eval_integer(t, depth + 1);    break;
     case T_STRING:     result = eval_string(t, depth + 1);     break;
     case T_P_INC:      result = eval_post_inc(t, depth + 1);   break;
