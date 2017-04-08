@@ -382,6 +382,38 @@ static void assign_integer(tree var, tree right)
     }
 }
 
+static void assign_float(tree var, tree right)
+{
+    double val;
+
+    /* Obtain the value with which to assign. */
+    switch (right->type)
+    {
+    case T_INTEGER:
+        val = (double)mpz_get_si(right->data.integer);
+         break;
+    case T_FLOAT:
+        val = (double)mpf_get_d(right->data.ffloat);
+        break;
+    case T_LIVE_VAR:
+        val = right->data.var.val.D_T_DOUBLE;
+        break;
+    default:
+        eval_die("Error: unknown rvalue assignment to float.\n");
+    }
+
+    switch (var->data.var.type->type) {
+    case D_T_FLOAT:
+        var->data.var.val.D_T_FLOAT = (float)val;
+        break;
+    case D_T_DOUBLE:
+        var->data.var.val.D_T_DOUBLE = val;
+        break;
+    default:
+        eval_die("Error: could not assign to non-float type");
+    }
+}
+
 static void assign_ptr(tree var, tree right)
 {
     void *ptr;
@@ -416,6 +448,9 @@ static tree eval_assign(tree t, int depth)
     switch (left->data.var.type->type) {
     case D_T_CHAR ... D_T_ULONGLONG:
         assign_integer(left, right);
+        break;
+    case D_T_FLOAT ... D_T_DOUBLE:
+        assign_float(left, right);
         break;
     case D_T_PTR:
         assign_ptr(left, right);
