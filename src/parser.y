@@ -16,6 +16,7 @@ extern tree parse_head;
 %union
 {
     mpz_t integer;
+    mpf_t ffloat;
     char *string;
     tree tree;
 }
@@ -36,6 +37,7 @@ extern tree parse_head;
 %token <string> CONST_HEX
 %token <string> CONST_STRING
 %token <integer> INTEGER;
+%token <ffloat> FLOAT_CST;
 
 %type <tree> translation_unit
 %type <tree> toplevel_declarations
@@ -163,6 +165,13 @@ primary_expression
     mpz_init_set(number->data.integer, $1);
     mpz_clear($1);
     $$ = number;
+}
+| FLOAT_CST
+{
+    tree ffloat = tree_make(T_FLOAT);
+    mpf_init_set(ffloat->data.ffloat, $1);
+    mpf_clear($1);
+    $$ = ffloat;
 }
 | IDENTIFIER
 {

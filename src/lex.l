@@ -93,6 +93,7 @@ X                               [0-9A-F]
 
 {L}({L}|{D})*                   yylval.string = strdup(yytext); return IDENTIFIER;
 -?[0-9]+                          mpz_init_set_str(yylval.integer, yytext, 10); return INTEGER;
+-?[0-9]+\.[0-9]+                mpf_init_set_str(yylval.ffloat, yytext, 10); return FLOAT_CST;
 0x{X}+                          yylval.string = strdup(yytext); return CONST_HEX;
 \"                              { BEGIN str_lit; sl_begin(); }
 <str_lit>[^\\"\n]*              { sl_append_str(yytext); }
