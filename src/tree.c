@@ -287,6 +287,7 @@ void __tree_dump_1(tree t, int depth)
         tree_dump_single_exp(t, depth);
         break;
     case CHAIN_HEAD:
+    case T_VARIADIC:
         break;
     }
     eprintf(">\n");
