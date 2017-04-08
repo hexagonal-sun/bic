@@ -279,7 +279,7 @@ void __tree_dump_1(tree t, int depth)
     case T_LIVE_VAR:
         tree_dump_live_var(t, depth);
         break;
-    case D_T_CHAR ... D_T_ULONGLONG:
+    case D_T_CHAR ... D_T_DOUBLE:
     case D_T_VOID:
         tree_dump_type(t, depth);
         break;
