@@ -216,6 +216,9 @@ void __tree_dump_1(tree t, int depth)
     case T_INTEGER:
         gmp_fprintf(stderr, " number %Zd", t->data.integer);
         break;
+    case T_FLOAT:
+        gmp_fprintf(stderr, " number %Ff", t->data.ffloat);
+        break;
     case T_STRING:
         eprintf(" string: \"%s\"", t->data.string);
         break;

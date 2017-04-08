@@ -83,6 +83,9 @@ union tree_data {
     /* T_INTEGER */
     mpz_t integer;
 
+    /* T_FLOAT */
+    mpf_t ffloat;
+
     /* T_STRING */
     char *string;
 
