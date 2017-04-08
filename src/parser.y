@@ -456,6 +456,10 @@ direct_type_specifier
 {
     $$ = tree_make(D_T_ULONGLONG);
 }
+| FLOAT
+{
+    $$ = tree_make(D_T_FLOAT);
+}
 | VOID
 {
     $$ = tree_make(D_T_VOID);
