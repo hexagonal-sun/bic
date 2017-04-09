@@ -5,8 +5,30 @@
 #include "function_call.h"
 
 struct arg *arg_head = NULL;
+
+/* Arguments destined for the integer registers: rdi, rsi, etc. */
+static struct arg *int_args = NULL;
 extern ptrdiff_t __do_call(void *fn, struct arg *args);
 
+static void push_arg(struct arg **head, struct arg *new_arg)
+{
+    new_arg->next = *head;
+    *head = new_arg;
+}
+
+/* Push all of the arguments specified in one the type specific lists
+ * (int_head, for example) onto the main list of arguments,
+ * arg_head.  This function will reverse the  */
+static void push_to_main_arg_head(struct arg *head)
+{
+    struct arg *next;
+
+    while (head) {
+        next = head->next;
+        push_arg(&arg_head, head);
+        head = next;
+    }
+}
 
 /* Here we simplify the interface for accessing arguments so that
  * it is reasonable to be done in assembly. */
@@ -14,7 +36,6 @@ ptrdiff_t do_call(void *function_address, tree args)
 {
     tree fn_arg;
     ptrdiff_t ret;
-    struct arg *arg_rear;
 
     if (args)
         for_each_tree(fn_arg, args) {
@@ -25,29 +46,28 @@ ptrdiff_t do_call(void *function_address, tree args)
             case T_STRING:
                 new_arg->val = (ptrdiff_t)arg->data.string;
                 new_arg->class = POINTER;
+                push_arg(&int_args, new_arg);
                 break;
             case T_LIVE_VAR:
                 new_arg->val = (ptrdiff_t)arg->data.var.val.D_T_PTR;
                 new_arg->class = POINTER;
+                push_arg(&int_args, new_arg);
                 break;
             case T_INTEGER:
                 new_arg->val = (ptrdiff_t)mpz_get_si(arg->data.integer);
                 new_arg->class = INTEGER;
+                push_arg(&int_args, new_arg);
                 break;
             default:
                 fprintf(stderr, "Error: Unknown tree type to marshall.\n");
                 exit(1);
             }
-
-            new_arg->next = NULL;
-
-            if (!arg_head)
-                arg_head = arg_rear = new_arg;
-            else
-                arg_rear->next = new_arg;
-
-            arg_rear = new_arg;
         }
+
+    /* Construct the list of arguments that we pass into the assembly
+     * function.  This needs to be done in the order that the assembly
+     * moves the arguments, beginning with the integer args. */
+    push_to_main_arg_head(int_args);
 
     ret = __do_call(function_address, arg_head);
 
@@ -57,6 +77,8 @@ ptrdiff_t do_call(void *function_address, tree args)
         arg_head = arg_head->next;
         free(old_arg);
     }
+
+    int_args = NULL;
 
     return ret;
 }
