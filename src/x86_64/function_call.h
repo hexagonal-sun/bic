@@ -15,7 +15,10 @@ enum argument_class {
  * structure from assembly. */
 struct arg {
     struct arg *next;
-    ptrdiff_t val;
+    union {
+        ptrdiff_t i;
+        double d;
+    } val;
     enum argument_class dest;
 } __attribute__((packed)) ;
 
