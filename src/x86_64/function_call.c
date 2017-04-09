@@ -8,6 +8,10 @@ struct arg *arg_head = NULL;
 
 /* Arguments destined for the integer registers: rdi, rsi, etc. */
 static struct arg *int_args = NULL;
+
+/* Arguments destined for the vector registers: xmm0, xmm1, etc. */
+static struct arg *vec_args = NULL;
+
 extern ptrdiff_t __do_call(void *fn, struct arg *args);
 
 static void push_arg(struct arg **head, struct arg *new_arg)
@@ -58,6 +62,11 @@ ptrdiff_t do_call(void *function_address, tree args)
                 new_arg->dest = INTEGER;
                 push_arg(&int_args, new_arg);
                 break;
+            case T_FLOAT:
+                new_arg->val.d = mpf_get_d(arg->data.ffloat);
+                new_arg->dest = SSE;
+                push_arg(&vec_args, new_arg);
+                break;
             default:
                 fprintf(stderr, "Error: Unknown tree type to marshall.\n");
                 exit(1);
@@ -66,7 +75,8 @@ ptrdiff_t do_call(void *function_address, tree args)
 
     /* Construct the list of arguments that we pass into the assembly
      * function.  This needs to be done in the order that the assembly
-     * moves the arguments, beginning with the integer args. */
+     * moves the arguments. */
+    push_to_main_arg_head(vec_args);
     push_to_main_arg_head(int_args);
 
     ret = __do_call(function_address, arg_head);
@@ -79,6 +89,7 @@ ptrdiff_t do_call(void *function_address, tree args)
     }
 
     int_args = NULL;
+    vec_args = NULL;
 
     return ret;
 }
