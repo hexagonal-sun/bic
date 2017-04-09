@@ -1,8 +1,7 @@
 #include "../tree.h"
 
 enum argument_class {
-    POINTER,
-    INTEGER,
+    INTEGER = 0,
     SSE,
     SSEUP,
     X87,
@@ -17,7 +16,7 @@ enum argument_class {
 struct arg {
     struct arg *next;
     ptrdiff_t val;
-    enum argument_class class;
+    enum argument_class dest;
 } __attribute__((packed)) ;
 
 ptrdiff_t do_call(void *function_address, tree args);

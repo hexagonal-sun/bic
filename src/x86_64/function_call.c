@@ -45,17 +45,17 @@ ptrdiff_t do_call(void *function_address, tree args)
             switch(arg->type) {
             case T_STRING:
                 new_arg->val = (ptrdiff_t)arg->data.string;
-                new_arg->class = POINTER;
+                new_arg->dest = INTEGER;
                 push_arg(&int_args, new_arg);
                 break;
             case T_LIVE_VAR:
                 new_arg->val = (ptrdiff_t)arg->data.var.val.D_T_PTR;
-                new_arg->class = POINTER;
+                new_arg->dest = INTEGER;
                 push_arg(&int_args, new_arg);
                 break;
             case T_INTEGER:
                 new_arg->val = (ptrdiff_t)mpz_get_si(arg->data.integer);
-                new_arg->class = INTEGER;
+                new_arg->dest = INTEGER;
                 push_arg(&int_args, new_arg);
                 break;
             default:
