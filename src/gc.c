@@ -38,6 +38,8 @@ static void mark_tree(tree t)
     case T_MOD:
     case T_ADD:
     case T_SUB:
+    case T_LT:
+    case T_GT:
     case T_ACCESS:
     case T_ASSIGN:
         mark_tree(t->data.bin.left);

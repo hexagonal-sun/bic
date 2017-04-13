@@ -257,6 +257,8 @@ void __tree_dump_1(tree t, int depth)
     case T_MOD:
     case T_ADD:
     case T_SUB:
+    case T_LT:
+    case T_GT:
     case T_ACCESS:
     case T_ASSIGN:
         tree_dump_binary(t,  depth);
