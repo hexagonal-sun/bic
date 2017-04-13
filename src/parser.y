@@ -54,6 +54,7 @@ extern tree parse_head;
 %type <tree> unary_expression
 %type <tree> multiplicative_expression
 %type <tree> additive_expression
+%type <tree> relational_expression
 %type <tree> assignment_expression
 %type <tree> decl
 %type <tree> decl_possible_pointer
@@ -289,8 +290,20 @@ additive_expression
 }
 ;
 
-assignment_expression
+relational_expression
 : additive_expression
+| relational_expression '<' additive_expression
+{
+    $$ = tree_build_bin(T_LT, $1, $3);
+}
+| relational_expression '>' additive_expression
+{
+    $$ = tree_build_bin(T_GT, $1, $3);
+}
+;
+
+assignment_expression
+: relational_expression
 | unary_expression '=' assignment_expression
 {
     $$ = tree_build_bin(T_ASSIGN, $1, $3);
