@@ -15,8 +15,7 @@ __do_call:
 	.macro param_2_ireg destreg paramptr
 	test	\paramptr, \paramptr
 	jz	call_fn
-	mov	r12, [\paramptr + 16]
-	cmp	r12, 1
+	cmp	DWORD PTR[\paramptr + 16], 1
 	je	vec_args
 	mov	\destreg, [\paramptr + 8]
 	mov	\paramptr, [\paramptr]
@@ -33,12 +32,8 @@ __do_call:
 	push	rbp
 	mov	rbp, rsp
 
-	// We don't use this stack space, but we need to ensure that
-	// it remains 16-byte aligned.
-	sub	rsp, 8
 	push	r10
 	push	r11
-	push	r12
 
 	// Save the function call address.
 	mov	r11, rdi
@@ -69,7 +64,6 @@ vec_args:
 	param_2_vreg	xmm7, r10
 call_fn:
 	call	r11
-	pop	r12
 	pop	r11
 	pop	r10
 	add	rsp, 8
