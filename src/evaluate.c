@@ -717,6 +717,30 @@ static tree eval_lt(tree t, int depth)
     return ret;
 }
 
+static tree eval_gt(tree t, int depth)
+{
+    tree left  = convert_to_comparable_type(t->data.bin.left, depth),
+        right = convert_to_comparable_type(t->data.bin.right, depth),
+        ret;
+
+    if (left->type != right->type)
+        eval_die("Could not compare different types\n");
+
+    switch (left->type) {
+    case T_INTEGER:
+    {
+        int result = mpz_cmp(left->data.integer, right->data.integer);
+        ret = tree_make(T_INTEGER);
+        mpz_init_set_ui(ret->data.integer, result > 0 ? 1 : 0);
+        break;
+    }
+    default:
+        eval_die("Unknown comparable types for gt\n");
+    }
+
+    return ret;
+}
+
 /* All types evaluate to themselves. */
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
     static tree eval_##TNAME(tree t, int depth) \
@@ -827,6 +851,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_MUL:        result = eval_mul(t, depth + 1);        break;
     case T_DIV:        result = eval_div(t, depth + 1);        break;
     case T_LT:         result = eval_lt(t, depth + 1);         break;
+    case T_GT:         result = eval_gt(t, depth + 1);         break;
     case T_LIVE_VAR:   result = eval_live_var(t, depth + 1);   break;
     case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
     case T_DECL_STRUCT:result = eval_decl_struct(t, depth + 1);break;
