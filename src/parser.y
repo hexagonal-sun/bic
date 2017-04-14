@@ -293,6 +293,12 @@ unary_expression
     deref->data.exp = $2;
     $$ = deref;
 }
+| SIZEOF '(' direct_type_specifier ')'
+{
+    tree szof = tree_make(T_SIZEOF);
+    szof->data.exp = $3;
+    $$ = szof;
+}
 ;
 
 multiplicative_expression
