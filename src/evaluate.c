@@ -828,6 +828,32 @@ static tree eval_typedef(tree t, int depth)
     return t;
 }
 
+static tree eval_loop_for(tree t, int depth)
+{
+    __evaluate_1(t->data.floop.initialization, depth + 1);
+
+    do {
+
+        tree cond_result = __evaluate_1(t->data.floop.condition,
+                                        depth + 1);
+
+        if (!is_T_INTEGER(cond_result))
+            eval_die("Unknown condition result");
+
+        if (!mpz_get_si(cond_result->data.integer))
+            break;
+
+        push_ctx("For Loop");
+        __evaluate(t->data.floop.stmts, depth + 1);
+        pop_ctx();
+
+        __evaluate_1(t->data.floop.afterthrought, depth + 1);
+
+    } while (1);
+
+    return NULL;
+}
+
 static tree eval_decl_struct(tree t, int depth)
 {
     if (t->data.structure.id)
@@ -904,6 +930,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_GTEQ:       result = eval_gteq(t, depth + 1);       break;
     case T_LIVE_VAR:   result = eval_live_var(t, depth + 1);   break;
     case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
+    case T_LOOP_FOR:   result = eval_loop_for(t, depth + 1);   break;
     case T_DECL_STRUCT:result = eval_decl_struct(t, depth + 1);break;
     case T_ACCESS:     result = eval_access(t, depth + 1);     break;
     case T_ADDR:       result = eval_addr(t, depth + 1);       break;
