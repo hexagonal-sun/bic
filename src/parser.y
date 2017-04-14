@@ -300,6 +300,14 @@ relational_expression
 {
     $$ = tree_build_bin(T_GT, $1, $3);
 }
+| relational_expression LESS_OR_EQUAL additive_expression
+{
+    $$ = tree_build_bin(T_LTEQ, $1, $3);
+}
+| relational_expression GREATER_OR_EQUAL additive_expression
+{
+    $$ = tree_build_bin(T_GTEQ, $1, $3);
+}
 ;
 
 assignment_expression
