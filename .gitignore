@@ -36,3 +36,7 @@ testsuite/prompt.exp
 testsuite/site.exp
 *.o
 *#
+libtool
+ltmain.sh
+test-driver
+*.deps
