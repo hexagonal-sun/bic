@@ -147,6 +147,17 @@ static inline void tree_chain(tree new, tree chain)
 #define for_each_tree(pos, head)                \
     list_for_each((pos), &(head)->chain, chain)
 
+static inline void tree_splice_chains(tree chain_dest, tree chain_src)
+{
+    list *i, *n;
+
+    list_for_each_safe(i, n, &chain_src->chain) {
+        tree elm = list_entry(i, struct tree, chain);
+        list_del(&elm->chain);
+        tree_chain(elm, chain_dest);
+    }
+}
+
 tree tree_build_bin(enum tree_type, tree left, tree right);
 void tree_dump(tree tree);
 
