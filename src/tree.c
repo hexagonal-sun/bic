@@ -245,29 +245,13 @@ void __tree_dump_1(tree t, int depth)
         eprintf(" string: \"%s\"", t->data.string);
         break;
     case T_P_INC:
-        tree_dump_single_exp(t,  depth);
-        break;
     case T_P_DEC:
-        tree_dump_single_exp(t,  depth);
-        break;
     case T_INC:
-        tree_dump_single_exp(t,  depth);
-        break;
     case T_DEC:
-        tree_dump_single_exp(t,  depth);
-        break;
     case T_FN_ARG:
-        tree_dump_single_exp(t, depth);
-        break;
     case T_ADDR:
-        tree_dump_single_exp(t, depth);
-        break;
     case T_DEREF:
-        tree_dump_single_exp(t, depth);
-        break;
     case T_POINTER:
-        tree_dump_single_exp(t, depth);
-        break;
     case T_TYPEDEF:
         tree_dump_single_exp(t, depth);
         break;
