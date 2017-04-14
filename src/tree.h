@@ -67,6 +67,13 @@ struct live_var {
     union value val;
 };
 
+struct for_loop {
+    tree initialization;
+    tree condition;
+    tree afterthrought;
+    tree stmts;
+};
+
 typedef struct eval_ctx {
     identifier_mapping id_map;
     tree parent_ctx;
@@ -111,6 +118,9 @@ union tree_data {
 
     /* T_LIVE_VAR */
     struct live_var var;
+
+    /* T_LOOP_FOR */
+    struct for_loop floop;
 
     /* E_CTX */
     struct eval_ctx ectx;

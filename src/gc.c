@@ -65,6 +65,12 @@ static void mark_tree(tree t)
         mark_tree(t->data.function.arguments);
         mark_tree(t->data.function.stmts);
         break;
+    case T_LOOP_FOR:
+        mark_tree(t->data.floop.initialization);
+        mark_tree(t->data.floop.condition);
+        mark_tree(t->data.floop.afterthrought);
+        mark_tree(t->data.floop.stmts);
+        break;
     case T_FN_CALL:
         mark_tree(t->data.fncall.identifier);
         mark_tree(t->data.fncall.arguments);

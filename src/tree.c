@@ -121,6 +121,28 @@ static void tree_dump_function(tree t, int depth)
     tree_print_indent(depth);
 }
 
+static void tree_dump_for_loop(tree t, int depth)
+{
+    eprintf("\n");
+    tree_print_indent(depth);
+
+    eprintf(" initialization:\n");
+    __tree_dump(t->data.floop.initialization, depth + 1);
+
+    tree_print_indent(depth);
+    eprintf(" condition:\n");
+    __tree_dump(t->data.floop.condition, depth + 1);
+
+    tree_print_indent(depth);
+    eprintf(" afterthrought:\n");
+    __tree_dump(t->data.floop.afterthrought, depth + 1);
+
+    tree_print_indent(depth);
+    eprintf(" stmt(s):\n");
+    __tree_dump(t->data.floop.stmts, depth + 1);
+    tree_print_indent(depth);
+}
+
 static void tree_dump_fncall(tree t, int depth)
 {
     eprintf("\n");
@@ -269,6 +291,9 @@ void __tree_dump_1(tree t, int depth)
         tree_dump_array(t, depth);
     case T_DECL:
         tree_dump_decl(t,  depth);
+        break;
+    case T_LOOP_FOR:
+        tree_dump_for_loop(t, depth);
         break;
     case T_DECL_STRUCT:
         tree_dump_struct(t,  depth);
