@@ -155,6 +155,18 @@ static void dealloc_tree(tree t)
     case T_STRING:
         free(t->data.string);
         break;
+    case E_CTX:
+    {
+        list *i, *n;
+
+        list_for_each_safe(i, n, &t->data.ectx.id_map.mappings) {
+            identifier_mapping *idmap = list_entry(i, identifier_mapping,
+                                                   mappings);
+            free(idmap);
+        }
+
+        break;
+    }
     default:
         /* All other types don't contain any other referencies to
          * dynamic memory. */
