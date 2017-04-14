@@ -3,7 +3,7 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  prefix_increment postfix_decrement prefix_decrement	\
                  simple_typedef simple_struct struct_typedef add sub	\
                  mul div simple_pointer set_pointer_through_function	\
-                 printf_double_explicit printf_double_live_var lt
+                 printf_double_explicit printf_double_live_var lt gt
 
 TESTS = $(check_PROGRAMS)
 
