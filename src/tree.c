@@ -248,6 +248,7 @@ void __tree_dump_1(tree t, int depth)
     case T_P_DEC:
     case T_INC:
     case T_DEC:
+    case T_SIZEOF:
     case T_FN_ARG:
     case T_ADDR:
     case T_DEREF:
