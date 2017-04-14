@@ -468,13 +468,21 @@ static tree make_int_from_live_var(tree var)
     tree type = var->data.var.type;
 
     switch (type->type) {
-    case D_T_CHAR ... D_T_LONGLONG:
-        /* Signed Types */
-        mpz_init_set_si(ret->data.integer, var->data.var.val.D_T_LONGLONG);
-        break;
-    case D_T_UCHAR ... D_T_ULONGLONG:
-        mpz_init_set_ui(ret->data.integer, var->data.var.val.D_T_ULONGLONG);
-        break;
+#define SETINT(type)                                                    \
+        case type:                                                      \
+            mpz_init_set_si(ret->data.integer, var->data.var.val.type); \
+            break;
+        SETINT(D_T_CHAR);
+        SETINT(D_T_SHORT);
+        SETINT(D_T_INT);
+        SETINT(D_T_LONG);
+        SETINT(D_T_LONGLONG);
+        SETINT(D_T_UCHAR);
+        SETINT(D_T_USHORT);
+        SETINT(D_T_UINT);
+        SETINT(D_T_ULONG);
+        SETINT(D_T_ULONGLONG);
+#undef SETINT
     default:
         eval_die("error: could not create integer type from live var.");
     }
