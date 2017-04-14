@@ -668,6 +668,31 @@ static tree eval_div(tree t, int depth)
     return ret;
 }
 
+static tree convert_to_comparable_type(tree t, int depth)
+{
+    tree evaluated = __evaluate_1(t, depth + 1),
+        ret;
+
+    switch (evaluated->type) {
+    case T_INTEGER:
+        ret = evaluated;
+        break;
+    case T_LIVE_VAR:
+        switch (evaluated->data.var.type->type) {
+        case D_T_CHAR ... D_T_ULONGLONG:
+            ret = make_int_from_live_var(evaluated);
+            break;
+        default:
+            eval_die("Could not convert live var type to comparable type\n");
+        }
+        break;
+    default:
+        eval_die("Could not convert type to comparable type\n");
+    }
+
+    return ret;
+}
+
 /* All types evaluate to themselves. */
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
     static tree eval_##TNAME(tree t, int depth) \
