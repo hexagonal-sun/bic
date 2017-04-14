@@ -48,6 +48,8 @@ extern tree parse_head;
 %type <tree> argument_list
 %type <tree> argument_decl
 %type <tree> statement
+%type <tree> statement_list
+%type <tree> expression_statement
 %type <tree> primary_expression
 %type <tree> postfix_expression
 %type <tree> argument_expression_list
@@ -69,6 +71,7 @@ extern tree parse_head;
 %type <tree> direct_type_specifier
 %type <tree> type_specifier
 %type <tree> declaration
+%type <tree> declaration_list
 
 %%
 
@@ -90,13 +93,13 @@ toplevel_declarations
 ;
 
 function_definition
-: type_specifier IDENTIFIER argument_specifier '{' compound_statement '}'
+: type_specifier IDENTIFIER argument_specifier compound_statement
 {
     tree function_def = tree_make(T_FN_DEF);
     function_def->data.function.id = get_identifier($2);
     function_def->data.function.return_type = $1;
     function_def->data.function.arguments = $3;
-    function_def->data.function.stmts = $5;
+    function_def->data.function.stmts = $4;
     $$ = function_def;
 }
 ;
@@ -144,19 +147,37 @@ argument_decl
 }
 ;
 
-compound_statement: statement  ';'
+statement
+: expression_statement
+| compound_statement
+;
+
+statement_list: statement
 {
     $$ = tree_chain_head($1);
 }
-| compound_statement statement ';'
+| statement_list statement
 {
     tree_chain($2, $1);
 }
 ;
 
-statement
-: assignment_expression
-| declaration
+compound_statement
+: '{' statement_list '}'
+{
+    $$ = $2;
+}
+| '{' declaration_list statement_list '}'
+{
+    tree_splice_chains($2, $3);
+    $$ = $2;
+}
+;
+
+expression_statement
+: assignment_expression ';'
+;
+
 ;
 
 primary_expression
@@ -565,5 +586,16 @@ declaration
     decl->data.decl.type = $1;
     decl->data.decl.decls = NULL;
     $$ = decl;
+}
+;
+
+declaration_list
+: declaration ';'
+{
+    $$ = tree_chain_head($1);
+}
+| declaration_list declaration ';'
+{
+    tree_chain($2, $1);
 }
 ;
