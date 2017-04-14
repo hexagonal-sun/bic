@@ -50,6 +50,7 @@ extern tree parse_head;
 %type <tree> statement
 %type <tree> statement_list
 %type <tree> expression_statement
+%type <tree> iteration_statement
 %type <tree> primary_expression
 %type <tree> postfix_expression
 %type <tree> argument_expression_list
@@ -150,6 +151,7 @@ argument_decl
 statement
 : expression_statement
 | compound_statement
+| iteration_statement
 ;
 
 statement_list: statement
@@ -178,6 +180,16 @@ expression_statement
 : assignment_expression ';'
 ;
 
+iteration_statement
+: FOR '(' expression_statement expression_statement assignment_expression ')' statement
+{
+    tree for_loop = tree_make(T_LOOP_FOR);
+    for_loop->data.floop.initialization = $3;
+    for_loop->data.floop.condition = $4;
+    for_loop->data.floop.afterthrought = $5;
+    for_loop->data.floop.stmts = $7;
+    $$ = for_loop;
+}
 ;
 
 primary_expression
