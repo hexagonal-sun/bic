@@ -82,6 +82,7 @@ AC_FUNC_ALLOCA
 AC_CHECK_FUNCS([memset strdup])
 
 AC_CONFIG_FILES([Makefile
+                 etc/Makefile
                  src/Makefile
                  src/x86_64/Makefile
                  testsuite/Makefile])

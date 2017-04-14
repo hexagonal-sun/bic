@@ -1,0 +1,6 @@
+{
+   Uninitialised stack value suppression
+   Memcheck:Cond
+   fun:mark_stack
+   ...
+}
