@@ -925,6 +925,9 @@ static tree __evaluate(tree head, int depth)
     if (!head)
         return NULL;
 
+    if (!is_CHAIN_HEAD(head))
+        return __evaluate_1(head, depth);
+
     for_each_tree(i, head)
         result = __evaluate_1(i, depth);
 
