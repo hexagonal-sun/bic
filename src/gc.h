@@ -21,4 +21,3 @@ extern tree *top_of_stack;
 /* Return an uninitialised tree object that will be tracked through
  * GC. */
 tree alloc_tree(void);
-void collect(void);

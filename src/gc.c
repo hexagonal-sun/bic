@@ -6,12 +6,8 @@ static LIST(all_trees);
 
 tree *top_of_stack;
 
-tree alloc_tree(void)
-{
-    tree ret = calloc(sizeof(*ret), 1);
-    list_add(&ret->alloc, &all_trees);
-    return ret;
-}
+#define COLLECT_TREE_ALLOC 1000
+static unsigned int collect_counter = 0;
 
 static void mark_tree(tree t)
 {
@@ -189,10 +185,26 @@ static void sweep(void)
     }
 }
 
-void collect(void)
+static void collect(void)
 {
        unmark_all_trees();
        mark_stack();
        mark_static();
        sweep();
+}
+
+static void maybe_collect()
+{
+    if (collect_counter++ > COLLECT_TREE_ALLOC) {
+        collect();
+        collect_counter = 0;
+    }
+}
+
+tree alloc_tree(void)
+{
+    maybe_collect();
+    tree ret = calloc(sizeof(*ret), 1);
+    list_add(&ret->alloc, &all_trees);
+    return ret;
 }

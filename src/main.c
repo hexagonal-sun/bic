@@ -97,7 +97,6 @@ int main(int argc, char *argv[])
         for (i = 1; i < argc; i++)
             if (!parse_file(argv[i])) {
                 add_call_to_main(parse_head);
-                collect();
                 evaluate(parse_head);
             }
 }
