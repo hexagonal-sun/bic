@@ -876,6 +876,60 @@ static tree eval_access(tree t, int depth)
     return resolve_identifier(id, left);
 }
 
+static int get_ctype_size(tree t)
+{
+    switch (t->type)
+    {
+#define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
+        case TNAME:                             \
+            return sizeof(CTYPE);
+#include "ctypes.def"
+#undef DEFCTYPE
+        default:
+            eval_die("Unknown ctype\n");
+    }
+}
+
+static int get_struct_size(tree t, int depth)
+{
+    identifier_mapping *i;
+    int total_size = 0;
+
+    for_each_id_mapping(i, &t->data.ectx.id_map) {
+        tree sz_of_elm = tree_make(T_SIZEOF), sz;
+
+        sz_of_elm->data.exp = i->t;
+
+        sz = __evaluate_1(sz_of_elm, depth + 1);
+
+        total_size += mpz_get_ui(sz->data.integer);
+    }
+
+    return total_size;
+}
+
+static tree eval_sizeof(tree t, int depth)
+{
+    tree exp = __evaluate_1(t->data.exp, depth + 1),
+        type = exp,
+         ret = tree_make(T_INTEGER);
+
+    if (is_T_LIVE_VAR(exp))
+        type = exp->data.var.type;
+
+    if (is_CTYPE(type)) {
+        mpz_init_set_ui(ret->data.integer, get_ctype_size(type));
+        return ret;
+    }
+
+    if (is_E_CTX(exp) && exp->data.ectx.is_compound) {
+        mpz_init_set_ui(ret->data.integer, get_struct_size(exp, depth));
+        return ret;
+    }
+
+    eval_die("Could not calculate size of expression");
+}
+
 static tree eval_addr(tree t, int depth)
 {
     tree exp = __evaluate_1(t->data.exp, depth + 1),
@@ -932,6 +986,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
     case T_LOOP_FOR:   result = eval_loop_for(t, depth + 1);   break;
     case T_DECL_STRUCT:result = eval_decl_struct(t, depth + 1);break;
+    case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
     case T_ACCESS:     result = eval_access(t, depth + 1);     break;
     case T_ADDR:       result = eval_addr(t, depth + 1);       break;
     case T_DEREF:      result = eval_deref(t, depth + 1);      break;
