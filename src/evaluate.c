@@ -68,7 +68,7 @@ static tree resolve_identifier(tree id, tree ctx)
 {
     identifier_mapping *i;
 
-    list_for_each(i, &ctx->data.ectx.id_map.mappings, mappings) {
+    for_each_id_mapping(i, &ctx->data.ectx.id_map) {
         if (strcmp(i->id->data.id.name, id->data.id.name) == 0)
             return i->t;
     }

@@ -186,7 +186,7 @@ static void tree_dump_eval_ctx(tree t, int depth)
     eprintf(" name %s\n", t->data.ectx.name);
     tree_print_indent(depth);
     eprintf(" mapping(s):\n");
-    list_for_each(i, &t->data.ectx.id_map.mappings, mappings) {
+    for_each_id_mapping(i, &t->data.ectx.id_map) {
         tree_print_indent(depth + 1);
         eprintf("<mapping, identifier:\n");
         __tree_dump(i->id, depth + 2);
