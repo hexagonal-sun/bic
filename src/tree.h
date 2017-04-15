@@ -202,4 +202,21 @@ void tree_dump(tree tree);
 #include "ctypes.def"
 #undef DEFCTYPE
 
+static inline int is_CTYPE(tree t)
+{
+    if (!t)
+        return 0;
+
+    switch (t->type)
+    {
+#define DEFCTYPE(ETYPE, DESC, FMT, CTYPE)       \
+        case ETYPE:
+#include "ctypes.def"
+#undef DEFCTYPE
+        return 1;
+    default:
+        return 0;
+    }
+}
+
 #endif
