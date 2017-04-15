@@ -868,8 +868,83 @@ static tree eval_loop_for(tree t, int depth)
     return NULL;
 }
 
+
+/* Build a simplified decl chain, ensuring all decls with multiple
+ * identifiers are split.
+ *
+ * This is the equivalent of mutating
+ *
+ *     struct foobar {
+ *         int a, b;
+ *         float c, d;
+ *         char *e, f;
+ *     }
+ *
+ * to
+ *
+ *     struct foobar {
+ *         int a;
+ *         int b;
+ *         float c;
+ *         float d;
+ *         char *e;
+ *         char f;
+ *     };
+ */
+static tree expand_decl_chain(tree decl_chain)
+{
+    tree decl, decl_element, new_chain = tree_make(CHAIN_HEAD);
+
+    for_each_tree(decl, decl_chain) {
+        for_each_tree(decl_element, decl->data.decl.decls) {
+            tree new_decl = tree_make(T_DECL);
+
+            new_decl->data.decl.type = decl->data.decl.type;
+            new_decl->data.decl.decls = decl_element;
+
+            tree_chain(new_decl, new_chain);
+        }
+    }
+
+    return new_chain;
+}
+
 static tree eval_decl_struct(tree t, int depth)
 {
+    tree i;
+    int offset = 0;
+
+    /* Expand the structure decl chain so each decl can have it's own
+     * offset.  */
+    t->data.structure.decls = expand_decl_chain(t->data.structure.decls);
+
+    /* Populate the decls with their offsets, as well as the total
+     * size of the structure. */
+    for_each_tree(i, t->data.structure.decls) {
+        identifier_mapping *id_map;
+        tree sz, id, sz_of_decl = tree_make(T_SIZEOF);
+
+        /* To calculate the size of each element of the structure, we
+         * temporarily push the evaluation ctx, evaluate each decl
+         * within the new evaluation ctx, resolve the identifier back
+         * to it's live var and finally pass that through a sizeof()
+         * evaluation. */
+        push_ctx("Structure Declaration");
+
+        id = __evaluate_1(i, depth + 1);
+
+        i->data.decl.offset = offset;
+
+        sz_of_decl->data.exp = resolve_identifier(id, cur_ctx);
+        sz = __evaluate_1(sz_of_decl, depth + 1);
+
+        offset += mpz_get_ui(sz->data.integer);
+
+        pop_ctx();
+    }
+
+    t->data.structure.length = offset;
+
     if (t->data.structure.id)
         map_identifier(t->data.structure.id, t);
 
