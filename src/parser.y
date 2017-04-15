@@ -416,7 +416,7 @@ direct_declarator_list
 {
     $$ = tree_chain_head($1);
 }
-| decl_possible_pointer ',' direct_declarator_list
+| direct_declarator_list ',' decl_possible_pointer
 {
     tree_chain($3, $1);
 }
