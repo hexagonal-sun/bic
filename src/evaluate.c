@@ -124,7 +124,12 @@ static tree make_live_var(tree type)
 
 static tree make_fncall_result(tree type, ptrdiff_t result)
 {
-    tree ret = make_live_var(type);
+    tree ret;
+
+    if (!type)
+        return NULL;
+
+    ret = make_live_var(type);
 
     switch (type->type)
     {
