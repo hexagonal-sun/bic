@@ -24,5 +24,6 @@ lteq
 gteq
 fibonacci
 sizeof
+gethostname
 
 *.trs
