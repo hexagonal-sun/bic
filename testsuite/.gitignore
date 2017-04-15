@@ -23,5 +23,6 @@ gt
 lteq
 gteq
 fibonacci
+sizeof
 
 *.trs
