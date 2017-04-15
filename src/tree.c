@@ -159,7 +159,7 @@ static void tree_dump_fncall(tree t, int depth)
 
 static void tree_dump_struct(tree t, int depth)
 {
-    eprintf(" name:\n");
+    eprintf(" size: %zu, name:\n", t->data.structure.length);
     __tree_dump(t->data.structure.id, depth + 1);
     tree_print_indent(depth);
     eprintf(" decl(s):\n");

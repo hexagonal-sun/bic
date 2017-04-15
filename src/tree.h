@@ -38,6 +38,7 @@ struct identifier {
 struct struct_data {
     tree id;
     tree decls;
+    size_t length;
 };
 
 struct function_data {
