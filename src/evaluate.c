@@ -942,16 +942,25 @@ static tree eval_sizeof(tree t, int depth)
 static tree eval_addr(tree t, int depth)
 {
     tree exp = __evaluate_1(t->data.exp, depth + 1),
-        ret = tree_make(T_INTEGER);
+        ptr_type, ret;
 
-    mpz_init_set_ui(ret->data.integer, (ptrdiff_t)exp);
+    if (!is_T_LIVE_VAR(exp))
+        eval_die("Error: attempted to take address of non-live variable.\n");
+
+    ptr_type = tree_make(D_T_PTR);
+    ptr_type->data.exp = exp->data.var.type;
+
+    ret = make_live_var(ptr_type);
+
+    ret->data.var.val->D_T_PTR = exp->data.var.val;
 
     return ret;
 }
 
 static tree eval_deref(tree t, int depth)
 {
-    tree exp = __evaluate_1(t->data.exp, depth + 1);
+    tree exp = __evaluate_1(t->data.exp, depth + 1),
+        new_type, ret;
 
     if (!is_T_LIVE_VAR(exp))
         eval_die("Derefencing something that isn't live\n");
@@ -959,7 +968,15 @@ static tree eval_deref(tree t, int depth)
     if (!is_D_T_PTR(exp->data.var.type))
         eval_die("Attempted to dereference a non-pointer\n");
 
-    return (tree)exp->data.var.val->D_T_PTR;
+    new_type = exp->data.var.type->data.exp;
+
+    /* All live vars that are created by a pointer dereference won't
+     * have their values free'd by the GC. */
+    ret = tree_make(T_LIVE_VAR);
+    ret->data.var.type = new_type;
+    ret->data.var.val = exp->data.var.val->D_T_PTR;
+
+    return ret;
 }
 
 static tree __evaluate_1(tree t, int depth)
