@@ -93,7 +93,7 @@ static void tree_dump_array(tree t, int depth)
 
 static void tree_dump_decl(tree t, int depth)
 {
-    eprintf("\n");
+    eprintf(" offset :%zu\n", t->data.decl.offset);
     tree_print_indent(depth);
     eprintf(" type:\n");
     __tree_dump(t->data.decl.type, depth + 1);

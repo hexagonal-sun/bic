@@ -24,6 +24,9 @@ struct binary_exp {
 struct declaration {
     tree type;
     tree decls;
+
+    /* Used for compound types such as arrays, structs and unions. */
+    size_t offset;
 };
 
 typedef struct identifier identifier;
