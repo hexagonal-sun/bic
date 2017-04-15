@@ -259,6 +259,24 @@ static void make_and_map_live_var(tree id, tree type)
     map_identifier(id, live_var);
 }
 
+static tree instantiate_struct(tree struct_decl, int depth)
+{
+    tree live_struct, i;
+
+    push_ctx("Structure Declaration");
+
+    for_each_tree(i, struct_decl->data.structure.decls)
+        __evaluate_1(i, depth + 1);
+
+    live_struct = cur_ctx;
+    pop_ctx();
+
+    live_struct->data.ectx.parent_ctx = NULL;
+    live_struct->data.ectx.is_compound = 1;
+
+    return live_struct;
+}
+
 static tree handle_decl(tree decl, tree base_type, int depth)
 {
     tree decl_type = base_type;
@@ -271,21 +289,8 @@ static tree handle_decl(tree decl, tree base_type, int depth)
         decl = decl->data.exp;
     }
 
-    if (is_T_DECL_STRUCT(base_type) && is_T_IDENTIFIER(decl)) {
-        tree i, ctx;
-
-        push_ctx("Structure Declaration");
-
-        for_each_tree(i, base_type->data.structure.decls)
-            __evaluate_1(i, depth + 1);
-
-        decl_type = cur_ctx;
-        pop_ctx();
-
-        decl_type->data.ectx.parent_ctx = NULL;
-        decl_type->data.ectx.is_compound = 1;
-
-        map_identifier(decl, decl_type);
+    if (is_T_DECL_STRUCT(decl_type) && is_T_IDENTIFIER(decl)) {
+        map_identifier(decl, instantiate_struct(decl_type, depth));
         return decl;
     }
 
