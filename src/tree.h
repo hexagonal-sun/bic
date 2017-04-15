@@ -64,7 +64,14 @@ typedef struct {
 
 struct live_var {
     tree type;
-    union value val;
+
+    /* This flag is used by the GC to determine whether this
+     * live_var's value should be free'd when collecting.  We may
+     * create live_var objects that point to memory that was allocated
+     * by the user program, in which case, we don't want to free that
+     * as it is under the control of the user.*/
+    int should_free_val;
+    union value *val;
 };
 
 struct for_loop {

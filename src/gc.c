@@ -152,6 +152,10 @@ static void dealloc_tree(tree t)
     case T_STRING:
         free(t->data.string);
         break;
+    case T_LIVE_VAR:
+        if (t->data.var.should_free_val)
+            free(t->data.var.val);
+        break;
     case E_CTX:
     {
         list *i, *n;

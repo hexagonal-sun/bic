@@ -55,22 +55,22 @@ ptrdiff_t do_call(void *function_address, tree args)
             case T_LIVE_VAR:
                 switch(arg->data.var.type->type) {
                 case D_T_CHAR ... D_T_ULONGLONG:
-                    new_arg->val.i = (ptrdiff_t)arg->data.var.val.D_T_ULONGLONG;
+                    new_arg->val.i = (ptrdiff_t)arg->data.var.val->D_T_ULONGLONG;
                     new_arg->dest = INTEGER;
                     push_arg(&int_args, new_arg);
                     break;
                 case D_T_FLOAT:
-                    new_arg->val.d = (double)arg->data.var.val.D_T_FLOAT;
+                    new_arg->val.d = (double)arg->data.var.val->D_T_FLOAT;
                     new_arg->dest = SSE;
                     push_arg(&vec_args, new_arg);
                     break;
                 case D_T_DOUBLE:
-                    new_arg->val.d = arg->data.var.val.D_T_DOUBLE;
+                    new_arg->val.d = arg->data.var.val->D_T_DOUBLE;
                     new_arg->dest = SSE;
                     push_arg(&vec_args, new_arg);
                     break;
                 case D_T_PTR:
-                    new_arg->val.i = (ptrdiff_t)arg->data.var.val.D_T_PTR;
+                    new_arg->val.i = (ptrdiff_t)arg->data.var.val->D_T_PTR;
                     new_arg->dest = INTEGER;
                     push_arg(&int_args, new_arg);
                     break;

@@ -111,17 +111,26 @@ static tree eval_identifier(tree t, int depth)
             t->data.id.name);
 }
 
+static tree make_live_var(tree type)
+{
+    tree live_var = tree_make(T_LIVE_VAR);
+
+    live_var->data.var.type = type;
+    live_var->data.var.val = malloc(sizeof(*live_var->data.var.val));
+    live_var->data.var.should_free_val = 1;
+
+    return live_var;
+}
+
 static tree make_fncall_result(tree type, ptrdiff_t result)
 {
-    tree ret = tree_make(T_LIVE_VAR);
-
-    ret->data.var.type = type;
+    tree ret = make_live_var(type);
 
     switch (type->type)
     {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)             \
         case TNAME:                                   \
-            ret->data.var.val.TNAME = (CTYPE)result;  \
+            ret->data.var.val->TNAME = (CTYPE)result;  \
             break;
 #include "ctypes.def"
 #undef DEFCTYPE
@@ -250,13 +259,8 @@ static tree eval_fn_def(tree t, int depth)
 
 static void make_and_map_live_var(tree id, tree type)
 {
-    tree live_var = tree_make(T_LIVE_VAR);
-
     assert(id->type == T_IDENTIFIER);
-
-    live_var->data.var.type = type;
-
-    map_identifier(id, live_var);
+    map_identifier(id, make_live_var(type));
 }
 
 static tree instantiate_struct(tree struct_decl, int depth)
@@ -369,7 +373,7 @@ static void assign_integer(tree var, tree right)
          val = mpz_get_si(right->data.integer);
          break;
     case T_LIVE_VAR:
-        val = right->data.var.val.D_T_LONG;
+        val = right->data.var.val->D_T_LONG;
         break;
     default:
         eval_die("Error: unknown rvalue assignment to integer.\n");
@@ -378,7 +382,7 @@ static void assign_integer(tree var, tree right)
     switch (var->data.var.type->type) {
         #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)        \
             case TNAME:                                  \
-                var->data.var.val.TNAME = (CTYPE)val;    \
+                var->data.var.val->TNAME = (CTYPE)val;    \
                 break;
         #include "ctypes.def"
         #undef DEFCTYPE
@@ -401,7 +405,7 @@ static void assign_float(tree var, tree right)
         val = (double)mpf_get_d(right->data.ffloat);
         break;
     case T_LIVE_VAR:
-        val = right->data.var.val.D_T_DOUBLE;
+        val = right->data.var.val->D_T_DOUBLE;
         break;
     default:
         eval_die("Error: unknown rvalue assignment to float.\n");
@@ -409,10 +413,10 @@ static void assign_float(tree var, tree right)
 
     switch (var->data.var.type->type) {
     case D_T_FLOAT:
-        var->data.var.val.D_T_FLOAT = (float)val;
+        var->data.var.val->D_T_FLOAT = (float)val;
         break;
     case D_T_DOUBLE:
-        var->data.var.val.D_T_DOUBLE = val;
+        var->data.var.val->D_T_DOUBLE = val;
         break;
     default:
         eval_die("Error: could not assign to non-float type");
@@ -429,7 +433,7 @@ static void assign_ptr(tree var, tree right)
         ptr = right->data.string;
         break;
     case T_LIVE_VAR:
-        ptr = (void *)right->data.var.val.D_T_PTR;
+        ptr = (void *)right->data.var.val->D_T_PTR;
         break;
     case T_INTEGER:
         ptr = (void *)mpz_get_ui(right->data.integer);
@@ -438,7 +442,7 @@ static void assign_ptr(tree var, tree right)
         eval_die("Error: could not assign to non-pointer type");
     }
 
-    var->data.var.val.D_T_PTR = ptr;
+    var->data.var.val->D_T_PTR = ptr;
 }
 
 static tree eval_assign(tree t, int depth)
@@ -475,7 +479,7 @@ static tree make_int_from_live_var(tree var)
     switch (type->type) {
 #define SETINT(type)                                                    \
         case type:                                                      \
-            mpz_init_set_si(ret->data.integer, var->data.var.val.type); \
+            mpz_init_set_si(ret->data.integer, var->data.var.val->type); \
             break;
         SETINT(D_T_CHAR);
         SETINT(D_T_SHORT);
@@ -501,7 +505,7 @@ static void live_var_add(tree var, unsigned long int val)
     switch (type->type) {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
         case TNAME:                                     \
-            var->data.var.val.TNAME += val;             \
+            var->data.var.val->TNAME += val;             \
             break;
 #include "ctypes.def"
 #undef DEFCTYPE
@@ -516,7 +520,7 @@ static void live_var_sub(tree var, unsigned long int val)
     switch (type->type) {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
         case TNAME:                                     \
-            var->data.var.val.TNAME -= val;             \
+            var->data.var.val->TNAME -= val;             \
             break;
 #include "ctypes.def"
 #undef DEFCTYPE
@@ -955,7 +959,7 @@ static tree eval_deref(tree t, int depth)
     if (!is_D_T_PTR(exp->data.var.type))
         eval_die("Attempted to dereference a non-pointer\n");
 
-    return (tree)exp->data.var.val.D_T_PTR;
+    return (tree)exp->data.var.val->D_T_PTR;
 }
 
 static tree __evaluate_1(tree t, int depth)

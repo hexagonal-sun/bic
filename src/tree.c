@@ -216,7 +216,7 @@ static void tree_dump_live_var(tree t, int depth)
     switch (type->type) {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
         case TNAME:                                     \
-            eprintf("%" #FMT, t->data.var.val.TNAME);  \
+            eprintf("%" #FMT, t->data.var.val->TNAME);  \
             break;
 #include "ctypes.def"
 #undef DEFCTYPE
