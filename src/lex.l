@@ -137,6 +137,7 @@ X                               [0-9A-F]
 ">>"                            return SHIFT_RIGHT;
 "++"                            return INC;
 "--"                            return DEC;
+"->"                            return PTR_ACCESS;
 
 "&&"                            return BOOL_OP_AND;
 "||"                            return BOOL_OP_OR;
