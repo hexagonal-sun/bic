@@ -304,19 +304,27 @@ static void handle_struct_decl(tree decl, tree live_struct)
     eval_die("Error: Unknown structure member decl\n");
 }
 
-static tree instantiate_struct(tree struct_decl, int depth)
+static tree instantiate_struct(tree struct_decl, int depth, void *base,
+                               int should_free)
 {
     tree i, live_struct = tree_make(T_LIVE_COMPOUND);
 
     live_struct->data.comp.decl = struct_decl;
-    live_struct->data.comp.base = malloc(struct_decl->data.structure.length);
-    live_struct->data.comp.should_free_base = 1;
+    live_struct->data.comp.base = base;
+    live_struct->data.comp.should_free_base = should_free;
     INIT_LIST(&live_struct->data.comp.members.mappings);
 
     for_each_tree(i, struct_decl->data.structure.decls)
         handle_struct_decl(i, live_struct);
 
     return live_struct;
+}
+
+static tree alloc_struct(tree struct_decl, int depth)
+{
+    void *base = malloc(struct_decl->data.structure.length);
+
+    return instantiate_struct(struct_decl, depth, base, 1);
 }
 
 static tree handle_decl(tree decl, tree base_type, int depth)
@@ -332,7 +340,7 @@ static tree handle_decl(tree decl, tree base_type, int depth)
     }
 
     if (is_T_DECL_STRUCT(decl_type) && is_T_IDENTIFIER(decl)) {
-        map_identifier(decl, instantiate_struct(decl_type, depth));
+        map_identifier(decl, alloc_struct(decl_type, depth));
         return decl;
     }
 
@@ -1091,6 +1099,10 @@ static tree eval_deref(tree t, int depth)
         eval_die("Attempted to dereference a non-pointer\n");
 
     new_type = exp->data.var.type->data.exp;
+
+    if (is_T_DECL_STRUCT(new_type))
+        return instantiate_struct(new_type, depth,
+                                  exp->data.var.val->D_T_PTR, 0);
 
     /* All live vars that are created by a pointer dereference won't
      * have their values free'd by the GC. */
