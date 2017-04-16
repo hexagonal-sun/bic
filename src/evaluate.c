@@ -273,20 +273,43 @@ static void make_and_map_live_var(tree id, tree type)
     map_identifier(id, make_live_var(type));
 }
 
+static void handle_struct_decl(tree decl, tree live_struct)
+{
+    tree live_element = tree_make(T_LIVE_VAR),
+        decl_type = decl->data.decl.type,
+        decl_element = decl->data.decl.decls;
+
+    void *base = live_struct->data.comp.base;
+
+    while (is_T_POINTER(decl_element)) {
+        tree ptr_type = tree_make(D_T_PTR);
+        ptr_type->data.exp = decl_type;
+        decl_type = ptr_type;
+        decl_element = decl_element->data.exp;
+    }
+
+    if (is_CTYPE(decl_type)) {
+        live_element->data.var.type = decl_type;
+        live_element->data.var.val = base + decl->data.decl.offset;
+        __map_identifer(decl_element, live_element,
+                        &live_struct->data.comp.members);
+        return;
+    }
+
+    eval_die("Error: Unknown structure member decl\n");
+}
+
 static tree instantiate_struct(tree struct_decl, int depth)
 {
-    tree live_struct, i;
+    tree i, live_struct = tree_make(T_LIVE_COMPOUND);
 
-    push_ctx("Structure Declaration");
+    live_struct->data.comp.decl = struct_decl;
+    live_struct->data.comp.base = malloc(struct_decl->data.structure.length);
+    live_struct->data.comp.should_free_base = 1;
+    INIT_LIST(&live_struct->data.comp.members.mappings);
 
     for_each_tree(i, struct_decl->data.structure.decls)
-        __evaluate_1(i, depth + 1);
-
-    live_struct = cur_ctx;
-    pop_ctx();
-
-    live_struct->data.ectx.parent_ctx = NULL;
-    live_struct->data.ectx.is_compound = 1;
+        handle_struct_decl(i, live_struct);
 
     return live_struct;
 }
