@@ -78,6 +78,13 @@ struct live_var {
     union value *val;
 };
 
+struct live_compound {
+    tree decl;
+    int should_free_base;
+    void *base;
+    identifier_mapping members;
+};
+
 struct for_loop {
     tree initialization;
     tree condition;
@@ -129,6 +136,9 @@ union tree_data {
 
     /* T_LIVE_VAR */
     struct live_var var;
+
+    /* T_LIVE_COMPOUND */
+    struct live_compound comp;
 
     /* T_LOOP_FOR */
     struct for_loop floop;

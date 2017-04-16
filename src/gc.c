@@ -94,6 +94,17 @@ static void mark_tree(tree t)
             mark_tree(t->data.ectx.parent_ctx);
         }
         break;
+    case T_LIVE_COMPOUND:
+    {
+        identifier_mapping *i;
+        for_each_id_mapping(i, &t->data.comp.members) {
+            mark_tree(i->id);
+            mark_tree(i->t);
+        }
+
+        mark_tree(t->data.comp.decl);
+    }
+    break;
     default:
         /* All other types don't need to recurse as they don't contain
          * any other objects. */
@@ -139,6 +150,17 @@ static void mark_static(void)
         mark_tree(**i);
 }
 
+static void dealloc_id_map(identifier_mapping *idmap)
+{
+    list *i, *n;
+
+    list_for_each_safe(i, n, &idmap->mappings) {
+        identifier_mapping *idmap = list_entry(i, identifier_mapping,
+                                               mappings);
+        free(idmap);
+    }
+}
+
 static void dealloc_tree(tree t)
 {
     switch (t->type)
@@ -157,17 +179,13 @@ static void dealloc_tree(tree t)
             free(t->data.var.val);
         break;
     case E_CTX:
-    {
-        list *i, *n;
-
-        list_for_each_safe(i, n, &t->data.ectx.id_map.mappings) {
-            identifier_mapping *idmap = list_entry(i, identifier_mapping,
-                                                   mappings);
-            free(idmap);
-        }
-
+        dealloc_id_map(&t->data.ectx.id_map);
         break;
-    }
+    case T_LIVE_COMPOUND:
+        dealloc_id_map(&t->data.comp.members);
+        if (t->data.comp.should_free_base)
+            free(t->data.comp.base);
+        break;
     default:
         /* All other types don't contain any other referencies to
          * dynamic memory. */

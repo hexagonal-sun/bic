@@ -172,10 +172,27 @@ static void tree_dump_type(tree t, int depth)
     eprintf(" TYPE");
 }
 
-static void tree_dump_eval_ctx(tree t, int depth)
+static void tree_dump_id_map(identifier_mapping *idmap,
+                             int depth)
 {
     identifier_mapping *i;
 
+    for_each_id_mapping(i, idmap) {
+        tree_print_indent(depth);
+        eprintf("<mapping, identifier:\n");
+        __tree_dump(i->id, depth + 1);
+
+        tree_print_indent(depth);
+        eprintf(" var:\n");
+        __tree_dump(i->t, depth + 1);
+
+        tree_print_indent(depth);
+        eprintf(">\n");
+    }
+}
+
+static void tree_dump_eval_ctx(tree t, int depth)
+{
     /* Since the top-level context will contain all top-level
      * declarations, we supress output of that context. */
     if (!t->data.ectx.parent_ctx && !t->data.ectx.is_compound) {
@@ -186,16 +203,8 @@ static void tree_dump_eval_ctx(tree t, int depth)
     eprintf(" name %s\n", t->data.ectx.name);
     tree_print_indent(depth);
     eprintf(" mapping(s):\n");
-    for_each_id_mapping(i, &t->data.ectx.id_map) {
-        tree_print_indent(depth + 1);
-        eprintf("<mapping, identifier:\n");
-        __tree_dump(i->id, depth + 2);
-        tree_print_indent(depth + 1);
-        eprintf(" var:\n");
-        __tree_dump(i->t, depth + 2);
-        tree_print_indent(depth + 1);
-        eprintf(">\n");
-    }
+    tree_dump_id_map(&t->data.ectx.id_map, depth + 1);
+
     tree_print_indent(depth);
     eprintf(" parent(s):\n");
     __tree_dump(t->data.ectx.parent_ctx, depth + 1);
@@ -225,6 +234,20 @@ static void tree_dump_live_var(tree t, int depth)
         break;
     }
     eprintf("\n");
+    tree_print_indent(depth);
+}
+
+static void tree_dump_live_compound(tree t, int depth)
+{
+    eprintf(" base: %p\n", t->data.comp.base);
+    tree_print_indent(depth);
+
+    eprintf(" decl:\n");
+    __tree_dump(t->data.comp.decl, depth + 1);
+    tree_print_indent(depth);
+
+    eprintf(" members:\n");
+    tree_dump_id_map(&t->data.comp.members, depth + 1);
     tree_print_indent(depth);
 }
 
@@ -295,6 +318,9 @@ void __tree_dump_1(tree t, int depth)
         break;
     case T_LIVE_VAR:
         tree_dump_live_var(t, depth);
+        break;
+    case T_LIVE_COMPOUND:
+        tree_dump_live_compound(t, depth);
         break;
     case D_T_CHAR ... D_T_DOUBLE:
     case D_T_VOID:
