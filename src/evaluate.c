@@ -76,20 +76,25 @@ static tree resolve_identifier(tree id, tree ctx)
     return NULL;
 }
 
-static void map_identifier(tree id, tree t)
+static void __map_identifer(tree id, tree t, identifier_mapping *idmap)
 {
     identifier_mapping *new_map;
-
-    if (resolve_identifier(id, cur_ctx))
-        eval_die("Error: attempted to map already existing identifier %s. Stopping.\n",
-                id->data.id.name);
 
     new_map = malloc(sizeof(*new_map));
 
     new_map->id = id;
     new_map->t = t;
 
-    list_add(&new_map->mappings, &cur_ctx->data.ectx.id_map.mappings);
+    list_add(&new_map->mappings, &idmap->mappings);
+}
+
+static void map_identifier(tree id, tree t)
+{
+    if (resolve_identifier(id, cur_ctx))
+        eval_die("Error: attempted to map already existing identifier %s. Stopping.\n",
+                id->data.id.name);
+
+    __map_identifer(id, t, &cur_ctx->data.ectx.id_map);
 }
 
 static tree eval_identifier(tree t, int depth)
