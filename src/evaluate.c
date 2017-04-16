@@ -64,16 +64,21 @@ static void __attribute__((noreturn)) eval_die(const char *format, ...)
     exit(EXIT_FAILURE);
 }
 
-static tree resolve_identifier(tree id, tree ctx)
+static tree resolve_id(tree id, identifier_mapping *idmap)
 {
     identifier_mapping *i;
 
-    for_each_id_mapping(i, &ctx->data.ectx.id_map) {
+    for_each_id_mapping(i, idmap) {
         if (strcmp(i->id->data.id.name, id->data.id.name) == 0)
             return i->t;
     }
 
     return NULL;
+}
+
+static tree resolve_identifier(tree id, tree ctx)
+{
+    return resolve_id(id, &ctx->data.ectx.id_map);
 }
 
 static void __map_identifer(tree id, tree t, identifier_mapping *idmap)
@@ -864,6 +869,12 @@ static tree eval_live_var(tree t, int depth)
     return t;
 }
 
+static tree eval_live_compound(tree t, int depth)
+{
+    /* A live compound evaluates to itself. */
+    return t;
+}
+
 static tree eval_typedef(tree t, int depth)
 {
     /* A typedef will evaluate to itself. */
@@ -984,13 +995,13 @@ static tree eval_access(tree t, int depth)
     tree left = __evaluate_1(t->data.bin.left, depth + 1),
            id = t->data.bin.right;
 
-    if (!is_E_CTX(left) && !left->data.ectx.is_compound)
+    if (!is_T_LIVE_COMPOUND(left))
         eval_die("Unknown compound type in access\n");
 
     if (!is_T_IDENTIFIER(id))
         eval_die("Unknown accessor in access\n");
 
-    return resolve_identifier(id, left);
+    return resolve_id(id, &left->data.comp.members);
 }
 
 static int get_ctype_size(tree t)
@@ -1117,6 +1128,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_LTEQ:       result = eval_lteq(t, depth + 1);       break;
     case T_GTEQ:       result = eval_gteq(t, depth + 1);       break;
     case T_LIVE_VAR:   result = eval_live_var(t, depth + 1);   break;
+    case T_LIVE_COMPOUND: result = eval_live_compound(t, depth + 1); break;
     case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
     case T_LOOP_FOR:   result = eval_loop_for(t, depth + 1);   break;
     case T_DECL_STRUCT:result = eval_decl_struct(t, depth + 1);break;
