@@ -39,6 +39,7 @@ struct struct_data {
     tree id;
     tree decls;
     size_t length;
+    int expanded;
 };
 
 struct function_data {

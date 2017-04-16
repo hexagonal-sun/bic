@@ -981,6 +981,10 @@ static tree eval_decl_struct(tree t, int depth)
     if (t->data.structure.id)
         map_identifier(t->data.structure.id, t);
 
+    /* Don't attempt to expand an already expanded struct. */
+    if (t->data.structure.expanded)
+        return t;
+
     /* Expand the structure decl chain so each decl can have it's own
      * offset.  */
     t->data.structure.decls = expand_decl_chain(t->data.structure.decls);
@@ -1016,6 +1020,7 @@ static tree eval_decl_struct(tree t, int depth)
     }
 
     t->data.structure.length = offset;
+    t->data.structure.expanded = 1;
 
     return t;
 }
