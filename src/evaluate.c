@@ -278,9 +278,12 @@ static void make_and_map_live_var(tree id, tree type)
     map_identifier(id, make_live_var(type));
 }
 
+static tree instantiate_struct(tree struct_decl, int depth, void *base,
+                               int should_free);
+
 static void handle_struct_decl(tree decl, tree live_struct, int depth)
 {
-    tree live_element = tree_make(T_LIVE_VAR),
+    tree live_element,
         decl_type = __evaluate_1(decl->data.decl.type, depth + 1),
         decl_element = decl->data.decl.decls;
 
@@ -294,10 +297,21 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
     }
 
     if (is_CTYPE(decl_type)) {
+        live_element = tree_make(T_LIVE_VAR);
         live_element->data.var.type = decl_type;
         live_element->data.var.val = base + decl->data.decl.offset;
         __map_identifer(decl_element, live_element,
                         &live_struct->data.comp.members);
+        return;
+    }
+
+    if (is_T_DECL_STRUCT(decl_type)) {
+        live_element = instantiate_struct(decl_type, depth,
+                                          base + decl->data.decl.offset, 0);
+
+        __map_identifer(decl_element, live_element,
+                        &live_struct->data.comp.members);
+
         return;
     }
 
