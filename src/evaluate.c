@@ -1045,13 +1045,16 @@ static tree eval_sizeof(tree t, int depth)
     if (is_T_LIVE_VAR(exp))
         type = exp->data.var.type;
 
+    if (is_T_LIVE_COMPOUND(exp))
+        type = exp->data.comp.decl;
+
     if (is_CTYPE(type)) {
         mpz_init_set_ui(ret->data.integer, get_ctype_size(type));
         return ret;
     }
 
-    if (is_E_CTX(exp) && exp->data.ectx.is_compound) {
-        mpz_init_set_ui(ret->data.integer, get_struct_size(exp, depth));
+    if (is_T_DECL_STRUCT(type)) {
+        mpz_init_set_ui(ret->data.integer, type->data.structure.length);
         return ret;
     }
 
