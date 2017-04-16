@@ -26,5 +26,6 @@ fibonacci
 sizeof
 gethostname
 linked-list
+struct_torture
 
 *.trs

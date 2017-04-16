@@ -4,7 +4,8 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  simple_typedef simple_struct struct_typedef add sub	\
                  mul div simple_pointer set_pointer_through_function	\
                  printf_double_explicit printf_double_live_var lt gt	\
-                 lteq gteq fibonacci sizeof gethostname linked-list
+                 lteq gteq fibonacci sizeof gethostname linked-list	\
+                 struct_torture
 
 TESTS = $(check_PROGRAMS)
 
