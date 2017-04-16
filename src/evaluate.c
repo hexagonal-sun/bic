@@ -278,10 +278,10 @@ static void make_and_map_live_var(tree id, tree type)
     map_identifier(id, make_live_var(type));
 }
 
-static void handle_struct_decl(tree decl, tree live_struct)
+static void handle_struct_decl(tree decl, tree live_struct, int depth)
 {
     tree live_element = tree_make(T_LIVE_VAR),
-        decl_type = decl->data.decl.type,
+        decl_type = __evaluate_1(decl->data.decl.type, depth + 1),
         decl_element = decl->data.decl.decls;
 
     void *base = live_struct->data.comp.base;
@@ -315,7 +315,7 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base,
     INIT_LIST(&live_struct->data.comp.members.mappings);
 
     for_each_tree(i, struct_decl->data.structure.decls)
-        handle_struct_decl(i, live_struct);
+        handle_struct_decl(i, live_struct, depth);
 
     return live_struct;
 }
@@ -961,6 +961,12 @@ static tree eval_decl_struct(tree t, int depth)
     tree i;
     int offset = 0;
 
+    /* We map to ourselves here so that any references to the same
+     * structure in the decls will result in a reference to the
+     * struct_decl. */
+    if (t->data.structure.id)
+        map_identifier(t->data.structure.id, t);
+
     /* Expand the structure decl chain so each decl can have it's own
      * offset.  */
     t->data.structure.decls = expand_decl_chain(t->data.structure.decls);
@@ -975,7 +981,12 @@ static tree eval_decl_struct(tree t, int depth)
          * temporarily push the evaluation ctx, evaluate each decl
          * within the new evaluation ctx, resolve the identifier back
          * to it's live var and finally pass that through a sizeof()
-         * evaluation. */
+         * evaluation.
+         *
+         * NOTE: we don't evaluate the types of the decls here as we
+         * could create a loop back to ourselves (when declaring a
+         * pointer to the same struct).  Instead, we evaluate all decl
+         * types at struct installation time. */
         push_ctx("Structure Declaration");
 
         id = __evaluate_1(i, depth + 1);
@@ -991,9 +1002,6 @@ static tree eval_decl_struct(tree t, int depth)
     }
 
     t->data.structure.length = offset;
-
-    if (t->data.structure.id)
-        map_identifier(t->data.structure.id, t);
 
     return t;
 }
