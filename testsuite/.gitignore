@@ -25,5 +25,6 @@ gteq
 fibonacci
 sizeof
 gethostname
+linked-list
 
 *.trs
