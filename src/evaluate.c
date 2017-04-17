@@ -158,6 +158,34 @@ static tree make_live_var(tree type)
     return live_var;
 }
 
+static tree make_int_from_live_var(tree var)
+{
+    tree ret = tree_make(T_INTEGER);
+    tree type = var->data.var.type;
+
+    switch (type->type) {
+#define SETINT(type)                                                    \
+        case type:                                                      \
+            mpz_init_set_si(ret->data.integer, var->data.var.val->type); \
+            break;
+        SETINT(D_T_CHAR);
+        SETINT(D_T_SHORT);
+        SETINT(D_T_INT);
+        SETINT(D_T_LONG);
+        SETINT(D_T_LONGLONG);
+        SETINT(D_T_UCHAR);
+        SETINT(D_T_USHORT);
+        SETINT(D_T_UINT);
+        SETINT(D_T_ULONG);
+        SETINT(D_T_ULONGLONG);
+#undef SETINT
+    default:
+        eval_die("error: could not create integer type from live var.");
+    }
+
+    return ret;
+}
+
 static tree make_fncall_result(tree type, ptrdiff_t result)
 {
     tree ret;
@@ -365,37 +393,48 @@ static tree alloc_struct(tree struct_decl, int depth)
     return instantiate_struct(struct_decl, depth, base);
 }
 
-static tree instantiate_array(tree array_decl, tree base_type, int depth)
+static size_t get_array_size(tree array_decl, tree base_type, int depth)
 {
     size_t sz_of_each_element = get_size_of_type(base_type, depth), no_elms;
-    tree no_elements = __evaluate_1(array_decl->data.bin.right, depth + 1),
-        live_var, ptr = tree_make(D_T_PTR),
-        id = array_decl->data.bin.left;
-    void *array;
+    tree no_elements = __evaluate_1(array_decl->data.bin.right, depth + 1);
+
+    if (is_T_LIVE_VAR(no_elements))
+        no_elements = make_int_from_live_var(no_elements);
 
     if (!is_T_INTEGER(no_elements))
         eval_die("Error: attempted to create array with non-constant size\n");
 
     no_elms = mpz_get_ui(no_elements->data.integer);
 
+    return sz_of_each_element * no_elms;
+}
+
+static tree instantiate_array(tree array_decl, tree base_type, void *base)
+{
+    tree live_var, ptr = tree_make(D_T_PTR),
+        id = array_decl->data.bin.left;
+
     if (!is_T_IDENTIFIER(id))
         eval_die("Error: unknown array name type\n");
 
     /* An array is basically a pointer; it has no bounds checking.
-     * Therefore all we need to do is allocate enough memory to fit
-     * the array, create a live var with a pointer type and map the id
-     * to the live var. */
+     * Therefore all we need to do is create a live var with a pointer
+     * type. */
     ptr->data.exp = base_type;
-
     live_var = make_live_var(ptr);
+    live_var->data.var.val->D_T_PTR = base;
 
-    array = malloc(sz_of_each_element * no_elms);
-    track_alloc(array);
-    live_var->data.var.val->D_T_PTR = array;
+    return live_var;
+}
 
-    map_identifier(id, live_var);
+static tree alloc_array(tree array_decl, tree base_type, int depth)
+{
+    void *array_mem = malloc(get_array_size(array_decl, base_type, depth));
+    tree live_var = instantiate_array(array_decl, base_type, array_mem);
 
-    return id;
+    track_alloc(array_mem);
+
+    return live_var;
 }
 
 static tree handle_decl(tree decl, tree base_type, int depth)
@@ -415,8 +454,15 @@ static tree handle_decl(tree decl, tree base_type, int depth)
         return decl;
     }
 
-    if (is_T_ARRAY(decl))
-        return instantiate_array(decl, decl_type, depth);
+    if (is_T_ARRAY(decl)) {
+        tree live_var = alloc_array(decl, decl_type, depth);
+        tree id = decl->data.bin.left;
+
+        /* We know that since the array was successfully instantiated,
+         * the left element of the decl *must* be an identifier. */
+        map_identifier(id, live_var);
+        return id;
+    }
 
     switch (decl->type) {
     case T_IDENTIFIER:
@@ -589,34 +635,6 @@ static tree eval_assign(tree t, int depth)
     }
 
     return NULL;
-}
-
-static tree make_int_from_live_var(tree var)
-{
-    tree ret = tree_make(T_INTEGER);
-    tree type = var->data.var.type;
-
-    switch (type->type) {
-#define SETINT(type)                                                    \
-        case type:                                                      \
-            mpz_init_set_si(ret->data.integer, var->data.var.val->type); \
-            break;
-        SETINT(D_T_CHAR);
-        SETINT(D_T_SHORT);
-        SETINT(D_T_INT);
-        SETINT(D_T_LONG);
-        SETINT(D_T_LONGLONG);
-        SETINT(D_T_UCHAR);
-        SETINT(D_T_USHORT);
-        SETINT(D_T_UINT);
-        SETINT(D_T_ULONG);
-        SETINT(D_T_ULONGLONG);
-#undef SETINT
-    default:
-        eval_die("error: could not create integer type from live var.");
-    }
-
-    return ret;
 }
 
 static void live_var_add(tree var, unsigned long int val)
