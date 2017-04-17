@@ -291,6 +291,7 @@ void __tree_dump_1(tree t, int depth)
     case T_GT:
     case T_LTEQ:
     case T_GTEQ:
+    case T_ARRAY_ACCESS:
     case T_ACCESS:
     case T_ASSIGN:
         tree_dump_binary(t,  depth);

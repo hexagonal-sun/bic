@@ -39,6 +39,7 @@ static void mark_tree(tree t)
     case T_GT:
     case T_LTEQ:
     case T_GTEQ:
+    case T_ARRAY_ACCESS:
     case T_ACCESS:
     case T_ASSIGN:
         mark_tree(t->data.bin.left);
