@@ -93,6 +93,14 @@ static void __map_identifer(tree id, tree t, identifier_mapping *idmap)
     list_add(&new_map->mappings, &idmap->mappings);
 }
 
+static size_t get_size_of_type(tree type, int depth)
+{
+    tree sz, szof = tree_make(T_SIZEOF);
+    szof->data.exp = type;
+    sz = __evaluate_1(szof, depth);
+    return mpz_get_ui(sz->data.integer);
+}
+
 static void map_identifier(tree id, tree t)
 {
     if (resolve_identifier(id, cur_ctx))
@@ -993,7 +1001,8 @@ static tree eval_decl_struct(tree t, int depth)
      * size of the structure. */
     for_each_tree(i, t->data.structure.decls) {
         identifier_mapping *id_map;
-        tree sz, id, sz_of_decl = tree_make(T_SIZEOF);
+        tree id;
+        size_t member_size;
 
         /* To calculate the size of each element of the structure, we
          * temporarily push the evaluation ctx, evaluate each decl
@@ -1011,10 +1020,9 @@ static tree eval_decl_struct(tree t, int depth)
 
         i->data.decl.offset = offset;
 
-        sz_of_decl->data.exp = resolve_identifier(id, cur_ctx);
-        sz = __evaluate_1(sz_of_decl, depth + 1);
+        member_size = get_size_of_type(resolve_identifier(id, cur_ctx), depth);
 
-        offset += mpz_get_ui(sz->data.integer);
+        offset += member_size;
 
         pop_ctx();
     }
@@ -1058,15 +1066,8 @@ static int get_struct_size(tree t, int depth)
     identifier_mapping *i;
     int total_size = 0;
 
-    for_each_id_mapping(i, &t->data.ectx.id_map) {
-        tree sz_of_elm = tree_make(T_SIZEOF), sz;
-
-        sz_of_elm->data.exp = i->t;
-
-        sz = __evaluate_1(sz_of_elm, depth + 1);
-
-        total_size += mpz_get_ui(sz->data.integer);
-    }
+    for_each_id_mapping(i, &t->data.ectx.id_map)
+        total_size += get_size_of_type(i->t, depth);
 
     return total_size;
 }
