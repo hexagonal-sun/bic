@@ -43,7 +43,18 @@ static void push_ctx(const char *name)
 
     INIT_LIST(&new_ctx->data.ectx.id_map.mappings);
 
+    new_ctx->data.ectx.alloc_chain = tree_make(CHAIN_HEAD);
+
     cur_ctx = new_ctx;
+}
+
+static void track_alloc(void *ptr)
+{
+    tree alloc = tree_make(E_ALLOC);
+
+    alloc->data.ptr = ptr;
+
+    tree_chain(alloc, cur_ctx->data.ectx.alloc_chain);
 }
 
 static void ctx_backtrace(void)
@@ -135,7 +146,7 @@ static tree make_live_var(tree type)
 
     live_var->data.var.type = type;
     live_var->data.var.val = malloc(sizeof(*live_var->data.var.val));
-    live_var->data.var.should_free_val = 1;
+    track_alloc(live_var->data.var.val);
 
     return live_var;
 }
@@ -286,8 +297,7 @@ static void make_and_map_live_var(tree id, tree type)
     map_identifier(id, make_live_var(type));
 }
 
-static tree instantiate_struct(tree struct_decl, int depth, void *base,
-                               int should_free);
+static tree instantiate_struct(tree struct_decl, int depth, void *base);
 
 static void handle_struct_decl(tree decl, tree live_struct, int depth)
 {
@@ -315,7 +325,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
 
     if (is_T_DECL_STRUCT(decl_type)) {
         live_element = instantiate_struct(decl_type, depth,
-                                          base + decl->data.decl.offset, 0);
+                                          base + decl->data.decl.offset);
 
         __map_identifer(decl_element, live_element,
                         &live_struct->data.comp.members);
@@ -326,14 +336,12 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
     eval_die("Error: Unknown structure member decl\n");
 }
 
-static tree instantiate_struct(tree struct_decl, int depth, void *base,
-                               int should_free)
+static tree instantiate_struct(tree struct_decl, int depth, void *base)
 {
     tree i, live_struct = tree_make(T_LIVE_COMPOUND);
 
     live_struct->data.comp.decl = struct_decl;
     live_struct->data.comp.base = base;
-    live_struct->data.comp.should_free_base = should_free;
     INIT_LIST(&live_struct->data.comp.members.mappings);
 
     for_each_tree(i, struct_decl->data.structure.decls)
@@ -345,8 +353,9 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base,
 static tree alloc_struct(tree struct_decl, int depth)
 {
     void *base = malloc(struct_decl->data.structure.length);
+    track_alloc(base);
 
-    return instantiate_struct(struct_decl, depth, base, 1);
+    return instantiate_struct(struct_decl, depth, base);
 }
 
 static tree handle_decl(tree decl, tree base_type, int depth)
@@ -1130,7 +1139,7 @@ static tree eval_deref(tree t, int depth)
 
     if (is_T_DECL_STRUCT(new_type))
         return instantiate_struct(new_type, depth,
-                                  exp->data.var.val->D_T_PTR, 0);
+                                  exp->data.var.val->D_T_PTR);
 
     /* All live vars that are created by a pointer dereference won't
      * have their values free'd by the GC. */

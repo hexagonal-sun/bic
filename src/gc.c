@@ -90,6 +90,7 @@ static void mark_tree(tree t)
                 mark_tree(i->t);
             }
 
+            mark_tree(t->data.ectx.alloc_chain);
             mark_tree(t->data.ectx.parent_ctx);
         }
         break;
@@ -178,10 +179,6 @@ static void dealloc_tree(tree t)
     case T_STRING:
         free(t->data.string);
         break;
-    case T_LIVE_VAR:
-        if (t->data.var.should_free_val)
-            free(t->data.var.val);
-        break;
     case E_CTX:
         dealloc_id_map(&t->data.ectx.id_map);
         break;
@@ -190,8 +187,6 @@ static void dealloc_tree(tree t)
         break;
     case T_LIVE_COMPOUND:
         dealloc_id_map(&t->data.comp.members);
-        if (t->data.comp.should_free_base)
-            free(t->data.comp.base);
         break;
     default:
         /* All other types don't contain any other referencies to

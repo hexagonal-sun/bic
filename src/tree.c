@@ -192,10 +192,15 @@ static void tree_dump_eval_ctx(tree t, int depth)
 
     eprintf(" name %s\n", t->data.ectx.name);
     tree_print_indent(depth);
+
     eprintf(" mapping(s):\n");
     tree_dump_id_map(&t->data.ectx.id_map, depth + 1);
-
     tree_print_indent(depth);
+
+    eprintf(" alloc(s):\n");
+    __tree_dump(t->data.ectx.alloc_chain, depth + 1);
+    tree_print_indent(depth);
+
     eprintf(" parent(s):\n");
     __tree_dump(t->data.ectx.parent_ctx, depth + 1);
     tree_print_indent(depth);
