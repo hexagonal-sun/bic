@@ -383,8 +383,8 @@ decl
 | decl '[' additive_expression ']'
 {
     tree array = tree_make(T_ARRAY);
-    array->data.array.decl = $1;
-    array->data.array.exp = $3;
+    array->data.bin.left = $1;
+    array->data.bin.right = $3;
     $$ = array;
 }
 ;

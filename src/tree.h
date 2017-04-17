@@ -100,11 +100,6 @@ typedef struct eval_ctx {
     int is_compound;
 } eval_ctx;
 
-struct array {
-    tree decl;
-    tree exp;
-};
-
 union tree_data {
     /* T_INTEGER */
     mpz_t integer;
@@ -146,9 +141,6 @@ union tree_data {
 
     /* E_CTX */
     struct eval_ctx ectx;
-
-    /* T_ARRAY */
-    struct array array;
 };
 
 struct tree {
