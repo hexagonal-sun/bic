@@ -105,10 +105,18 @@ static void __map_identifer(tree id, tree t, tree idmap)
 
 static size_t get_size_of_type(tree type, int depth)
 {
-    tree sz, szof = tree_make(T_SIZEOF);
-    szof->data.exp = type;
-    sz = __evaluate_1(szof, depth);
-    return mpz_get_ui(sz->data.integer);
+    if (is_T_DECL_STRUCT(type) && type->data.structure.length != 0)
+        /* Since the evaluation of a T_DECL_STRUCT has possible side
+         * affects (mapping itself into the current context), check to
+         * see if it already knows it's size before evaluating a
+         * sizeof() expression. */
+        return type->data.structure.length;
+    else {
+        tree sz, szof = tree_make(T_SIZEOF);
+        szof->data.exp = type;
+        sz = __evaluate_1(szof, depth);
+        return mpz_get_ui(sz->data.integer);
+    }
 }
 
 static void map_identifier(tree id, tree t)
