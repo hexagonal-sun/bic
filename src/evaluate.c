@@ -357,6 +357,39 @@ static tree alloc_struct(tree struct_decl, int depth)
     return instantiate_struct(struct_decl, depth, base);
 }
 
+static tree instantiate_array(tree array_decl, tree base_type, int depth)
+{
+    size_t sz_of_each_element = get_size_of_type(base_type, depth), no_elms;
+    tree no_elements = __evaluate_1(array_decl->data.bin.right, depth + 1),
+        live_var, ptr = tree_make(D_T_PTR),
+        id = array_decl->data.bin.left;
+    void *array;
+
+    if (!is_T_INTEGER(no_elements))
+        eval_die("Error: attempted to create array with non-constant size\n");
+
+    no_elms = mpz_get_ui(no_elements->data.integer);
+
+    if (!is_T_IDENTIFIER(id))
+        eval_die("Error: unknown array name type\n");
+
+    /* An array is basically a pointer; it has no bounds checking.
+     * Therefore all we need to do is allocate enough memory to fit
+     * the array, create a live var with a pointer type and map the id
+     * to the live var. */
+    ptr->data.exp = base_type;
+
+    live_var = make_live_var(ptr);
+
+    array = malloc(sz_of_each_element * no_elms);
+    track_alloc(array);
+    live_var->data.var.val->D_T_PTR = array;
+
+    map_identifier(id, live_var);
+
+    return id;
+}
+
 static tree handle_decl(tree decl, tree base_type, int depth)
 {
     tree decl_type = base_type;
@@ -373,6 +406,9 @@ static tree handle_decl(tree decl, tree base_type, int depth)
         map_identifier(decl, alloc_struct(decl_type, depth));
         return decl;
     }
+
+    if (is_T_ARRAY(decl))
+        return instantiate_array(decl, decl_type, depth);
 
     switch (decl->type) {
     case T_IDENTIFIER:
