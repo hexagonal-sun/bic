@@ -64,6 +64,8 @@ union value {
 struct live_var {
     tree type;
     union value *val;
+    int is_array;
+    size_t array_length;
 };
 
 struct live_compound {

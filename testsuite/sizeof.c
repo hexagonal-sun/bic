@@ -16,6 +16,8 @@ int main()
     char *pb;
     unsigned long long *pc;
 
+    int array[10];
+
     struct newstruct {
         int a;
         unsigned int b;
@@ -24,6 +26,12 @@ int main()
         void *pa;
         void *pb;
     } foob;
+
+    struct s_with_array {
+        void *ptr;
+        int this_array[2444];
+        short that_array[244];
+    };
 
     struct newstruct *pstruct;
 
@@ -52,4 +60,6 @@ int main()
     printf("%d\n", sizeof(unsigned long long));
     printf("%d\n", sizeof(foob));
     printf("%d\n", sizeof(pstruct));
+    printf("%d\n", sizeof(array));
+    printf("%d\n", sizeof(struct s_with_array));
 }

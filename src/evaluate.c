@@ -409,7 +409,8 @@ static size_t get_array_size(tree array_decl, tree base_type, int depth)
     return sz_of_each_element * no_elms;
 }
 
-static tree instantiate_array(tree array_decl, tree base_type, void *base)
+static tree instantiate_array(tree array_decl, tree base_type, void *base,
+                              size_t length)
 {
     tree live_var, ptr = tree_make(D_T_PTR),
         id = array_decl->data.bin.left;
@@ -424,13 +425,20 @@ static tree instantiate_array(tree array_decl, tree base_type, void *base)
     live_var = make_live_var(ptr);
     live_var->data.var.val->D_T_PTR = base;
 
+    /* These are used by the sizeof() expression to return the correct
+     * size. */
+    live_var->data.var.is_array = 1;
+    live_var->data.var.array_length = length;
+
     return live_var;
 }
 
 static tree alloc_array(tree array_decl, tree base_type, int depth)
 {
-    void *array_mem = malloc(get_array_size(array_decl, base_type, depth));
-    tree live_var = instantiate_array(array_decl, base_type, array_mem);
+    size_t array_sz = get_array_size(array_decl, base_type, depth);
+    void *array_mem = malloc(array_sz);
+    tree live_var = instantiate_array(array_decl, base_type, array_mem,
+                                      array_sz);
 
     track_alloc(array_mem);
 
@@ -1180,6 +1188,11 @@ static tree eval_sizeof(tree t, int depth)
 
     if (is_T_LIVE_COMPOUND(exp))
         type = exp->data.comp.decl;
+
+    if (is_D_T_PTR(type) && exp->data.var.is_array) {
+        mpz_init_set_ui(ret->data.integer, exp->data.var.array_length);
+        return ret;
+    }
 
     if (is_CTYPE(type)) {
         mpz_init_set_ui(ret->data.integer, get_ctype_size(type));
