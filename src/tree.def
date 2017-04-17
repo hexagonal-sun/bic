@@ -38,6 +38,7 @@ DEFTYPE(T_LIVE_COMPOUND, "Live Compound")
 DEFTYPE(CHAIN_HEAD, "Tree Chain Head")
 DEFTYPE(E_CTX, "Evaluator Context")
 DEFTYPE(E_ALLOC, "Evaluator allocation")
+DEFTYPE(E_MAP, "Evaluator map")
 
 /* We have to declare the void type here as using it as a DEFCTYPE
  * would cause a compilation error since we can't declare a variable
