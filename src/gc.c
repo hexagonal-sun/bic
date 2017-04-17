@@ -185,6 +185,9 @@ static void dealloc_tree(tree t)
     case E_CTX:
         dealloc_id_map(&t->data.ectx.id_map);
         break;
+    case E_ALLOC:
+        free(t->data.ptr);
+        break;
     case T_LIVE_COMPOUND:
         dealloc_id_map(&t->data.comp.members);
         if (t->data.comp.should_free_base)

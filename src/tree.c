@@ -257,6 +257,9 @@ void __tree_dump_1(tree t, int depth)
     case T_STRING:
         eprintf(" string: \"%s\"", t->data.string);
         break;
+    case E_ALLOC:
+        eprintf(" ptr: %p", t->data.ptr);
+        break;
     case T_P_INC:
     case T_P_DEC:
     case T_INC:

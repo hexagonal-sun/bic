@@ -116,6 +116,9 @@ union tree_data {
     /* T_IDENTIFIER */
     identifier id;
 
+    /* E_ALLOC */
+    void *ptr;
+
     /* T_MULTIPLY */
     struct binary_exp bin;
 
