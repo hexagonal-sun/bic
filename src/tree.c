@@ -162,25 +162,6 @@ static void tree_dump_type(tree t, int depth)
     eprintf(" TYPE");
 }
 
-static void tree_dump_id_map(identifier_mapping *idmap,
-                             int depth)
-{
-    identifier_mapping *i;
-
-    for_each_id_mapping(i, idmap) {
-        tree_print_indent(depth);
-        eprintf("<mapping, identifier:\n");
-        __tree_dump(i->id, depth + 1);
-
-        tree_print_indent(depth);
-        eprintf(" var:\n");
-        __tree_dump(i->t, depth + 1);
-
-        tree_print_indent(depth);
-        eprintf(">\n");
-    }
-}
-
 static void tree_dump_eval_ctx(tree t, int depth)
 {
     /* Since the top-level context will contain all top-level
@@ -194,7 +175,7 @@ static void tree_dump_eval_ctx(tree t, int depth)
     tree_print_indent(depth);
 
     eprintf(" mapping(s):\n");
-    tree_dump_id_map(&t->data.ectx.id_map, depth + 1);
+    __tree_dump(t->data.ectx.id_map, depth + 1);
     tree_print_indent(depth);
 
     eprintf(" alloc(s):\n");
@@ -242,7 +223,7 @@ static void tree_dump_live_compound(tree t, int depth)
     tree_print_indent(depth);
 
     eprintf(" members:\n");
-    tree_dump_id_map(&t->data.comp.members, depth + 1);
+    __tree_dump(t->data.comp.members, depth + 1);
     tree_print_indent(depth);
 }
 

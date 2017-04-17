@@ -40,9 +40,7 @@ static void push_ctx(const char *name)
 
     new_ctx->data.ectx.parent_ctx = cur_ctx;
     new_ctx->data.ectx.name = name;
-
-    INIT_LIST(&new_ctx->data.ectx.id_map.mappings);
-
+    new_ctx->data.ectx.id_map = tree_make(CHAIN_HEAD);
     new_ctx->data.ectx.alloc_chain = tree_make(CHAIN_HEAD);
 
     cur_ctx = new_ctx;
@@ -75,13 +73,13 @@ static void __attribute__((noreturn)) eval_die(const char *format, ...)
     exit(EXIT_FAILURE);
 }
 
-static tree resolve_id(tree id, identifier_mapping *idmap)
+static tree resolve_id(tree id, tree idmap)
 {
-    identifier_mapping *i;
+    tree i;
 
-    for_each_id_mapping(i, idmap) {
-        if (strcmp(i->id->data.id.name, id->data.id.name) == 0)
-            return i->t;
+    for_each_tree(i, idmap) {
+        if (strcmp(i->data.bin.left->data.id.name, id->data.id.name) == 0)
+            return i->data.bin.right;
     }
 
     return NULL;
@@ -89,19 +87,20 @@ static tree resolve_id(tree id, identifier_mapping *idmap)
 
 static tree resolve_identifier(tree id, tree ctx)
 {
-    return resolve_id(id, &ctx->data.ectx.id_map);
+    return resolve_id(id, ctx->data.ectx.id_map);
 }
 
-static void __map_identifer(tree id, tree t, identifier_mapping *idmap)
+static void __map_identifer(tree id, tree t, tree idmap)
 {
-    identifier_mapping *new_map;
+    tree new_map = tree_make(E_MAP);
 
-    new_map = malloc(sizeof(*new_map));
+    if (!is_T_IDENTIFIER(id))
+        eval_die("Error: Attempted to map non-identifier\n");
 
-    new_map->id = id;
-    new_map->t = t;
+    new_map->data.bin.left = id;
+    new_map->data.bin.right = t;
 
-    list_add(&new_map->mappings, &idmap->mappings);
+    tree_chain(new_map, idmap);
 }
 
 static size_t get_size_of_type(tree type, int depth)
@@ -118,7 +117,7 @@ static void map_identifier(tree id, tree t)
         eval_die("Error: attempted to map already existing identifier %s. Stopping.\n",
                 id->data.id.name);
 
-    __map_identifer(id, t, &cur_ctx->data.ectx.id_map);
+    __map_identifer(id, t, cur_ctx->data.ectx.id_map);
 }
 
 static tree eval_identifier(tree t, int depth)
@@ -319,7 +318,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
         live_element->data.var.type = decl_type;
         live_element->data.var.val = base + decl->data.decl.offset;
         __map_identifer(decl_element, live_element,
-                        &live_struct->data.comp.members);
+                        live_struct->data.comp.members);
         return;
     }
 
@@ -328,7 +327,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
                                           base + decl->data.decl.offset);
 
         __map_identifer(decl_element, live_element,
-                        &live_struct->data.comp.members);
+                        live_struct->data.comp.members);
 
         return;
     }
@@ -342,7 +341,7 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base)
 
     live_struct->data.comp.decl = struct_decl;
     live_struct->data.comp.base = base;
-    INIT_LIST(&live_struct->data.comp.members.mappings);
+    live_struct->data.comp.members = tree_make(CHAIN_HEAD);
 
     for_each_tree(i, struct_decl->data.structure.decls)
         handle_struct_decl(i, live_struct, depth);
@@ -1009,7 +1008,6 @@ static tree eval_decl_struct(tree t, int depth)
     /* Populate the decls with their offsets, as well as the total
      * size of the structure. */
     for_each_tree(i, t->data.structure.decls) {
-        identifier_mapping *id_map;
         tree id;
         size_t member_size;
 
@@ -1053,7 +1051,7 @@ static tree eval_access(tree t, int depth)
     if (!is_T_IDENTIFIER(id))
         eval_die("Unknown accessor in access\n");
 
-    return resolve_id(id, &left->data.comp.members);
+    return resolve_id(id, left->data.comp.members);
 }
 
 static int get_ctype_size(tree t)
@@ -1068,17 +1066,6 @@ static int get_ctype_size(tree t)
         default:
             eval_die("Unknown ctype\n");
     }
-}
-
-static int get_struct_size(tree t, int depth)
-{
-    identifier_mapping *i;
-    int total_size = 0;
-
-    for_each_id_mapping(i, &t->data.ectx.id_map)
-        total_size += get_size_of_type(i->t, depth);
-
-    return total_size;
 }
 
 static tree eval_sizeof(tree t, int depth)

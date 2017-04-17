@@ -83,29 +83,14 @@ static void mark_tree(tree t)
             }
             break;
     case E_CTX:
-        {
-            identifier_mapping *i;
-
-            for_each_id_mapping(i, &t->data.ectx.id_map) {
-                mark_tree(i->id);
-                mark_tree(i->t);
-            }
-
-            mark_tree(t->data.ectx.alloc_chain);
-            mark_tree(t->data.ectx.parent_ctx);
-        }
+        mark_tree(t->data.ectx.id_map);
+        mark_tree(t->data.ectx.alloc_chain);
+        mark_tree(t->data.ectx.parent_ctx);
         break;
     case T_LIVE_COMPOUND:
-    {
-        identifier_mapping *i;
-        for_each_id_mapping(i, &t->data.comp.members) {
-            mark_tree(i->id);
-            mark_tree(i->t);
-        }
-
+        mark_tree(t->data.comp.members);
         mark_tree(t->data.comp.decl);
-    }
-    break;
+        break;
     default:
         /* All other types don't need to recurse as they don't contain
          * any other objects. */
@@ -156,17 +141,6 @@ static void mark_static(void)
         mark_tree(**i);
 }
 
-static void dealloc_id_map(identifier_mapping *idmap)
-{
-    list *i, *n;
-
-    list_for_each_safe(i, n, &idmap->mappings) {
-        identifier_mapping *idmap = list_entry(i, identifier_mapping,
-                                               mappings);
-        free(idmap);
-    }
-}
-
 static void dealloc_tree(tree t)
 {
     switch (t->type)
@@ -180,14 +154,8 @@ static void dealloc_tree(tree t)
     case T_STRING:
         free(t->data.string);
         break;
-    case E_CTX:
-        dealloc_id_map(&t->data.ectx.id_map);
-        break;
     case E_ALLOC:
         free(t->data.ptr);
-        break;
-    case T_LIVE_COMPOUND:
-        dealloc_id_map(&t->data.comp.members);
         break;
     default:
         /* All other types don't contain any other referencies to

@@ -61,12 +61,6 @@ union value {
     #undef DEFCTYPE
 };
 
-typedef struct {
-    tree id;
-    tree t;
-    list mappings;
-} identifier_mapping;
-
 struct live_var {
     tree type;
     union value *val;
@@ -75,7 +69,7 @@ struct live_var {
 struct live_compound {
     tree decl;
     void *base;
-    identifier_mapping members;
+    tree members;
 };
 
 struct for_loop {
@@ -86,7 +80,7 @@ struct for_loop {
 };
 
 typedef struct eval_ctx {
-    identifier_mapping id_map;
+    tree id_map;
     tree parent_ctx;
     tree alloc_chain;
     const char *name;
@@ -166,9 +160,6 @@ static inline void tree_chain(tree new, tree chain)
 
 #define for_each_tree(pos, head)                \
     list_for_each((pos), &(head)->chain, chain)
-
-#define for_each_id_mapping(pos, head)          \
-    list_for_each((pos), &(head)->mappings, mappings)
 
 static inline void tree_splice_chains(tree chain_dest, tree chain_src)
 {
