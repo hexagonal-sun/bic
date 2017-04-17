@@ -1223,7 +1223,7 @@ static tree eval_addr(tree t, int depth)
     tree exp = __evaluate_1(t->data.exp, depth + 1),
         ptr_type, ret;
 
-    if (!is_T_LIVE_VAR(exp))
+    if (!is_LIVE(exp))
         eval_die("Error: attempted to take address of non-live variable.\n");
 
     ptr_type = tree_make(D_T_PTR);

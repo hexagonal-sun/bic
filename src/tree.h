@@ -222,4 +222,12 @@ static inline int is_CTYPE(tree t)
     }
 }
 
+static inline int is_LIVE(tree exp)
+{
+    if (is_T_LIVE_VAR(exp) || is_T_LIVE_COMPOUND(exp))
+        return 1;
+    else
+        return 0;
+}
+
 #endif
