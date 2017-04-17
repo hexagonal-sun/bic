@@ -1090,6 +1090,45 @@ static tree eval_access(tree t, int depth)
     return resolve_id(id, left->data.comp.members);
 }
 
+static tree eval_array_access(tree t, int depth)
+{
+    tree array = __evaluate_1(t->data.bin.left, depth + 1),
+        index = __evaluate_1(t->data.bin.right, depth + 1),
+        new_ptr, deref;
+    size_t idx, base_type_length;
+    void *base;
+
+    if (!is_T_LIVE_VAR(array))
+        eval_die("Error: Attempted to access non-live variable.\n");
+
+    if (!is_D_T_PTR(array->data.var.type))
+        eval_die("Error: Attempted deference on non pointer variable.\n");
+
+    if (is_T_LIVE_VAR(index))
+        index = make_int_from_live_var(index);
+
+    if (!is_T_INTEGER(index))
+        eval_die("Error: Unknown index type\n");
+
+    idx = mpz_get_ui(index->data.integer);
+
+    base = array->data.var.val->D_T_PTR;
+
+    /* Find the size of the type that the pointer points to. */
+    base_type_length = get_size_of_type(array->data.var.type->data.exp, depth);
+
+    /* Calculate the offset into the array and make a pointer to point
+     * to that offset. */
+    new_ptr = make_live_var(array->data.var.type);
+    new_ptr->data.var.val->D_T_PTR = base + (base_type_length * idx);
+
+    /* Dereference the pointer and return the result. */
+    deref = tree_make(T_DEREF);
+    deref->data.exp = new_ptr;
+
+    return __evaluate_1(deref, depth + 1);
+}
+
 static int get_ctype_size(tree t)
 {
     switch (t->type)
@@ -1209,6 +1248,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_DECL_STRUCT:result = eval_decl_struct(t, depth + 1);break;
     case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
     case T_ACCESS:     result = eval_access(t, depth + 1);     break;
+    case T_ARRAY_ACCESS:result = eval_array_access(t, depth + 1); break;
     case T_ADDR:       result = eval_addr(t, depth + 1);       break;
     case T_DEREF:      result = eval_deref(t, depth + 1);      break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
