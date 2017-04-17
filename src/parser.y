@@ -235,6 +235,13 @@ postfix_expression
     fncall->data.fncall.arguments = $3;
     $$ = fncall;
 }
+| postfix_expression '[' assignment_expression ']'
+{
+    tree arr_access = tree_make(T_ARRAY_ACCESS);
+    arr_access->data.bin.left = $1;
+    arr_access->data.bin.right = $3;
+    $$ = arr_access;
+}
 | postfix_expression INC
 {
     tree inc = tree_make(T_P_INC);
