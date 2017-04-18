@@ -51,7 +51,7 @@ static void mark_tree(tree t)
         mark_tree(t->data.decl.type);
         mark_tree(t->data.decl.decls);
         break;
-    case T_DECL_STRUCT:
+    case T_DECL_COMPOUND:
         mark_tree(t->data.structure.id);
         mark_tree(t->data.structure.decls);
         break;

@@ -570,14 +570,14 @@ type_specifier
 struct_specifier
 : STRUCT IDENTIFIER '{' compound_decl_list '}'
 {
-    tree decl = tree_make(T_DECL_STRUCT);
+    tree decl = tree_make(T_DECL_COMPOUND);
     decl->data.structure.id = get_identifier($2);
     decl->data.structure.decls = $4;
     $$ = decl;
 }
 | STRUCT '{' compound_decl_list '}'
 {
-    tree decl = tree_make(T_DECL_STRUCT);
+    tree decl = tree_make(T_DECL_COMPOUND);
     decl->data.structure.id = NULL;
     decl->data.structure.decls = $3;
     $$ = decl;

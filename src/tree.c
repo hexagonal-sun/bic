@@ -147,7 +147,7 @@ static void tree_dump_fncall(tree t, int depth)
     tree_print_indent(depth);
 }
 
-static void tree_dump_struct(tree t, int depth)
+static void tree_dump_compound(tree t, int depth)
 {
     eprintf(" size: %zu, name:\n", t->data.structure.length);
     __tree_dump(t->data.structure.id, depth + 1);
@@ -283,8 +283,8 @@ void __tree_dump_1(tree t, int depth)
     case T_LOOP_FOR:
         tree_dump_for_loop(t, depth);
         break;
-    case T_DECL_STRUCT:
-        tree_dump_struct(t,  depth);
+    case T_DECL_COMPOUND:
+        tree_dump_compound(t,  depth);
         break;
     case T_FN_DEF:
     case T_DECL_FN:

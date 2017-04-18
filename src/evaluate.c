@@ -105,8 +105,8 @@ static void __map_identifer(tree id, tree t, tree idmap)
 
 static size_t get_size_of_type(tree type, int depth)
 {
-    if (is_T_DECL_STRUCT(type) && type->data.structure.length != 0)
-        /* Since the evaluation of a T_DECL_STRUCT has possible side
+    if (is_T_DECL_COMPOUND(type) && type->data.structure.length != 0)
+        /* Since the evaluation of a T_DECL_COMPOUND has possible side
          * affects (mapping itself into the current context), check to
          * see if it already knows it's size before evaluating a
          * sizeof() expression. */
@@ -409,7 +409,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
         return;
     }
 
-    if (is_T_DECL_STRUCT(decl_type)) {
+    if (is_T_DECL_COMPOUND(decl_type)) {
         live_element = instantiate_struct(decl_type, depth,
                                           base + decl->data.decl.offset);
 
@@ -468,7 +468,7 @@ static tree handle_decl(tree decl, tree base_type, int depth)
         decl = decl->data.exp;
     }
 
-    if (is_T_DECL_STRUCT(decl_type) && is_T_IDENTIFIER(decl)) {
+    if (is_T_DECL_COMPOUND(decl_type) && is_T_IDENTIFIER(decl)) {
         map_identifier(decl, alloc_struct(decl_type, depth));
         return decl;
     }
@@ -1067,7 +1067,7 @@ static tree expand_decl_chain(tree decl_chain)
     return new_chain;
 }
 
-static tree eval_decl_struct(tree t, int depth)
+static tree eval_decl_compound(tree t, int depth)
 {
     tree i;
     int offset = 0;
@@ -1210,7 +1210,7 @@ static tree eval_sizeof(tree t, int depth)
         return ret;
     }
 
-    if (is_T_DECL_STRUCT(type)) {
+    if (is_T_DECL_COMPOUND(type)) {
         mpz_init_set_ui(ret->data.integer, type->data.structure.length);
         return ret;
     }
@@ -1249,7 +1249,7 @@ static tree eval_deref(tree t, int depth)
 
     new_type = exp->data.var.type->data.exp;
 
-    if (is_T_DECL_STRUCT(new_type))
+    if (is_T_DECL_COMPOUND(new_type))
         return instantiate_struct(new_type, depth,
                                   exp->data.var.val->D_T_PTR);
 
@@ -1295,7 +1295,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_LIVE_COMPOUND: result = eval_live_compound(t, depth + 1); break;
     case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
     case T_LOOP_FOR:   result = eval_loop_for(t, depth + 1);   break;
-    case T_DECL_STRUCT:result = eval_decl_struct(t, depth + 1);break;
+    case T_DECL_COMPOUND:result = eval_decl_compound(t, depth + 1);break;
     case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
     case T_ACCESS:     result = eval_access(t, depth + 1);     break;
     case T_ARRAY_ACCESS:result = eval_array_access(t, depth + 1); break;
