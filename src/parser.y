@@ -74,6 +74,7 @@ extern tree parse_head;
 %type <tree> compound_decl
 %type <tree> storage_class_specifier
 %type <tree> direct_type_specifier
+%type <tree> type_or_pointer_specifier
 %type <tree> type_specifier
 %type <tree> declaration
 %type <tree> declaration_list
@@ -315,7 +316,7 @@ unary_expression
     deref->data.exp = $2;
     $$ = deref;
 }
-| SIZEOF '(' direct_type_specifier ')'
+| SIZEOF '(' type_or_pointer_specifier ')'
 {
     tree szof = tree_make(T_SIZEOF);
     szof->data.exp = $3;
@@ -563,6 +564,15 @@ direct_type_specifier
 | union_specifier
 | enum_specifier
 ;
+
+type_or_pointer_specifier
+: direct_type_specifier
+| direct_type_specifier '*'
+{
+    tree ptr = tree_make(D_T_PTR);
+    ptr->data.exp = $1;
+    $$ = ptr;
+}
 
 type_specifier
 : direct_type_specifier
