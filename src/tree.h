@@ -78,6 +78,12 @@ struct live_compound {
     tree members;
 };
 
+struct enum_type {
+    tree id;
+    tree enums;
+    tree enum_map;
+};
+
 struct for_loop {
     tree initialization;
     tree condition;
@@ -131,6 +137,9 @@ union tree_data {
 
     /* T_LIVE_COMPOUND */
     struct live_compound comp;
+
+    /* T_ENUMERATOR */
+    struct enum_type enumerator;
 
     /* T_LOOP_FOR */
     struct for_loop floop;

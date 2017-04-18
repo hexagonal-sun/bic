@@ -227,6 +227,21 @@ static void tree_dump_live_compound(tree t, int depth)
     tree_print_indent(depth);
 }
 
+static void tree_dump_enumerator(tree t, int depth)
+{
+    eprintf(" id:\n");
+    __tree_dump(t->data.enumerator.id, depth + 1);
+    tree_print_indent(depth);
+
+    eprintf(" enums:\n");
+    __tree_dump(t->data.enumerator.enums, depth + 1);
+    tree_print_indent(depth);
+
+    eprintf(" enum_map:\n");
+    __tree_dump(t->data.enumerator.enum_map, depth + 1);
+    tree_print_indent(depth);
+}
+
 void __tree_dump_1(tree t, int depth)
 {
     tree_print_indent(depth);
@@ -301,6 +316,9 @@ void __tree_dump_1(tree t, int depth)
         break;
     case T_LIVE_COMPOUND:
         tree_dump_live_compound(t, depth);
+        break;
+    case T_ENUMERATOR:
+        tree_dump_enumerator(t, depth);
         break;
     case D_T_CHAR ... D_T_DOUBLE:
     case D_T_VOID:
