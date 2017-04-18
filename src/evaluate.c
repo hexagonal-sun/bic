@@ -1132,6 +1132,28 @@ static tree eval_decl_compound(tree t, int depth)
     return t;
 }
 
+static tree eval_enumerator(tree t, int depth)
+{
+    tree enum_id;
+    unsigned int enum_val = 0;
+
+    if (t->data.enumerator.id)
+        map_identifier(t->data.enumerator.id, t);
+
+    /* Allocate a number for each member of the enumerator and map the
+     * identifier to the value. */
+    for_each_tree(enum_id, t->data.enumerator.enums) {
+        tree integer = tree_make(T_INTEGER);
+        mpz_init_set_ui(integer->data.integer, enum_val);
+
+        __map_identifer(enum_id, integer, t->data.enumerator.enum_map);
+
+        enum_val++;
+    }
+
+    return t;
+}
+
 static tree eval_access(tree t, int depth)
 {
     tree left = __evaluate_1(t->data.bin.left, depth + 1),
@@ -1307,6 +1329,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
     case T_LOOP_FOR:   result = eval_loop_for(t, depth + 1);   break;
     case T_DECL_COMPOUND:result = eval_decl_compound(t, depth + 1);break;
+    case T_ENUMERATOR: result = eval_enumerator(t, depth + 1); break;
     case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
     case T_ACCESS:     result = eval_access(t, depth + 1);     break;
     case T_ARRAY_ACCESS:result = eval_array_access(t, depth + 1); break;
