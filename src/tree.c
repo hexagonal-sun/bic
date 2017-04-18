@@ -149,11 +149,11 @@ static void tree_dump_fncall(tree t, int depth)
 
 static void tree_dump_compound(tree t, int depth)
 {
-    eprintf(" size: %zu, name:\n", t->data.structure.length);
-    __tree_dump(t->data.structure.id, depth + 1);
+    eprintf(" size: %zu, name:\n", t->data.comp_decl.length);
+    __tree_dump(t->data.comp_decl.id, depth + 1);
     tree_print_indent(depth);
     eprintf(" decl(s):\n");
-    __tree_dump(t->data.structure.decls, depth + 1);
+    __tree_dump(t->data.comp_decl.decls, depth + 1);
     tree_print_indent(depth);
 }
 

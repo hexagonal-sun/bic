@@ -105,12 +105,12 @@ static void __map_identifer(tree id, tree t, tree idmap)
 
 static size_t get_size_of_type(tree type, int depth)
 {
-    if (is_T_DECL_COMPOUND(type) && type->data.structure.length != 0)
+    if (is_T_DECL_COMPOUND(type) && type->data.comp_decl.length != 0)
         /* Since the evaluation of a T_DECL_COMPOUND has possible side
          * affects (mapping itself into the current context), check to
          * see if it already knows it's size before evaluating a
          * sizeof() expression. */
-        return type->data.structure.length;
+        return type->data.comp_decl.length;
     else {
         tree sz, szof = tree_make(T_SIZEOF);
         szof->data.exp = type;
@@ -430,7 +430,7 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base)
     live_struct->data.comp.base = base;
     live_struct->data.comp.members = tree_make(CHAIN_HEAD);
 
-    for_each_tree(i, struct_decl->data.structure.decls)
+    for_each_tree(i, struct_decl->data.comp_decl.decls)
         handle_struct_decl(i, live_struct, depth);
 
     return live_struct;
@@ -438,7 +438,7 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base)
 
 static tree alloc_struct(tree struct_decl, int depth)
 {
-    void *base = malloc(struct_decl->data.structure.length);
+    void *base = malloc(struct_decl->data.comp_decl.length);
     track_alloc(base);
 
     return instantiate_struct(struct_decl, depth, base);
@@ -1075,20 +1075,20 @@ static tree eval_decl_compound(tree t, int depth)
     /* We map to ourselves here so that any references to the same
      * structure in the decls will result in a reference to the
      * struct_decl. */
-    if (t->data.structure.id)
-        map_identifier(t->data.structure.id, t);
+    if (t->data.comp_decl.id)
+        map_identifier(t->data.comp_decl.id, t);
 
     /* Don't attempt to expand an already expanded struct. */
-    if (t->data.structure.expanded)
+    if (t->data.comp_decl.expanded)
         return t;
 
     /* Expand the structure decl chain so each decl can have it's own
      * offset.  */
-    t->data.structure.decls = expand_decl_chain(t->data.structure.decls);
+    t->data.comp_decl.decls = expand_decl_chain(t->data.comp_decl.decls);
 
     /* Populate the decls with their offsets, as well as the total
      * size of the structure. */
-    for_each_tree(i, t->data.structure.decls) {
+    for_each_tree(i, t->data.comp_decl.decls) {
         tree id;
         size_t member_size;
 
@@ -1115,8 +1115,8 @@ static tree eval_decl_compound(tree t, int depth)
         pop_ctx();
     }
 
-    t->data.structure.length = offset;
-    t->data.structure.expanded = 1;
+    t->data.comp_decl.length = offset;
+    t->data.comp_decl.expanded = 1;
 
     return t;
 }
@@ -1211,7 +1211,7 @@ static tree eval_sizeof(tree t, int depth)
     }
 
     if (is_T_DECL_COMPOUND(type)) {
-        mpz_init_set_ui(ret->data.integer, type->data.structure.length);
+        mpz_init_set_ui(ret->data.integer, type->data.comp_decl.length);
         return ret;
     }
 

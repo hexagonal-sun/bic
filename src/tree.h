@@ -35,7 +35,7 @@ struct identifier {
     char *name;
 };
 
-struct struct_data {
+struct compound_decl {
     tree id;
     tree decls;
     size_t length;
@@ -113,8 +113,8 @@ union tree_data {
 
     struct declaration decl;
 
-    /* T_STRUCT_DECL */
-    struct struct_data structure;
+    /* T_DECL_COMPOUND */
+    struct compound_decl comp_decl;
 
     /* T_FN_DEF, T_DECL_FN */
     struct function_data function;
