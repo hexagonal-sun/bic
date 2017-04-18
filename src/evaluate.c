@@ -504,6 +504,13 @@ static tree handle_decl(tree decl, tree base_type, int depth)
 
 static tree map_typedef(tree id, tree type)
 {
+    while (is_T_POINTER(id)) {
+        tree ptr_type = tree_make(D_T_PTR);
+        ptr_type->data.exp = type;
+        type = ptr_type;
+        id = id->data.exp;
+    }
+
     if (!is_T_IDENTIFIER(id))
         eval_die("Attempted to map type to non-identifier\n");
 
