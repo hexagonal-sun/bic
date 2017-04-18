@@ -27,5 +27,6 @@ sizeof
 gethostname
 linked-list
 struct_torture
+array_torture
 
 *.trs
