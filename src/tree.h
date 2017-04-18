@@ -40,6 +40,10 @@ struct compound_decl {
     tree decls;
     size_t length;
     int expanded;
+    enum {
+        sstruct,
+        uunion
+    } type;
 };
 
 struct function_data {

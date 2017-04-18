@@ -573,6 +573,7 @@ struct_specifier
     tree decl = tree_make(T_DECL_COMPOUND);
     decl->data.comp_decl.id = get_identifier($2);
     decl->data.comp_decl.decls = $4;
+    decl->data.comp_decl.type = sstruct;
     $$ = decl;
 }
 | STRUCT '{' compound_decl_list '}'
@@ -580,6 +581,7 @@ struct_specifier
     tree decl = tree_make(T_DECL_COMPOUND);
     decl->data.comp_decl.id = NULL;
     decl->data.comp_decl.decls = $3;
+    decl->data.comp_decl.type = sstruct;
     $$ = decl;
 }
 | STRUCT IDENTIFIER
