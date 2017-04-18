@@ -54,11 +54,23 @@ ptrdiff_t do_call(void *function_address, tree args)
                 break;
             case T_LIVE_VAR:
                 switch(arg->data.var.type->type) {
-                case D_T_CHAR ... D_T_ULONGLONG:
-                    new_arg->val.i = (ptrdiff_t)arg->data.var.val->D_T_ULONGLONG;
-                    new_arg->dest = INTEGER;
-                    push_arg(&int_args, new_arg);
-                    break;
+#define SETINT(type)                                                    \
+                    case type:                                          \
+                        new_arg->val.i = (ptrdiff_t)arg->data.var.val->type; \
+                        new_arg->dest = INTEGER;                        \
+                        push_arg(&int_args, new_arg);                   \
+                        break;
+                    SETINT(D_T_CHAR);
+                    SETINT(D_T_SHORT);
+                    SETINT(D_T_INT);
+                    SETINT(D_T_LONG);
+                    SETINT(D_T_LONGLONG);
+                    SETINT(D_T_UCHAR);
+                    SETINT(D_T_USHORT);
+                    SETINT(D_T_UINT);
+                    SETINT(D_T_ULONG);
+                    SETINT(D_T_ULONGLONG);
+#undef SETINT
                 case D_T_FLOAT:
                     new_arg->val.d = (double)arg->data.var.val->D_T_FLOAT;
                     new_arg->dest = SSE;
