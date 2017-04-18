@@ -29,5 +29,6 @@ linked-list
 struct_torture
 array_torture
 union
+basic_enum
 
 *.trs
