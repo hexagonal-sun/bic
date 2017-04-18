@@ -5,7 +5,7 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  mul div simple_pointer set_pointer_through_function	\
                  printf_double_explicit printf_double_live_var lt gt	\
                  lteq gteq fibonacci sizeof gethostname linked-list	\
-                 struct_torture array_torture
+                 struct_torture array_torture union
 
 TESTS = $(check_PROGRAMS)
 
