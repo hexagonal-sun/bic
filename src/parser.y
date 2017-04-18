@@ -67,6 +67,9 @@ extern tree parse_head;
 %type <tree> direct_declarator_list
 %type <tree> struct_specifier
 %type <tree> union_specifier
+%type <tree> enum_specifier
+%type <tree> enumerator_list
+%type <tree> enumerator
 %type <tree> compound_decl_list
 %type <tree> compound_decl
 %type <tree> storage_class_specifier
@@ -558,6 +561,7 @@ direct_type_specifier
 }
 | struct_specifier
 | union_specifier
+| enum_specifier
 ;
 
 type_specifier
@@ -614,6 +618,46 @@ union_specifier
     $$ = get_identifier($2);
 }
 ;
+
+enum_specifier
+: ENUM '{' enumerator_list '}'
+{
+    tree enumerator = tree_make(T_ENUMERATOR);
+    enumerator->data.enumerator.id = NULL;
+    enumerator->data.enumerator.enums = $3;
+    enumerator->data.enumerator.enum_map = tree_make(CHAIN_HEAD);
+    $$ = enumerator;
+}
+| ENUM IDENTIFIER '{' enumerator_list '}'
+{
+    tree enumerator = tree_make(T_ENUMERATOR);
+    enumerator->data.enumerator.id = get_identifier($2);
+    enumerator->data.enumerator.enums = $4;
+    enumerator->data.enumerator.enum_map = tree_make(CHAIN_HEAD);
+    $$ = enumerator;
+}
+| ENUM IDENTIFIER
+{
+    $$ = get_identifier($2);
+}
+;
+
+enumerator_list
+: enumerator
+{
+    $$ = tree_chain_head($1);
+}
+| enumerator_list ',' enumerator
+{
+    tree_chain($3, $1);
+}
+;
+
+enumerator
+: IDENTIFIER
+{
+    $$ = get_identifier($1);
+}
 
 compound_decl_list
 : compound_decl
