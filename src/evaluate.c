@@ -1071,9 +1071,10 @@ static tree eval_decl_compound(tree t, int depth)
 {
     tree i;
     int offset = 0;
+    size_t max_member_sz = 0;
 
     /* We map to ourselves here so that any references to the same
-     * structure in the decls will result in a reference to the
+     * compound in the decls will result in a reference to the
      * struct_decl. */
     if (t->data.comp_decl.id)
         map_identifier(t->data.comp_decl.id, t);
@@ -1082,17 +1083,17 @@ static tree eval_decl_compound(tree t, int depth)
     if (t->data.comp_decl.expanded)
         return t;
 
-    /* Expand the structure decl chain so each decl can have it's own
+    /* Expand the compound decl chain so each decl can have it's own
      * offset.  */
     t->data.comp_decl.decls = expand_decl_chain(t->data.comp_decl.decls);
 
     /* Populate the decls with their offsets, as well as the total
-     * size of the structure. */
+     * size of the compound. */
     for_each_tree(i, t->data.comp_decl.decls) {
         tree id;
         size_t member_size;
 
-        /* To calculate the size of each element of the structure, we
+        /* To calculate the size of each element of the compound, we
          * temporarily push the evaluation ctx, evaluate each decl
          * within the new evaluation ctx, resolve the identifier back
          * to it's live var and finally pass that through a sizeof()
@@ -1102,7 +1103,7 @@ static tree eval_decl_compound(tree t, int depth)
          * could create a loop back to ourselves (when declaring a
          * pointer to the same struct).  Instead, we evaluate all decl
          * types at struct installation time. */
-        push_ctx("Structure Declaration");
+        push_ctx("Compound Declaration");
 
         id = __evaluate_1(i, depth + 1);
 
@@ -1110,12 +1111,22 @@ static tree eval_decl_compound(tree t, int depth)
 
         member_size = get_size_of_type(resolve_identifier(id, cur_ctx), depth);
 
-        offset += member_size;
+        if (t->data.comp_decl.type == sstruct)
+            offset += member_size;
+        else {
+            offset = 0;
+            if (member_size > max_member_sz)
+                max_member_sz = member_size;
+        }
 
         pop_ctx();
     }
 
-    t->data.comp_decl.length = offset;
+    if (t->data.comp_decl.type == sstruct)
+        t->data.comp_decl.length = offset;
+    else
+        t->data.comp_decl.length = max_member_sz;
+
     t->data.comp_decl.expanded = 1;
 
     return t;
