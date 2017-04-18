@@ -66,6 +66,7 @@ extern tree parse_head;
 %type <tree> declarator_list
 %type <tree> direct_declarator_list
 %type <tree> struct_specifier
+%type <tree> union_specifier
 %type <tree> compound_decl_list
 %type <tree> compound_decl
 %type <tree> storage_class_specifier
@@ -556,6 +557,7 @@ direct_type_specifier
     $$ = get_identifier($1);
 }
 | struct_specifier
+| union_specifier
 ;
 
 type_specifier
@@ -585,6 +587,29 @@ struct_specifier
     $$ = decl;
 }
 | STRUCT IDENTIFIER
+{
+    $$ = get_identifier($2);
+}
+;
+
+union_specifier
+: UNION IDENTIFIER '{' compound_decl_list '}'
+{
+    tree decl = tree_make(T_DECL_COMPOUND);
+    decl->data.comp_decl.id = get_identifier($2);
+    decl->data.comp_decl.decls = $4;
+    decl->data.comp_decl.type = uunion;
+    $$ = decl;
+}
+| UNION '{' compound_decl_list '}'
+{
+    tree decl = tree_make(T_DECL_COMPOUND);
+    decl->data.comp_decl.id = NULL;
+    decl->data.comp_decl.decls = $3;
+    decl->data.comp_decl.type = uunion;
+    $$ = decl;
+}
+| UNION IDENTIFIER
 {
     $$ = get_identifier($2);
 }
