@@ -1134,11 +1134,13 @@ static tree eval_decl_compound(tree t, int depth)
 
 static tree eval_enumerator(tree t, int depth)
 {
-    tree enum_id;
+    tree enum_id, enum_base_type = tree_make(ENUMTYPE);
     unsigned int enum_val = 0;
 
+    /* Whenever we encounter this decl, we wish to treat it as just a
+     * normal integer. */
     if (t->data.enumerator.id)
-        map_identifier(t->data.enumerator.id, t);
+        map_identifier(t->data.enumerator.id, enum_base_type);
 
     /* Allocate a number for each member of the enumerator and map the
      * identifier to the value. */
@@ -1146,12 +1148,12 @@ static tree eval_enumerator(tree t, int depth)
         tree integer = tree_make(T_INTEGER);
         mpz_init_set_ui(integer->data.integer, enum_val);
 
-        __map_identifer(enum_id, integer, t->data.enumerator.enum_map);
+        map_identifier(enum_id, integer);
 
         enum_val++;
     }
 
-    return t;
+    return enum_base_type;
 }
 
 static tree eval_access(tree t, int depth)

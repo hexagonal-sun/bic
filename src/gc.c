@@ -94,7 +94,6 @@ static void mark_tree(tree t)
     case T_ENUMERATOR:
         mark_tree(t->data.enumerator.id);
         mark_tree(t->data.enumerator.enums);
-        mark_tree(t->data.enumerator.enum_map);
         break;
     default:
         /* All other types don't need to recurse as they don't contain

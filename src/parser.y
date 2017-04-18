@@ -625,7 +625,6 @@ enum_specifier
     tree enumerator = tree_make(T_ENUMERATOR);
     enumerator->data.enumerator.id = NULL;
     enumerator->data.enumerator.enums = $3;
-    enumerator->data.enumerator.enum_map = tree_make(CHAIN_HEAD);
     $$ = enumerator;
 }
 | ENUM IDENTIFIER '{' enumerator_list '}'
@@ -633,7 +632,6 @@ enum_specifier
     tree enumerator = tree_make(T_ENUMERATOR);
     enumerator->data.enumerator.id = get_identifier($2);
     enumerator->data.enumerator.enums = $4;
-    enumerator->data.enumerator.enum_map = tree_make(CHAIN_HEAD);
     $$ = enumerator;
 }
 | ENUM IDENTIFIER

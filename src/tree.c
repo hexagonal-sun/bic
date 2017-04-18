@@ -236,10 +236,6 @@ static void tree_dump_enumerator(tree t, int depth)
     eprintf(" enums:\n");
     __tree_dump(t->data.enumerator.enums, depth + 1);
     tree_print_indent(depth);
-
-    eprintf(" enum_map:\n");
-    __tree_dump(t->data.enumerator.enum_map, depth + 1);
-    tree_print_indent(depth);
 }
 
 void __tree_dump_1(tree t, int depth)

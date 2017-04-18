@@ -78,10 +78,13 @@ struct live_compound {
     tree members;
 };
 
+/* The underlying type that is used to represent a live enumeration
+ * value. */
+#define ENUMTYPE D_T_UINT
+
 struct enum_type {
     tree id;
     tree enums;
-    tree enum_map;
 };
 
 struct for_loop {
