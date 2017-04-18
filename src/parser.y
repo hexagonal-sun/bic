@@ -66,8 +66,8 @@ extern tree parse_head;
 %type <tree> declarator_list
 %type <tree> direct_declarator_list
 %type <tree> struct_specifier
-%type <tree> struct_decl_list
-%type <tree> struct_decl
+%type <tree> compound_decl_list
+%type <tree> compound_decl
 %type <tree> storage_class_specifier
 %type <tree> direct_type_specifier
 %type <tree> type_specifier
@@ -568,14 +568,14 @@ type_specifier
 ;
 
 struct_specifier
-: STRUCT IDENTIFIER '{' struct_decl_list '}'
+: STRUCT IDENTIFIER '{' compound_decl_list '}'
 {
     tree decl = tree_make(T_DECL_STRUCT);
     decl->data.structure.id = get_identifier($2);
     decl->data.structure.decls = $4;
     $$ = decl;
 }
-| STRUCT '{' struct_decl_list '}'
+| STRUCT '{' compound_decl_list '}'
 {
     tree decl = tree_make(T_DECL_STRUCT);
     decl->data.structure.id = NULL;
@@ -588,18 +588,18 @@ struct_specifier
 }
 ;
 
-struct_decl_list
-: struct_decl
+compound_decl_list
+: compound_decl
 {
     $$ = tree_chain_head($1);
 }
-| struct_decl_list struct_decl
+| compound_decl_list compound_decl
 {
     tree_chain($2, $1);
 }
 ;
 
-struct_decl
+compound_decl
 : type_specifier direct_declarator_list ';'
 {
     tree decl = tree_make(T_DECL);
