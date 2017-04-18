@@ -231,7 +231,7 @@ static tree eval_fn_call(tree t, int depth)
     if (is_T_FN_DEF(function)) {
         tree arg_decls = function->data.function.arguments,
             arg_vals = t->data.fncall.arguments,
-            arg_decl, arg_val, evaled_arg_vals;
+            arg_decl, arg_val;
 
         push_ctx(function->data.function.id->data.id.name);
 
