@@ -519,6 +519,53 @@ static tree map_typedef(tree id, tree type)
     return id;
 }
 
+static tree handle_extern_decl(tree extern_type, tree decl)
+{
+    tree live_var, id;
+    void *sym_addr;
+
+    while (is_T_POINTER(decl)) {
+        tree ptr_type = tree_make(D_T_PTR);
+        ptr_type->data.exp = extern_type;
+        extern_type = ptr_type;
+        decl = decl->data.exp;
+    }
+
+    id = decl;
+
+    if (!is_T_IDENTIFIER(id))
+        eval_die("Error: attempted to extern something that isn't an "
+                 "identifier\n");
+
+    sym_addr = dlsym(RTLD_DEFAULT, id->data.id.name);
+
+    if (!sym_addr)
+        eval_die("Error: could not resolve extern symbol %s\n",
+                 id->data.id.name);
+
+    live_var = tree_make(T_LIVE_VAR);
+    live_var->data.var.type = extern_type;
+    live_var->data.var.val = sym_addr;
+
+    map_identifier(id, live_var);
+
+    return id;
+}
+
+static tree handle_extern(tree extern_type, tree decls, int depth)
+{
+    tree ret;
+    tree type = __evaluate_1(extern_type->data.exp, depth +1), i;
+
+    if (is_CHAIN_HEAD(decls))
+        for_each_tree(i, decls)
+            ret = handle_extern_decl(type, i);
+    else
+        ret = handle_extern_decl(type, decls);
+
+    return ret;
+}
+
 static tree handle_typedef(tree typedef_type, tree decls, int depth)
 {
     tree ret;
@@ -541,6 +588,9 @@ static tree eval_decl(tree t, int depth)
 
     if (is_T_TYPEDEF(base_type))
         return handle_typedef(base_type, decls, depth + 1);
+
+    if (is_T_EXTERN(base_type))
+        return handle_extern(base_type, decls, depth + 1);
 
     if (!decls)
         return NULL;
@@ -1001,6 +1051,12 @@ static tree eval_live_compound(tree t, int depth)
     return t;
 }
 
+static tree eval_extern(tree t, int depth)
+{
+    /* An extern will evaluate to itself. */
+    return t;
+}
+
 static tree eval_typedef(tree t, int depth)
 {
     /* A typedef will evaluate to itself. */
@@ -1335,6 +1391,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_GTEQ:       result = eval_gteq(t, depth + 1);       break;
     case T_LIVE_VAR:   result = eval_live_var(t, depth + 1);   break;
     case T_LIVE_COMPOUND: result = eval_live_compound(t, depth + 1); break;
+    case T_EXTERN:     result = eval_extern(t, depth + 1);     break;
     case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
     case T_LOOP_FOR:   result = eval_loop_for(t, depth + 1);   break;
     case T_DECL_COMPOUND:result = eval_decl_compound(t, depth + 1);break;
