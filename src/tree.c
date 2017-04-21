@@ -266,6 +266,7 @@ void __tree_dump_1(tree t, int depth)
     case T_ADDR:
     case T_DEREF:
     case T_POINTER:
+    case T_EXTERN:
     case T_TYPEDEF:
         tree_dump_single_exp(t, depth);
         break;
