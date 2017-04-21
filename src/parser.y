@@ -450,6 +450,11 @@ storage_class_specifier
 {
     $$ = tree_make(T_TYPEDEF);
 }
+| EXTERN
+{
+    $$ = tree_make(T_EXTERN);
+}
+;
 
 direct_type_specifier
 : CHAR
