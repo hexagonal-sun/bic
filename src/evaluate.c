@@ -585,11 +585,27 @@ static tree handle_typedef(tree typedef_type, tree decls, int depth)
     return ret;
 }
 
+static tree handle_forward_decl(tree type)
+{
+    tree id = type->data.exp;
+
+    tree forward_decl = tree_make(E_INCOMP_TYPE);
+
+    map_identifier(id, forward_decl);
+
+    return id;
+}
+
 static tree eval_decl(tree t, int depth)
 {
-    tree base_type = __evaluate_1(t->data.decl.type, depth + 1),
+    tree base_type = t->data.decl.type,
         decls = t->data.decl.decls,
         i, ret;
+
+    if (!decls && (is_T_STRUCT(base_type) || is_T_UNION(base_type)))
+        return handle_forward_decl(base_type);
+
+    base_type = __evaluate_1(t->data.decl.type, depth + 1);
 
     if (is_T_TYPEDEF(base_type))
         return handle_typedef(base_type, decls, depth + 1);
