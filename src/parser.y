@@ -607,7 +607,9 @@ struct_specifier
 }
 | STRUCT IDENTIFIER
 {
-    $$ = get_identifier($2);
+    tree ret = tree_make(T_STRUCT);
+    ret->data.exp = get_identifier($2);
+    $$ = ret;
 }
 ;
 
@@ -630,7 +632,9 @@ union_specifier
 }
 | UNION IDENTIFIER
 {
-    $$ = get_identifier($2);
+    tree ret = tree_make(T_UNION);
+    ret->data.exp = get_identifier($2);
+    $$ = ret;
 }
 ;
 
