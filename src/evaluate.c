@@ -377,6 +377,16 @@ static tree instantiate_array(tree array_decl, tree base_type, void *base,
     return live_var;
 }
 
+static void resolve_ptr_type(tree *ptr, tree *base_type)
+{
+    while (is_T_POINTER(*ptr)) {
+        tree ptr_type = tree_make(D_T_PTR);
+        ptr_type->data.exp = *base_type;
+        *base_type = ptr_type;
+        *ptr = (*ptr)->data.exp;
+    }
+}
+
 static tree instantiate_struct(tree struct_decl, int depth, void *base);
 
 static void handle_struct_decl(tree decl, tree live_struct, int depth)
@@ -387,12 +397,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
 
     void *base = live_struct->data.comp.base;
 
-    while (is_T_POINTER(decl_element)) {
-        tree ptr_type = tree_make(D_T_PTR);
-        ptr_type->data.exp = decl_type;
-        decl_type = ptr_type;
-        decl_element = decl_element->data.exp;
-    }
+    resolve_ptr_type(&decl_element, &decl_type);
 
     if (is_T_ARRAY(decl_element)) {
         size_t array_sz = get_array_size(decl_element, decl_type, depth);
@@ -466,12 +471,7 @@ static tree handle_decl(tree decl, tree base_type, int depth)
     tree decl_type = base_type;
 
     /* Strip off any pointer objects and add them to the base type. */
-    while (is_T_POINTER(decl)) {
-        tree ptr_type = tree_make(D_T_PTR);
-        ptr_type->data.exp = decl_type;
-        decl_type = ptr_type;
-        decl = decl->data.exp;
-    }
+    resolve_ptr_type(&decl, &decl_type);
 
     if (is_T_DECL_COMPOUND(decl_type) && is_T_IDENTIFIER(decl)) {
         map_identifier(decl, alloc_struct(decl_type, depth));
@@ -509,12 +509,7 @@ static tree handle_decl(tree decl, tree base_type, int depth)
 
 static tree map_typedef(tree id, tree type)
 {
-    while (is_T_POINTER(id)) {
-        tree ptr_type = tree_make(D_T_PTR);
-        ptr_type->data.exp = type;
-        type = ptr_type;
-        id = id->data.exp;
-    }
+    resolve_ptr_type(&id, &type);
 
     if (!is_T_IDENTIFIER(id))
         eval_die("Attempted to map type to non-identifier\n");
@@ -529,12 +524,7 @@ static tree handle_extern_decl(tree extern_type, tree decl)
     tree live_var, id;
     void *sym_addr;
 
-    while (is_T_POINTER(decl)) {
-        tree ptr_type = tree_make(D_T_PTR);
-        ptr_type->data.exp = extern_type;
-        extern_type = ptr_type;
-        decl = decl->data.exp;
-    }
+    resolve_ptr_type(&decl, &extern_type);
 
     id = decl;
 
