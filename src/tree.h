@@ -3,6 +3,7 @@
 
 #include <gmp.h>
 #include <stdint.h>
+#include <string.h>
 #include "list.h"
 
 typedef struct tree *tree;
@@ -244,6 +245,13 @@ static inline int is_LIVE(tree exp)
         return 1;
     else
         return 0;
+}
+
+/* Copy the contents of one tree to another and overwrite.  NOTE this
+ * does not do a deep copy! */
+static inline void tree_copy(tree dest, tree src)
+{
+    memcpy(dest, src, sizeof(*dest));
 }
 
 #endif
