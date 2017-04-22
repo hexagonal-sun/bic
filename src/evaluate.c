@@ -1153,15 +1153,25 @@ static tree expand_decl_chain(tree decl_chain)
 
 static tree eval_decl_compound(tree t, int depth)
 {
-    tree i;
+    tree i, struct_id = t->data.comp_decl.id;
     int offset = 0;
     size_t max_member_sz = 0;
 
     /* We map to ourselves here so that any references to the same
      * compound in the decls will result in a reference to the
-     * struct_decl. */
-    if (t->data.comp_decl.id)
-        map_identifier(t->data.comp_decl.id, t);
+     * struct_decl.  Also check to see if there are any forward
+     * declarations of the type.  If there are, copy 't' to the
+     * unresolved decl and use that as our new 't' so all referencies
+     * to it will be updated.*/
+    if (struct_id) {
+        tree forward_decl = resolve_identifier(struct_id, cur_ctx);
+
+        if (forward_decl) {
+            tree_copy(forward_decl, t);
+            t = forward_decl;
+        } else
+            map_identifier(struct_id, t);
+    }
 
     /* Don't attempt to expand an already expanded struct. */
     if (t->data.comp_decl.expanded)
