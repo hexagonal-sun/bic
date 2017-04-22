@@ -1233,6 +1233,16 @@ static tree eval_access(tree t, int depth)
     return resolve_id(id, left->data.comp.members);
 }
 
+static tree eval_struct(tree t, int depth)
+{
+    return __evaluate_1(t->data.exp, depth);
+}
+
+static tree eval_union(tree t, int depth)
+{
+    return __evaluate_1(t->data.exp, depth);
+}
+
 static tree eval_array_access(tree t, int depth)
 {
     tree array = __evaluate_1(t->data.bin.left, depth + 1),
@@ -1398,6 +1408,8 @@ static tree __evaluate_1(tree t, int depth)
     case T_ENUMERATOR: result = eval_enumerator(t, depth + 1); break;
     case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
     case T_ACCESS:     result = eval_access(t, depth + 1);     break;
+    case T_STRUCT:     result = eval_struct(t, depth + 1);     break;
+    case T_UNION:      result = eval_union(t, depth + 1);      break;
     case T_ARRAY_ACCESS:result = eval_array_access(t, depth + 1); break;
     case T_ADDR:       result = eval_addr(t, depth + 1);       break;
     case T_DEREF:      result = eval_deref(t, depth + 1);      break;
