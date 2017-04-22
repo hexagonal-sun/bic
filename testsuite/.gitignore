@@ -30,5 +30,6 @@ struct_torture
 array_torture
 union
 basic_enum
+forward_declare
 
 *.trs
