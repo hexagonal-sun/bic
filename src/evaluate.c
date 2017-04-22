@@ -329,6 +329,11 @@ static tree eval_fn_def(tree t, int depth)
 static void make_and_map_live_var(tree id, tree type)
 {
     assert(id->type == T_IDENTIFIER);
+
+    if (is_E_INCOMP_TYPE(type))
+        eval_die("Error: can not create incomplete type %s\n",
+                 id->data.id.name);
+
     map_identifier(id, make_live_var(type));
 }
 
