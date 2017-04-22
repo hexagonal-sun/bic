@@ -2,6 +2,8 @@
 DEFTYPE(T_INTEGER, "Constant integer")
 DEFTYPE(T_FLOAT, "Constant floating point")
 DEFTYPE(T_STRING, "Constant string")
+DEFTYPE(T_STRUCT, "Structure")
+DEFTYPE(T_UNION, "Union")
 DEFTYPE(T_P_INC, "Increment (postfix)")
 DEFTYPE(T_P_DEC, "Decrement (postfix)")
 DEFTYPE(T_INC, "Increment (unary)")

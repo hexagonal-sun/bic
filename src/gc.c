@@ -27,6 +27,8 @@ static void mark_tree(tree t)
     case T_ADDR:
     case T_DEREF:
     case T_EXTERN:
+    case T_STRUCT:
+    case T_UNION:
     case T_TYPEDEF:
     case D_T_PTR:
         mark_tree(t->data.exp);
