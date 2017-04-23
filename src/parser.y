@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "tree.h"
+#include "parser.h"
 
 int yyparse(void);
 int yylex(void);
@@ -10,6 +11,11 @@ void yyerror(const char *str);
 
 extern tree parse_head;
 
+static void set_locus(tree t, YYLTYPE locus)
+{
+    t->locus.line_no = locus.first_line;
+    t->locus.column_no = locus.first_column;
+}
 
 %}
 
