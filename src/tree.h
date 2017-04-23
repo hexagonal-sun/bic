@@ -152,9 +152,15 @@ union tree_data {
     struct eval_ctx ectx;
 };
 
+struct tree_locus {
+    size_t line_no;
+    size_t column_no;
+};
+
 struct tree {
     enum tree_type type;
     union tree_data data;
+    struct tree_locus locus;
     list chain;
 
     /* GC members. */
