@@ -5,7 +5,16 @@
 #include "tree.h"
 #include "parser.h"
 #define YY_NO_INPUT
-#define YY_USER_ACTION {yylloc.first_line = yylloc.last_line = yylineno;}
+
+int colnum = 1;
+int linenum = 1;
+
+#define YY_USER_ACTION {yylloc.first_line = linenum;  \
+        yylloc.first_column = colnum;                 \
+        colnum=colnum+yyleng;                         \
+        yylloc.last_column=colnum - 1;                \
+        yylloc.last_line = linenum;}
+
 
 static char *sl_buf = NULL;
 
@@ -54,7 +63,6 @@ W                               [\ \t]
 X                               [0-9A-F]
 
 %option noyywrap
-%option yylineno
 %x str_lit
 
 %%
@@ -105,7 +113,8 @@ X                               [0-9A-F]
 <str_lit>\\.                    { lex_err("bogus escape '%s' in string\n", yytext); }
 <str_lit>\n                     { lex_err("newline in string\n"); }
 
-[ \t\n\r]                       /* skip whitespace */
+[ \t\r]                         /* skip whitespace */
+"\n"                            {linenum++; colnum = 1;}
 
 "..."                           return ELLIPSIS;
 "=="                            return EQUATE;
