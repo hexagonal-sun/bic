@@ -13,6 +13,8 @@
 static tree cur_ctx = NULL;
 GC_TREE_DECL(cur_ctx);
 
+static const char *current_filename;
+
 static tree __evaluate_1(tree t, int depth);
 static tree __evaluate(tree t, int depth);
 
@@ -61,8 +63,10 @@ static void ctx_backtrace(void)
     tree_dump(cur_ctx);
 }
 
-static void __attribute__((noreturn)) eval_die(const char *format, ...)
+static void __attribute__((noreturn)) eval_die(tree t, const char *format, ...)
 {
+    fprintf(stderr, "%s:%d:%d: error: ", current_filename, t->locus.line_no,
+            t->locus.column_no);
     va_list args;
     va_start(args, format);
     vfprintf(stderr, format, args);
@@ -95,7 +99,7 @@ static void __map_identifer(tree id, tree t, tree idmap)
     tree new_map = tree_make(E_MAP);
 
     if (!is_T_IDENTIFIER(id))
-        eval_die("Error: Attempted to map non-identifier\n");
+        eval_die(id, "Attempted to map non-identifier\n");
 
     new_map->data.bin.left = id;
     new_map->data.bin.right = t;
@@ -122,7 +126,7 @@ static size_t get_size_of_type(tree type, int depth)
 static void map_identifier(tree id, tree t)
 {
     if (resolve_identifier(id, cur_ctx))
-        eval_die("Error: attempted to map already existing identifier %s. Stopping.\n",
+        eval_die(id, "Attempted to map already existing identifier %s.\n",
                 id->data.id.name);
 
     __map_identifer(id, t, cur_ctx->data.ectx.id_map);
@@ -143,7 +147,7 @@ static tree eval_identifier(tree t, int depth)
         search_ctx = search_ctx->data.ectx.parent_ctx;
     }
 
-    eval_die("Error: could not resolve identifier %s. Stopping.\n",
+    eval_die(t, "Could not resolve identifier %s.\n",
             t->data.id.name);
 }
 
@@ -180,7 +184,7 @@ static tree make_int_from_live_var(tree var)
         SETINT(D_T_ULONGLONG);
 #undef SETINT
     default:
-        eval_die("error: could not create integer type from live var.");
+        eval_die(var, "Could not create integer type from live var.");
     }
 
     return ret;
@@ -204,7 +208,7 @@ static tree make_fncall_result(tree type, ptrdiff_t result)
 #include "ctypes.def"
 #undef DEFCTYPE
     default:
-        eval_die("Error: could not create function return value\n");
+        eval_die(type, "Could not create function return value\n");
     }
 
     return ret;
@@ -247,7 +251,7 @@ static tree eval_fn_call(tree t, int depth)
                 no_vals++;
 
             if (no_vals != no_decls)
-                eval_die("Error: Invalid number of parameters to function");
+                eval_die(t, "Invalid number of parameters to function");
 
             /* Evaluate an assignment for each passed value. */
             arg_val = arg_vals;
@@ -300,7 +304,7 @@ static tree eval_fn_call(tree t, int depth)
         void *function_address = dlsym(RTLD_DEFAULT, function_name);
 
         if (function_address == NULL)
-            eval_die("Error: could not resolve external symbol: %s\n", function_name);
+            eval_die(t, "Could not resolve external symbol: %s\n", function_name);
 
         /* Evaluate all arguments before passing into the marshalling
          * function. */
@@ -331,7 +335,7 @@ static void make_and_map_live_var(tree id, tree type)
     assert(id->type == T_IDENTIFIER);
 
     if (is_E_INCOMP_TYPE(type))
-        eval_die("Error: can not create incomplete type %s\n",
+        eval_die(id, "Can not create incomplete type %s\n",
                  id->data.id.name);
 
     map_identifier(id, make_live_var(type));
@@ -346,7 +350,7 @@ static size_t get_array_size(tree array_decl, tree base_type, int depth)
         no_elements = make_int_from_live_var(no_elements);
 
     if (!is_T_INTEGER(no_elements))
-        eval_die("Error: attempted to create array with non-constant size\n");
+        eval_die(array_decl, "Attempted to create array with non-constant size\n");
 
     no_elms = mpz_get_ui(no_elements->data.integer);
 
@@ -360,7 +364,7 @@ static tree instantiate_array(tree array_decl, tree base_type, void *base,
         id = array_decl->data.bin.left;
 
     if (!is_T_IDENTIFIER(id))
-        eval_die("Error: unknown array name type\n");
+        eval_die(array_decl, "Unknown array name type\n");
 
     /* An array is basically a pointer; it has no bounds checking.
      * Therefore all we need to do is create a live var with a pointer
@@ -429,7 +433,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
         return;
     }
 
-    eval_die("Error: Unknown structure member decl\n");
+    eval_die(decl, "Unknown structure member decl\n");
 }
 
 static tree instantiate_struct(tree struct_decl, int depth, void *base)
@@ -503,7 +507,7 @@ static tree handle_decl(tree decl, tree base_type, int depth)
         return ret;
     }
     default:
-        eval_die("Error: unknown rvalue in declaration.\n");
+        eval_die(decl, "Unknown rvalue in declaration.\n");
     }
 }
 
@@ -512,7 +516,7 @@ static tree map_typedef(tree id, tree type)
     resolve_ptr_type(&id, &type);
 
     if (!is_T_IDENTIFIER(id))
-        eval_die("Attempted to map type to non-identifier\n");
+        eval_die(id, "Attempted to map type to non-identifier\n");
 
     map_identifier(id, type);
 
@@ -529,13 +533,13 @@ static tree handle_extern_decl(tree extern_type, tree decl)
     id = decl;
 
     if (!is_T_IDENTIFIER(id))
-        eval_die("Error: attempted to extern something that isn't an "
+        eval_die(decl, "attempted to extern something that isn't an "
                  "identifier\n");
 
     sym_addr = dlsym(RTLD_DEFAULT, id->data.id.name);
 
     if (!sym_addr)
-        eval_die("Error: could not resolve extern symbol %s\n",
+        eval_die(decl, "Could not resolve extern symbol %s\n",
                  id->data.id.name);
 
     live_var = tree_make(T_LIVE_VAR);
@@ -629,7 +633,7 @@ static void assign_integer(tree var, tree right)
         val = right->data.var.val->D_T_LONG;
         break;
     default:
-        eval_die("Error: unknown rvalue assignment to integer.\n");
+        eval_die(right, "unknown rvalue assignment to integer.\n");
     }
 
     switch (var->data.var.type->type) {
@@ -640,7 +644,7 @@ static void assign_integer(tree var, tree right)
         #include "ctypes.def"
         #undef DEFCTYPE
     default:
-        eval_die("Error: could not assign to non-integer type");
+        eval_die(var, "could not assign to non-integer type");
     }
 }
 
@@ -661,7 +665,7 @@ static void assign_float(tree var, tree right)
         val = right->data.var.val->D_T_DOUBLE;
         break;
     default:
-        eval_die("Error: unknown rvalue assignment to float.\n");
+        eval_die(right, "unknown rvalue assignment to float.\n");
     }
 
     switch (var->data.var.type->type) {
@@ -672,7 +676,7 @@ static void assign_float(tree var, tree right)
         var->data.var.val->D_T_DOUBLE = val;
         break;
     default:
-        eval_die("Error: could not assign to non-float type");
+        eval_die(var, "could not assign to non-float type");
     }
 }
 
@@ -692,7 +696,7 @@ static void assign_ptr(tree var, tree right)
         ptr = (void *)mpz_get_ui(right->data.integer);
         break;
     default:
-        eval_die("Error: could not assign to non-pointer type");
+        eval_die(right, "Could not assign to non-pointer type");
     }
 
     var->data.var.val->D_T_PTR = ptr;
@@ -705,7 +709,7 @@ static tree eval_assign(tree t, int depth)
 
     /* Ensure we have a valid lvalue. */
     if (!is_T_LIVE_VAR(left))
-        eval_die("Error: not a valid lvalue.\n");
+        eval_die(t, "Not a valid lvalue.\n");
 
     switch (left->data.var.type->type) {
     case D_T_CHAR ... D_T_ULONGLONG:
@@ -718,7 +722,7 @@ static tree eval_assign(tree t, int depth)
         assign_ptr(left, right);
         break;
     default:
-        eval_die("Error: unknown assignment rvalue type.");
+        eval_die(t, "Unknown assignment rvalue type.");
     }
 
     return NULL;
@@ -735,7 +739,7 @@ static void live_var_add(tree var, unsigned long int val)
 #include "ctypes.def"
 #undef DEFCTYPE
     default:
-        eval_die("Error: Could not add to unknown live var type.");
+        eval_die(var, "Could not add to unknown live var type.");
     }
 }
 
@@ -750,7 +754,7 @@ static void live_var_sub(tree var, unsigned long int val)
 #include "ctypes.def"
 #undef DEFCTYPE
     default:
-        eval_die("Error: Could not subtract to unknown live var type.");
+        eval_die(var, "Could not subtract to unknown live var type.");
     }
 }
 
@@ -759,7 +763,7 @@ static tree eval_post_inc(tree t, int depth)
     tree ret;
     tree exp = __evaluate_1(t->data.exp, depth + 1);
     if (!is_T_LIVE_VAR(exp))
-        eval_die("Error: not a valid lvalue.\n");
+        eval_die(t, "Not a valid lvalue.\n");
 
     ret = make_int_from_live_var(exp);
 
@@ -773,7 +777,7 @@ static tree eval_inc(tree t, int depth)
     tree ret;
     tree exp = __evaluate_1(t->data.exp, depth + 1);
     if (!is_T_LIVE_VAR(exp))
-        eval_die("Error: not a valid lvalue.\n");
+        eval_die(t, "Not a valid lvalue.\n");
 
     live_var_add(exp, 1);
 
@@ -787,7 +791,7 @@ static tree eval_post_dec(tree t, int depth)
     tree ret;
     tree exp = __evaluate_1(t->data.exp, depth + 1);
     if (!is_T_LIVE_VAR(exp))
-        eval_die("Error: not a valid lvalue.\n");
+        eval_die(t, "Not a valid lvalue.\n");
 
     ret = make_int_from_live_var(exp);
     live_var_sub(exp, 1);
@@ -799,7 +803,7 @@ static tree eval_dec(tree t, int depth)
     tree ret;
     tree exp = __evaluate_1(t->data.exp, depth + 1);
     if (!is_T_LIVE_VAR(exp))
-        eval_die("Error: not a valid lvalue.\n");
+        eval_die(t, "Not a valid lvalue.\n");
 
     live_var_sub(exp, 1);
     ret = make_int_from_live_var(exp);
@@ -822,7 +826,7 @@ static tree eval_add(tree t, int depth)
         right = make_int_from_live_var(right);
 
     if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
-        eval_die("Error: could not add to non integer type\n");
+        eval_die(t, "Could not add to non integer type\n");
 
     mpz_add(ret->data.integer, left->data.integer,
             right->data.integer);
@@ -846,7 +850,7 @@ static tree eval_sub(tree t, int depth)
         right = make_int_from_live_var(right);
 
     if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
-        eval_die("Error: could not subtract to non integer type\n");
+        eval_die(t, "Could not subtract to non integer type\n");
 
     mpz_sub(ret->data.integer, left->data.integer,
             right->data.integer);
@@ -870,7 +874,7 @@ static tree eval_mul(tree t, int depth)
         right = make_int_from_live_var(right);
 
     if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
-        eval_die("Error: could not subtract to non integer type\n");
+        eval_die(t, "Could not subtract to non integer type\n");
 
     mpz_mul(ret->data.integer, left->data.integer,
             right->data.integer);
@@ -894,7 +898,7 @@ static tree eval_div(tree t, int depth)
         right = make_int_from_live_var(right);
 
     if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
-        eval_die("Error: could not subtract to non integer type\n");
+        eval_die(t, "Could not subtract to non integer type\n");
 
     mpz_div(ret->data.integer, left->data.integer,
             right->data.integer);
@@ -917,11 +921,11 @@ static tree convert_to_comparable_type(tree t, int depth)
             ret = make_int_from_live_var(evaluated);
             break;
         default:
-            eval_die("Could not convert live var type to comparable type\n");
+            eval_die(t, "Could not convert live var type to comparable type\n");
         }
         break;
     default:
-        eval_die("Could not convert type to comparable type\n");
+        eval_die(t, "Could not convert type to comparable type\n");
     }
 
     return ret;
@@ -934,7 +938,7 @@ static tree eval_lt(tree t, int depth)
         ret;
 
     if (left->type != right->type)
-        eval_die("Could not compare different types\n");
+        eval_die(t, "Could not compare different types\n");
 
     switch (left->type) {
     case T_INTEGER:
@@ -945,7 +949,7 @@ static tree eval_lt(tree t, int depth)
         break;
     }
     default:
-        eval_die("Unknown comparable types for lt\n");
+        eval_die(t, "Unknown comparable types for lt\n");
     }
 
     return ret;
@@ -958,7 +962,7 @@ static tree eval_gt(tree t, int depth)
         ret;
 
     if (left->type != right->type)
-        eval_die("Could not compare different types\n");
+        eval_die(t, "Could not compare different types\n");
 
     switch (left->type) {
     case T_INTEGER:
@@ -969,7 +973,7 @@ static tree eval_gt(tree t, int depth)
         break;
     }
     default:
-        eval_die("Unknown comparable types for gt\n");
+        eval_die(t, "Unknown comparable types for gt\n");
     }
 
     return ret;
@@ -982,7 +986,7 @@ static tree eval_lteq(tree t, int depth)
         ret;
 
     if (left->type != right->type)
-        eval_die("Could not compare different types\n");
+        eval_die(t, "Could not compare different types\n");
 
     switch (left->type) {
     case T_INTEGER:
@@ -993,7 +997,7 @@ static tree eval_lteq(tree t, int depth)
         break;
     }
     default:
-        eval_die("Unknown comparable types for lteq\n");
+        eval_die(t, "Unknown comparable types for lteq\n");
     }
 
     return ret;
@@ -1006,7 +1010,7 @@ static tree eval_gteq(tree t, int depth)
         ret;
 
     if (left->type != right->type)
-        eval_die("Could not compare different types\n");
+        eval_die(t, "Could not compare different types\n");
 
     switch (left->type) {
     case T_INTEGER:
@@ -1017,7 +1021,7 @@ static tree eval_gteq(tree t, int depth)
         break;
     }
     default:
-        eval_die("Unknown comparable types for gteq\n");
+        eval_die(t, "Unknown comparable types for gteq\n");
     }
 
     return ret;
@@ -1084,7 +1088,7 @@ static tree eval_loop_for(tree t, int depth)
                                         depth + 1);
 
         if (!is_T_INTEGER(cond_result))
-            eval_die("Unknown condition result");
+            eval_die(t, "Unknown condition result");
 
         if (!mpz_get_si(cond_result->data.integer))
             break;
@@ -1246,10 +1250,10 @@ static tree eval_access(tree t, int depth)
            id = t->data.bin.right;
 
     if (!is_T_LIVE_COMPOUND(left))
-        eval_die("Unknown compound type in access\n");
+        eval_die(t, "Unknown compound type in access\n");
 
     if (!is_T_IDENTIFIER(id))
-        eval_die("Unknown accessor in access\n");
+        eval_die(t, "Unknown accessor in access\n");
 
     return resolve_id(id, left->data.comp.members);
 }
@@ -1273,16 +1277,16 @@ static tree eval_array_access(tree t, int depth)
     void *base;
 
     if (!is_T_LIVE_VAR(array))
-        eval_die("Error: Attempted to access non-live variable.\n");
+        eval_die(t, "Attempted to access non-live variable.\n");
 
     if (!is_D_T_PTR(array->data.var.type))
-        eval_die("Error: Attempted deference on non pointer variable.\n");
+        eval_die(t, "Attempted deference on non pointer variable.\n");
 
     if (is_T_LIVE_VAR(index))
         index = make_int_from_live_var(index);
 
     if (!is_T_INTEGER(index))
-        eval_die("Error: Unknown index type\n");
+        eval_die(index, "Unknown index type\n");
 
     idx = mpz_get_ui(index->data.integer);
 
@@ -1313,7 +1317,7 @@ static int get_ctype_size(tree t)
 #include "ctypes.def"
 #undef DEFCTYPE
         default:
-            eval_die("Unknown ctype\n");
+            eval_die(t, "Unknown ctype\n");
     }
 }
 
@@ -1344,7 +1348,7 @@ static tree eval_sizeof(tree t, int depth)
         return ret;
     }
 
-    eval_die("Could not calculate size of expression");
+    eval_die(t, "Could not calculate size of expression");
 }
 
 static tree eval_addr(tree t, int depth)
@@ -1353,7 +1357,7 @@ static tree eval_addr(tree t, int depth)
         ptr_type, ret;
 
     if (!is_LIVE(exp))
-        eval_die("Error: attempted to take address of non-live variable.\n");
+        eval_die(t, "attempted to take address of non-live variable.\n");
 
     ptr_type = tree_make(D_T_PTR);
     ptr_type->data.exp = exp->data.var.type;
@@ -1371,10 +1375,10 @@ static tree eval_deref(tree t, int depth)
         new_type, ret;
 
     if (!is_T_LIVE_VAR(exp))
-        eval_die("Derefencing something that isn't live\n");
+        eval_die(t, "Derefencing something that isn't live\n");
 
     if (!is_D_T_PTR(exp->data.var.type))
-        eval_die("Attempted to dereference a non-pointer\n");
+        eval_die(t, "Attempted to dereference a non-pointer\n");
 
     new_type = exp->data.var.type->data.exp;
 
@@ -1460,8 +1464,9 @@ static tree __evaluate(tree head, int depth)
     return result;
 }
 
-void evaluate(tree t)
+void evaluate(tree t, const char *fname)
 {
+    current_filename = fname;
     __evaluate(t, 0);
 }
 

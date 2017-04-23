@@ -3,5 +3,5 @@
 #include "tree.h"
 #include "list.h"
 
-void evaluate(tree t);
+void evaluate(tree t, const char *filename);
 void eval_init(void);
