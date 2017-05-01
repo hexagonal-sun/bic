@@ -470,6 +470,13 @@ decl
     set_locus(array, @2);
     $$ = array;
 }
+| decl '[' ']'
+{
+    tree ptr = tree_make(T_POINTER);
+    ptr->data.exp = $1;
+    set_locus(ptr, @2);
+    $$ = ptr;
+}
 ;
 
 pointer
