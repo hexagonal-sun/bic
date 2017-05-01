@@ -31,5 +31,6 @@ array_torture
 union
 basic_enum
 forward_declare
+double_pointer
 
 *.trs
