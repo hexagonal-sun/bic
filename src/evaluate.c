@@ -1470,7 +1470,13 @@ void evaluate(tree t, const char *fname)
     __evaluate(t, 0);
 }
 
+static void eval_init_builtins(void)
+{
+    map_identifier(get_identifier("__builtin_va_list"), tree_make(D_T_INT));
+}
+
 void eval_init(void)
 {
     push_ctx("Toplevel");
+    eval_init_builtins();
 }
