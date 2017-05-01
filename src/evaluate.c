@@ -583,6 +583,11 @@ static tree handle_forward_decl(tree type)
 {
     tree id = type->data.exp;
 
+    /* If the declaration already exists, don't attempt to map it
+     * again. */
+    if (resolve_identifier(id, cur_ctx))
+        return id;
+
     tree forward_decl = tree_make(E_INCOMP_TYPE);
 
     map_identifier(id, forward_decl);
