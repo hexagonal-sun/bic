@@ -17,6 +17,15 @@ static void set_locus(tree t, YYLTYPE locus)
     t->locus.column_no = locus.first_column;
 }
 
+static char * concat_string(const char *s1, const char *s2)
+{
+    char *ret = malloc(strlen(s1) + strlen(s2));
+    ret[0] = '\0';
+    strcat(ret, s1);
+    strcat(ret, s2);
+    return ret;
+}
+
 %}
 
 %union
@@ -750,12 +759,14 @@ type_specifier
 struct_specifier
 : STRUCT IDENTIFIER '{' compound_decl_list '}'
 {
+    char *struct_name = concat_string("struct ", $2);
     tree decl = tree_make(T_DECL_COMPOUND);
-    decl->data.comp_decl.id = get_identifier($2);
+    decl->data.comp_decl.id = get_identifier(struct_name);
     decl->data.comp_decl.decls = $4;
     decl->data.comp_decl.type = sstruct;
     set_locus(decl, @1);
     set_locus(decl->data.comp_decl.id, @2);
+    free($2);
     $$ = decl;
 }
 | STRUCT '{' compound_decl_list '}'
@@ -769,10 +780,12 @@ struct_specifier
 }
 | STRUCT IDENTIFIER
 {
+    char *struct_name = concat_string("struct ", $2);
     tree ret = tree_make(T_STRUCT);
-    ret->data.exp = get_identifier($2);
+    ret->data.exp = get_identifier(struct_name);
     set_locus(ret, @1);
     set_locus(ret->data.exp, @2);
+    free($2);
     $$ = ret;
 }
 ;
@@ -780,12 +793,14 @@ struct_specifier
 union_specifier
 : UNION IDENTIFIER '{' compound_decl_list '}'
 {
+    char *union_name = concat_string("union ", $2);
     tree decl = tree_make(T_DECL_COMPOUND);
-    decl->data.comp_decl.id = get_identifier($2);
+    decl->data.comp_decl.id = get_identifier(union_name);
     decl->data.comp_decl.decls = $4;
     decl->data.comp_decl.type = uunion;
     set_locus(decl, @1);
     set_locus(decl->data.comp_decl.id, @2);
+    free($2);
     $$ = decl;
 }
 | UNION '{' compound_decl_list '}'
@@ -799,11 +814,14 @@ union_specifier
 }
 | UNION IDENTIFIER
 {
+    char *union_name = concat_string("union ", $2);
     tree ret = tree_make(T_UNION);
-    ret->data.exp = get_identifier($2);
+    ret->data.exp = get_identifier(union_name);
     set_locus(ret, @1);
     set_locus(ret->data.exp, @2);
+    free($2);
     $$ = ret;
+
 }
 ;
 
@@ -818,17 +836,21 @@ enum_specifier
 }
 | ENUM IDENTIFIER '{' enumerator_list '}'
 {
+    char *enum_name = concat_string("enum ", $2);
     tree enumerator = tree_make(T_ENUMERATOR);
-    enumerator->data.enumerator.id = get_identifier($2);
+    enumerator->data.enumerator.id = get_identifier(enum_name);
     enumerator->data.enumerator.enums = $4;
     set_locus(enumerator, @1);
     set_locus(enumerator->data.enumerator.id, @2);
+    free($2);
     $$ = enumerator;
 }
 | ENUM IDENTIFIER
 {
-    tree id = get_identifier($2);
+    char *enum_name = concat_string("enum ", $2);
+    tree id = get_identifier(enum_name);
     set_locus(id, @2);
+    free($2);
     $$ = id;
 }
 ;
