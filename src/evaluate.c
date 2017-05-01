@@ -197,6 +197,9 @@ static tree make_fncall_result(tree type, ptrdiff_t result)
     if (!type)
         return NULL;
 
+    if (is_D_T_VOID(type))
+        return NULL;
+
     ret = make_live_var(type);
 
     switch (type->type)
@@ -1400,6 +1403,12 @@ static tree eval_deref(tree t, int depth)
     return ret;
 }
 
+static tree eval_void_type(tree t, int depth)
+{
+    /* A void type returns itself. */
+    return t;
+}
+
 static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
@@ -1443,6 +1452,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_ARRAY_ACCESS:result = eval_array_access(t, depth + 1); break;
     case T_ADDR:       result = eval_addr(t, depth + 1);       break;
     case T_DEREF:      result = eval_deref(t, depth + 1);      break;
+    case D_T_VOID:     result = eval_void_type(t, depth + 1);  break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
