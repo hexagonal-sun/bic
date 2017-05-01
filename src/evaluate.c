@@ -518,6 +518,13 @@ static tree map_typedef(tree id, tree type)
 {
     resolve_ptr_type(&id, &type);
 
+    if (is_T_DECL_FN(id)) {
+        tree fndecl = id;
+        id = fndecl->data.function.id;
+        fndecl->data.function.return_type = type;
+        type = fndecl;
+    }
+
     if (!is_T_IDENTIFIER(id))
         eval_die(id, "Attempted to map type to non-identifier\n");
 
