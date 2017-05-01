@@ -178,6 +178,22 @@ static inline tree tree_chain_head(tree head)
     return head_marker;
 }
 
+static inline tree make_pointer_type(tree ptr, tree type)
+{
+    tree ret = ptr;
+
+    /* If there is no pointer, the type is just type. */
+    if (!ptr)
+        return type;
+
+    while (ptr->data.exp)
+        ptr = ptr->data.exp;
+
+    ptr->data.exp = type;
+
+    return ret;
+}
+
 static inline void tree_chain(tree new, tree chain)
 {
     list_add_tail(&new->chain, &chain->chain);

@@ -67,6 +67,7 @@ static void set_locus(tree t, YYLTYPE locus)
 %type <tree> assignment_expression
 %type <tree> decl
 %type <tree> decl_possible_pointer
+%type <tree> pointer
 %type <tree> declarator
 %type <tree> initialiser
 %type <tree> declarator_list
@@ -457,14 +458,27 @@ decl
 }
 ;
 
-decl_possible_pointer
-: decl
-| '*' decl
+pointer
+: '*'
+{
+    tree ptr = tree_make(T_POINTER);
+    set_locus(ptr, @1);
+    $$ = ptr;
+}
+| '*' pointer
 {
     tree ptr = tree_make(T_POINTER);
     ptr->data.exp = $2;
     set_locus(ptr, @1);
     $$ = ptr;
+}
+;
+
+decl_possible_pointer
+: decl
+| pointer decl
+{
+    $$ = make_pointer_type($1, $2);
 }
 ;
 
