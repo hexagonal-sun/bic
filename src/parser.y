@@ -162,6 +162,20 @@ argument_decl
     set_locus(decl, @1);
     $$ = decl;
 }
+| type_specifier pointer
+{
+    tree decl = tree_make(T_DECL);
+    decl->data.decl.type = make_pointer_type($2, $1);
+    set_locus(decl, @1);
+    $$ = decl;
+}
+| type_specifier
+{
+    tree decl = tree_make(T_DECL);
+    decl->data.decl.type = $1;
+    set_locus(decl, @1);
+    $$ = decl;
+}
 ;
 
 statement
