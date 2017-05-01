@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "gc.h"
 #include "tree.h"
 #include "parser.h"
 
@@ -26,7 +27,31 @@ static char * concat_string(const char *s1, const char *s2)
     return ret;
 }
 
+static tree type_names;
+GC_TREE_DECL(type_names);
+
+void parser_init(void)
+{
+    type_names = tree_make(CHAIN_HEAD);
+}
+
+int is_typename(char *identifier)
+{
+    tree i;
+
+    for_each_tree(i, type_names) {
+        if (strcmp(identifier, i->data.id.name) == 0)
+            return 1;
+    }
+
+    return 0;
+}
 %}
+
+%code provides {
+void parser_init(void);
+int is_typename(char *identifier);
+}
 
 %union
 {
@@ -48,6 +73,7 @@ static char * concat_string(const char *s1, const char *s2)
 %token DEC ELLIPSIS PTR_ACCESS
 
 %token <string> IDENTIFIER
+%token <string> TYPE_NAME
 %token <string> CONST_BITS
 %token <string> CONST_HEX
 %token <string> CONST_STRING
@@ -90,7 +116,7 @@ static char * concat_string(const char *s1, const char *s2)
 %type <tree> compound_decl
 %type <tree> storage_class_specifier
 %type <tree> direct_type_specifier
-%type <tree> type_or_pointer_specifier
+%type <tree> sizeof_specifier
 %type <tree> type_specifier
 %type <tree> declaration
 %type <tree> declaration_list
@@ -370,7 +396,7 @@ unary_expression
     set_locus(deref, @1);
     $$ = deref;
 }
-| SIZEOF '(' type_or_pointer_specifier ')'
+| SIZEOF '(' sizeof_specifier ')'
 {
     tree szof = tree_make(T_SIZEOF);
     szof->data.exp = $3;
@@ -726,7 +752,7 @@ direct_type_specifier
     set_locus(type, @1);
     $$ = type;
 }
-| IDENTIFIER
+| TYPE_NAME
 {
     tree id = get_identifier($1);
     set_locus(id, @1);
@@ -737,15 +763,14 @@ direct_type_specifier
 | enum_specifier
 ;
 
-type_or_pointer_specifier
+sizeof_specifier
 : direct_type_specifier
-| direct_type_specifier '*'
+| primary_expression
+| direct_type_specifier pointer
 {
-    tree ptr = tree_make(D_T_PTR);
-    ptr->data.exp = $1;
-    set_locus(ptr, @2);
-    $$ = ptr;
+    $$ = make_pointer_type($2, $1);
 }
+;
 
 type_specifier
 : direct_type_specifier
@@ -903,6 +928,31 @@ declaration
     decl->data.decl.decls = $2;
     set_locus(decl, @1);
     $$ = decl;
+
+    /* Check to see if `type_specifier' is a typedef. If so, add all
+     * identifiers in `declarator_list' to the type_names list.  This
+     * will make the lexer tokenise all subsequent instances of the
+     * identifier string as a TYPE_NAME token. */
+    if (is_T_TYPEDEF($1)) {
+        tree i;
+        for_each_tree(i, $2) {
+            tree newid, oldid = i;
+
+            while (is_T_POINTER(oldid))
+                oldid = oldid->data.exp;
+
+            if (is_T_DECL_FN(oldid))
+                oldid = oldid->data.function.id;
+
+            if (!is_T_IDENTIFIER(oldid)) {
+                YYERROR;
+            }
+
+            newid = tree_make(T_IDENTIFIER);
+            newid->data.id.name = strdup(oldid->data.id.name);
+            tree_chain(newid, type_names);
+        }
+    }
 }
 | type_specifier
 {

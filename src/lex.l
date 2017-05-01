@@ -99,7 +99,12 @@ X                               [0-9A-F]
 "volatile"			return VOLATILE;
 "while"				return WHILE;
 
-{L}({L}|{D})*                   yylval.string = strdup(yytext); return IDENTIFIER;
+{L}({L}|{D})*                   {yylval.string = strdup(yytext);
+                                 if (is_typename(yytext))
+                                     return TYPE_NAME;
+                                 else
+                                     return IDENTIFIER; }
+
 -?[0-9]+                          mpz_init_set_str(yylval.integer, yytext, 10); return INTEGER;
 -?[0-9]+\.[0-9]+                mpf_init_set_str(yylval.ffloat, yytext, 10); return FLOAT_CST;
 0x{X}+                          yylval.string = strdup(yytext); return CONST_HEX;
