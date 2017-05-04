@@ -63,7 +63,7 @@ static void ctx_backtrace(void)
     tree_dump(cur_ctx);
 }
 
-static void __attribute__((noreturn)) eval_die(tree t, const char *format, ...)
+void __attribute__((noreturn)) eval_die(tree t, const char *format, ...)
 {
     fprintf(stderr, "%s:%d:%d: error: ", current_filename, t->locus.line_no,
             t->locus.column_no);
@@ -382,16 +382,6 @@ static tree instantiate_array(tree array_decl, tree base_type, void *base,
     live_var->data.var.array_length = length;
 
     return live_var;
-}
-
-static void resolve_ptr_type(tree *ptr, tree *base_type)
-{
-    while (is_T_POINTER(*ptr)) {
-        tree ptr_type = tree_make(D_T_PTR);
-        ptr_type->data.exp = *base_type;
-        *base_type = ptr_type;
-        *ptr = (*ptr)->data.exp;
-    }
 }
 
 static tree instantiate_struct(tree struct_decl, int depth, void *base);
