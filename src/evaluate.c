@@ -220,7 +220,7 @@ static tree make_fncall_result(tree type, ptrdiff_t result)
 
 static tree eval_fn_call(tree t, int depth)
 {
-    /* There are three possibilities here:
+    /* There are four possibilities here:
      *
      * 1: The function call is to a /defined/ function, i.e. one that
      *    has been parsed and has a corresponding T_FN_DEF tree.  If
@@ -232,7 +232,12 @@ static tree eval_fn_call(tree t, int depth)
      *    T_DECL_FN.  If that is the case, evaluate the arguments and
      *    use the symbolic linker to find the function.
      *
-     * 3: The function couldn't be found.  In that case, error.
+     * 3: The function evaluates to a live variable.  If this is the
+     *    case, we ensure that the live variable is a function
+     *    pointer, evaluate the arguments and call the address pointed
+     *    to by that live variable.
+     *
+     * 4: The function couldn't be found.  In that case, error.
      */
     tree function = __evaluate_1(t->data.fncall.identifier, depth + 1);
 
@@ -322,6 +327,35 @@ static tree eval_fn_call(tree t, int depth)
          res = do_call(function_address, fn_arg_chain);
 
          return make_fncall_result(function->data.function.return_type, res);
+    }
+
+    if (is_T_LIVE_VAR(function)) {
+        tree fn_arg_chain, arg, args = t->data.fncall.arguments,
+            live_var_type = function->data.var.type,
+            function_type;
+        ptrdiff_t res;
+
+        if (!is_D_T_PTR(live_var_type))
+            eval_die(t, "could not call non-pointer type\n");
+
+        function_type = live_var_type->data.exp;
+
+        if (!is_T_DECL_FN(function_type))
+            eval_die(t, "could not call non-function pointer type\n");
+
+        /* Evaluate all arguments before passing into the marshalling
+         * function. */
+        fn_arg_chain = tree_make(CHAIN_HEAD);
+        for_each_tree(arg, args) {
+            tree fn_arg = tree_make(T_FN_ARG);
+            fn_arg->data.exp = __evaluate_1(arg, depth + 1);
+            tree_chain(fn_arg, fn_arg_chain);
+        }
+
+        res = do_call(function->data.var.val->D_T_PTR, fn_arg_chain);
+
+         return make_fncall_result(function_type->data.function.return_type, res);
+
     }
 
     return NULL;
