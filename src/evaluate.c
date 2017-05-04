@@ -8,6 +8,7 @@
 
 #include "evaluate.h"
 #include "function_call.h"
+#include "ptr_call.h"
 #include "gc.h"
 
 static tree cur_ctx = NULL;
@@ -1356,10 +1357,31 @@ static tree eval_sizeof(tree t, int depth)
     eval_die(t, "Could not calculate size of expression");
 }
 
+static tree handle_addr_fn_def(tree fndef)
+{
+    tree ptr_type = tree_make(D_T_PTR),
+        fun_sig = tree_make(T_DECL_FN),
+        live_var;
+
+    fun_sig->data.function.return_type = fndef->data.function.return_type;
+    fun_sig->data.function.arguments = fndef->data.function.arguments;
+
+    ptr_type->data.exp = fun_sig;
+
+    live_var = make_live_var(ptr_type);
+
+    live_var->data.var.val->D_T_PTR = get_entry_point_for_fn(fndef);
+
+    return live_var;
+}
+
 static tree eval_addr(tree t, int depth)
 {
     tree exp = __evaluate_1(t->data.exp, depth + 1),
         ptr_type, ret;
+
+    if (is_T_FN_DEF(exp))
+        return handle_addr_fn_def(exp);
 
     if (!is_LIVE(exp))
         eval_die(t, "attempted to take address of non-live variable.\n");
