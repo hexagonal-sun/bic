@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "../evaluate.h"
 
 #include "function_call.h"
 
@@ -87,8 +88,7 @@ ptrdiff_t do_call(void *function_address, tree args)
                     push_arg(&int_args, new_arg);
                     break;
                 default:
-                    fprintf(stderr, "Error: cannot marshall live var type\n");
-                    exit(1);
+                    eval_die(arg, "cannot marshall live var type\n");
                 }
                 break;
             case T_INTEGER:
@@ -102,7 +102,7 @@ ptrdiff_t do_call(void *function_address, tree args)
                 push_arg(&vec_args, new_arg);
                 break;
             default:
-                fprintf(stderr, "Error: Unknown tree type to marshall.\n");
+                eval_die(arg, "Unknown tree type to marshall.\n");
                 exit(1);
             }
         }
