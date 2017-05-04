@@ -7,7 +7,7 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  lteq gteq fibonacci sizeof gethostname linked-list	\
                  struct_torture array_torture union basic_enum		\
                  forward_declare double_pointer				\
-                 typedef_decl_mul_ambiguity
+                 typedef_decl_mul_ambiguity function_pointer
 
 TESTS = $(check_PROGRAMS)
 

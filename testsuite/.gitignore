@@ -33,5 +33,6 @@ basic_enum
 forward_declare
 double_pointer
 typedef_decl_mul_ambiguity
+function_pointer
 
 *.trs
