@@ -1462,6 +1462,11 @@ static tree eval_void_type(tree t, int depth)
     return t;
 }
 
+static tree eval_pointer(tree t, int depth)
+{
+    return t;
+}
+
 static tree __evaluate_1(tree t, int depth)
 {
     tree result = NULL;
@@ -1505,6 +1510,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_ARRAY_ACCESS:result = eval_array_access(t, depth + 1); break;
     case T_ADDR:       result = eval_addr(t, depth + 1);       break;
     case T_DEREF:      result = eval_deref(t, depth + 1);      break;
+    case T_POINTER:    result = eval_pointer(t, depth + 1);    break;
     case D_T_VOID:     result = eval_void_type(t, depth + 1);  break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
