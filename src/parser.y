@@ -821,6 +821,16 @@ struct_specifier
     free($2);
     $$ = ret;
 }
+| STRUCT TYPE_NAME
+{
+    char *struct_name = concat_string("struct ", $2);
+    tree ret = tree_make(T_STRUCT);
+    ret->data.exp = get_identifier(struct_name);
+    set_locus(ret, @1);
+    set_locus(ret->data.exp, @2);
+    free($2);
+    $$ = ret;
+}
 ;
 
 union_specifier
@@ -856,6 +866,17 @@ union_specifier
     $$ = ret;
 
 }
+| UNION TYPE_NAME
+{
+    char *union_name = concat_string("union ", $2);
+    tree ret = tree_make(T_UNION);
+    ret->data.exp = get_identifier(union_name);
+    set_locus(ret, @1);
+    set_locus(ret->data.exp, @2);
+    free($2);
+    $$ = ret;
+
+}
 ;
 
 enum_specifier
@@ -879,6 +900,14 @@ enum_specifier
     $$ = enumerator;
 }
 | ENUM IDENTIFIER
+{
+    char *enum_name = concat_string("enum ", $2);
+    tree id = get_identifier(enum_name);
+    set_locus(id, @2);
+    free($2);
+    $$ = id;
+}
+| ENUM TYPE_NAME
 {
     char *enum_name = concat_string("enum ", $2);
     tree id = get_identifier(enum_name);
