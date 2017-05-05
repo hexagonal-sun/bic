@@ -76,7 +76,7 @@ X                               [0-9A-F]
 "break"				return BREAK;
 "case"				return CASE;
 "char"				return CHAR;
-"const"				return CONST;
+"const"
 "continue"			return CONTINUE;
 "default"			return DEFAULT;
 "do"				return DO;
