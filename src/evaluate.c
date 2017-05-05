@@ -558,6 +558,40 @@ static tree map_typedef(tree id, tree type)
     return id;
 }
 
+static tree handle_extern_fn(tree return_type, tree fndecl)
+{
+    void *func_addr;
+    tree live_var, id, func_ptr_type;
+
+    /* We handle an extern fn decl by creating a pointer to the
+     * function decl, so that eval_fn_call will call the address after
+     * evaluating the arguments. */
+
+    fndecl->data.function.return_type = return_type;
+
+    func_ptr_type = tree_make(D_T_PTR);
+    func_ptr_type->data.exp = fndecl;
+
+    id = fndecl->data.function.id;
+
+    if (!is_T_IDENTIFIER(id))
+        eval_die(fndecl, "attempted to extern function that isn't an "
+                 "identifier\n");
+
+    func_addr = dlsym(RTLD_DEFAULT, id->data.id.name);
+
+    if (!func_addr)
+        eval_die(fndecl, "Could not resolve external function %s\n",
+                 id->data.id.name);
+
+    live_var = make_live_var(func_ptr_type);
+    live_var->data.var.val->D_T_PTR = func_addr;
+
+    map_identifier(id, live_var);
+
+    return id;
+}
+
 static tree handle_extern_decl(tree extern_type, tree decl)
 {
     tree live_var, id;
@@ -566,6 +600,9 @@ static tree handle_extern_decl(tree extern_type, tree decl)
     resolve_ptr_type(&decl, &extern_type);
 
     id = decl;
+
+    if (is_T_DECL_FN(decl))
+        return handle_extern_fn(extern_type, decl);
 
     if (!is_T_IDENTIFIER(id))
         eval_die(decl, "attempted to extern something that isn't an "
