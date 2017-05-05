@@ -55,6 +55,10 @@ static void lex_err(char *fmt, ...)
 
     exit(EXIT_FAILURE);
 }
+
+int yywrap(void) {
+    return 1;
+}
 %}
 
 L                               [a-zA-Z_]
@@ -62,7 +66,6 @@ D                               [0-9]
 W                               [\ \t]
 X                               [0-9A-F]
 
-%option noyywrap
 %x str_lit
 
 %%
