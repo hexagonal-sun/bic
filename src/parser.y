@@ -754,6 +754,12 @@ direct_type_specifier
     set_locus(type, @1);
     $$ = type;
 }
+| DOUBLE
+{
+    tree type = tree_make(D_T_DOUBLE);
+    set_locus(type, @1);
+    $$ = type;
+}
 | VOID
 {
     tree type = tree_make(D_T_VOID);
