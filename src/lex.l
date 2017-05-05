@@ -69,6 +69,9 @@ X                               [0-9A-F]
 %x str_lit
 
 %%
+"__attribute__"[ \t]*"((".*"))" /* Ignore attributes */
+"__restrict"                    /* Ignore builtin */
+"__asm__"[ \t]*"(".*")"         /* Ignore asm stmts. */
 "auto"				return AUTO;
 "break"				return BREAK;
 "case"				return CASE;

@@ -30,9 +30,17 @@ static char * concat_string(const char *s1, const char *s2)
 static tree type_names;
 GC_TREE_DECL(type_names);
 
+static void add_typename(char *s)
+{
+    tree_chain(get_identifier(s), type_names);
+}
+
 void parser_init(void)
 {
     type_names = tree_make(CHAIN_HEAD);
+
+    /* Add all builtin types here so the parser knows about them. */
+    add_typename("__builtin_va_list");
 }
 
 int is_typename(char *identifier)
