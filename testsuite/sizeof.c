@@ -58,6 +58,7 @@ int main()
     printf("%d\n", sizeof(unsigned int));
     printf("%d\n", sizeof(unsigned long));
     printf("%d\n", sizeof(unsigned long long));
+    printf("%d\n", sizeof(void *));
     printf("%d\n", sizeof(foob));
     printf("%d\n", sizeof(pstruct));
     printf("%d\n", sizeof(array));

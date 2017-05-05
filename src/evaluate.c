@@ -1373,6 +1373,9 @@ static tree eval_sizeof(tree t, int depth)
     if (is_T_LIVE_COMPOUND(exp))
         type = exp->data.comp.decl;
 
+    if (is_T_POINTER(exp))
+        type = tree_make(D_T_PTR);
+
     if (is_D_T_PTR(type) && exp->data.var.is_array) {
         mpz_init_set_ui(ret->data.integer, exp->data.var.array_length);
         return ret;
