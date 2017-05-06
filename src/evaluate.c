@@ -561,18 +561,38 @@ static tree map_typedef(tree id, tree type)
 static tree handle_extern_fn(tree return_type, tree fndecl)
 {
     void *func_addr;
-    tree live_var, id, func_ptr_type;
+    tree live_var, id, func_ptr_type, previous_decl;
 
     /* We handle an extern fn decl by creating a pointer to the
      * function decl, so that eval_fn_call will call the address after
      * evaluating the arguments. */
 
+    /* We allow extern functions to be declared more than once, see if
+     * this has already been declared, if so, just return the
+     * identifier. */
+
+    id = fndecl->data.function.id;
+
+    previous_decl = resolve_identifier(id, cur_ctx);
+
+    if (is_T_LIVE_VAR(previous_decl)) {
+        tree live_var_type = previous_decl->data.var.type;
+
+        if (!is_D_T_PTR(live_var_type))
+            eval_die(fndecl, "attempted to re-declare %s as different type",
+                     id->data.id.name);
+
+        if (!is_T_DECL_FN(live_var_type->data.exp))
+            eval_die(fndecl, "attempted to re-declare %s as different type",
+                     id->data.id.name);
+
+        return id;
+    }
+
     fndecl->data.function.return_type = return_type;
 
     func_ptr_type = tree_make(D_T_PTR);
     func_ptr_type->data.exp = fndecl;
-
-    id = fndecl->data.function.id;
 
     if (!is_T_IDENTIFIER(id))
         eval_die(fndecl, "attempted to extern function that isn't an "
