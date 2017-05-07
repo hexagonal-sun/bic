@@ -108,4 +108,6 @@ ptrdiff_t handle_ptr_call(struct argregs *regs)
     fncall->data.fncall.arguments = get_argument_chain(fndef, regs);
 
     evaluate(fncall, "<PTR>");
+
+    return 0;
 }
