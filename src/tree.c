@@ -328,6 +328,7 @@ void __tree_dump_1(tree t, int depth)
         break;
     case CHAIN_HEAD:
     case T_VARIADIC:
+    case E_INCOMP_TYPE:
         break;
     }
     eprintf(">\n");
