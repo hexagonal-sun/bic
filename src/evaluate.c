@@ -66,7 +66,7 @@ static void ctx_backtrace(void)
 
 void __attribute__((noreturn)) eval_die(tree t, const char *format, ...)
 {
-    fprintf(stderr, "%s:%d:%d: error: ", current_filename, t->locus.line_no,
+    fprintf(stderr, "%s:%zu:%zu: error: ", current_filename, t->locus.line_no,
             t->locus.column_no);
     va_list args;
     va_start(args, format);
