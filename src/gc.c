@@ -87,6 +87,7 @@ static void mark_tree(tree t)
             }
             break;
     case E_CTX:
+    case E_STATIC_MAPPING:
         mark_tree(t->data.ectx.id_map);
         mark_tree(t->data.ectx.alloc_chain);
         mark_tree(t->data.ectx.parent_ctx);

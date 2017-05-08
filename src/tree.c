@@ -308,6 +308,7 @@ void __tree_dump_1(tree t, int depth)
     case T_FN_CALL:
         tree_dump_fncall(t,  depth);
         break;
+    case E_STATIC_MAPPING:
     case E_CTX:
         tree_dump_eval_ctx(t, depth);
         break;
