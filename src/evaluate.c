@@ -1133,48 +1133,6 @@ static tree eval_gteq(tree t, int depth)
 #include "ctypes.def"
 #undef DEFCTYPE
 
-static tree eval_integer(tree t, int depth)
-{
-    /* An integer evaluates to itself. */
-    return t;
-}
-
-static tree eval_float(tree t, int depth)
-{
-    /* A float evaluates to itself. */
-    return t;
-}
-
-static tree eval_string(tree t, int depth)
-{
-    /* A string evaluates to itself. */
-    return t;
-}
-
-static tree eval_live_var(tree t, int depth)
-{
-    /* A live var evaluates to itself. */
-    return t;
-}
-
-static tree eval_live_compound(tree t, int depth)
-{
-    /* A live compound evaluates to itself. */
-    return t;
-}
-
-static tree eval_extern(tree t, int depth)
-{
-    /* An extern will evaluate to itself. */
-    return t;
-}
-
-static tree eval_typedef(tree t, int depth)
-{
-    /* A typedef will evaluate to itself. */
-    return t;
-}
-
 static tree eval_loop_for(tree t, int depth)
 {
     __evaluate_1(t->data.floop.initialization, depth + 1);
@@ -1516,13 +1474,7 @@ static tree eval_deref(tree t, int depth)
     return ret;
 }
 
-static tree eval_void_type(tree t, int depth)
-{
-    /* A void type returns itself. */
-    return t;
-}
-
-static tree eval_pointer(tree t, int depth)
+static tree eval_self(tree t, int depth)
 {
     return t;
 }
@@ -1541,9 +1493,9 @@ static tree __evaluate_1(tree t, int depth)
     case T_FN_DEF:     result = eval_fn_def(t, depth + 1);     break;
     case T_DECL:       result = eval_decl(t, depth + 1);       break;
     case T_ASSIGN:     result = eval_assign(t, depth + 1);     break;
-    case T_FLOAT:      result = eval_float(t, depth + 1);      break;
-    case T_INTEGER:    result = eval_integer(t, depth + 1);    break;
-    case T_STRING:     result = eval_string(t, depth + 1);     break;
+    case T_FLOAT:      result = eval_self(t, depth + 1);       break;
+    case T_INTEGER:    result = eval_self(t, depth + 1);       break;
+    case T_STRING:     result = eval_self(t, depth + 1);       break;
     case T_P_INC:      result = eval_post_inc(t, depth + 1);   break;
     case T_P_DEC:      result = eval_post_dec(t, depth + 1);   break;
     case T_INC:        result = eval_inc(t, depth + 1);        break;
@@ -1556,10 +1508,10 @@ static tree __evaluate_1(tree t, int depth)
     case T_GT:         result = eval_gt(t, depth + 1);         break;
     case T_LTEQ:       result = eval_lteq(t, depth + 1);       break;
     case T_GTEQ:       result = eval_gteq(t, depth + 1);       break;
-    case T_LIVE_VAR:   result = eval_live_var(t, depth + 1);   break;
-    case T_LIVE_COMPOUND: result = eval_live_compound(t, depth + 1); break;
-    case T_EXTERN:     result = eval_extern(t, depth + 1);     break;
-    case T_TYPEDEF:    result = eval_typedef(t, depth + 1);    break;
+    case T_LIVE_VAR:   result = eval_self(t, depth + 1);       break;
+    case T_LIVE_COMPOUND: result = eval_self(t, depth + 1);    break;
+    case T_EXTERN:     result = eval_self(t, depth + 1);       break;
+    case T_TYPEDEF:    result = eval_self(t, depth + 1);       break;
     case T_LOOP_FOR:   result = eval_loop_for(t, depth + 1);   break;
     case T_DECL_COMPOUND:result = eval_decl_compound(t, depth + 1);break;
     case T_ENUMERATOR: result = eval_enumerator(t, depth + 1); break;
@@ -1570,8 +1522,8 @@ static tree __evaluate_1(tree t, int depth)
     case T_ARRAY_ACCESS:result = eval_array_access(t, depth + 1); break;
     case T_ADDR:       result = eval_addr(t, depth + 1);       break;
     case T_DEREF:      result = eval_deref(t, depth + 1);      break;
-    case T_POINTER:    result = eval_pointer(t, depth + 1);    break;
-    case D_T_VOID:     result = eval_void_type(t, depth + 1);  break;
+    case T_POINTER:    result = eval_self(t, depth + 1);       break;
+    case D_T_VOID:     result = eval_self(t, depth + 1);       break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
