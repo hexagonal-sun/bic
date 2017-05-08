@@ -595,6 +595,12 @@ storage_class_specifier
     set_locus(eextern, @1);
     $$ = eextern;
 }
+| STATIC
+{
+    tree sstatic = tree_make(T_STATIC);
+    set_locus(sstatic, @1);
+    $$ = sstatic;
+}
 ;
 
 direct_type_specifier
