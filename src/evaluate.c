@@ -1512,6 +1512,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_LIVE_COMPOUND: result = eval_self(t, depth + 1);    break;
     case T_EXTERN:     result = eval_self(t, depth + 1);       break;
     case T_TYPEDEF:    result = eval_self(t, depth + 1);       break;
+    case T_STATIC:     result = eval_self(t, depth + 1);       break;
     case T_LOOP_FOR:   result = eval_loop_for(t, depth + 1);   break;
     case T_DECL_COMPOUND:result = eval_decl_compound(t, depth + 1);break;
     case T_ENUMERATOR: result = eval_enumerator(t, depth + 1); break;
