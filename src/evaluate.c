@@ -687,6 +687,45 @@ static tree handle_forward_decl(tree type)
     return id;
 }
 
+static tree handle_static_decl(tree decl, int depth)
+{
+    tree base_type = decl->data.decl.type->data.exp,
+        decls = decl->data.decl.decls,
+        i,
+        ret;
+
+    /* This function will be called the very first time this static
+     * decl is encountered.  We will change the type of tree object
+     * here from a T_DECL to an E_STATIC_MAPPING so subsequent
+     * evaluations of this object result in the static objects being
+     * found from the map (see eval_static_mapping).
+     *
+     * For this to work, we push a temporary context, evaluate all
+     * decls and retain the id_map and alloc chain.  We then use them
+     * to construct the E_STATIC_MAPPING object. */
+
+    push_ctx("Static declaration");
+    if (is_CHAIN_HEAD(decls))
+        for_each_tree(i, decls)
+            ret = handle_decl(i, base_type, depth);
+    else
+        ret = handle_decl(decls, base_type, depth);
+
+    decl->data.ectx.id_map = cur_ctx->data.ectx.id_map;
+    decl->data.ectx.parent_ctx = NULL;
+    decl->data.ectx.alloc_chain = cur_ctx->data.ectx.alloc_chain;
+    decl->data.ectx.name = "Static declaration";
+    decl->data.ectx.is_compound = 0;
+
+    pop_ctx();
+
+    decl->type = E_STATIC_MAPPING;
+
+    __evaluate_1(decl, depth + 1);
+
+    return ret;
+}
+
 static tree eval_decl(tree t, int depth)
 {
     tree base_type = t->data.decl.type,
@@ -703,6 +742,9 @@ static tree eval_decl(tree t, int depth)
 
     if (is_T_EXTERN(base_type))
         return handle_extern(base_type, decls, depth + 1);
+
+    if (is_T_STATIC(base_type))
+        return handle_static_decl(t, depth + 1);
 
     if (!decls)
         return NULL;
