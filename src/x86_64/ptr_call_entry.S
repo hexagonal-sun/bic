@@ -29,9 +29,9 @@ entry_point_\number:
 	push	rbp
 	mov	rbp, rsp
 #ifdef SYMBOL_USCORE
-	lea	r11, _entry_point_\number
+	lea	r11, [rip + _entry_point_\number]
 #else
-	lea	r11, entry_point_\number
+	lea	r11, [rip + entry_point_\number]
 #endif
 	call	ptr_call_handler
 	ret
