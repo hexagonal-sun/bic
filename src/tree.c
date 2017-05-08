@@ -267,6 +267,7 @@ void __tree_dump_1(tree t, int depth)
     case T_DEREF:
     case T_POINTER:
     case T_EXTERN:
+    case T_STATIC:
     case T_STRUCT:
     case T_UNION:
     case T_TYPEDEF:
