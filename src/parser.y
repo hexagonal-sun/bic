@@ -20,7 +20,7 @@ static void set_locus(tree t, YYLTYPE locus)
 
 static char * concat_string(const char *s1, const char *s2)
 {
-    char *ret = malloc(strlen(s1) + strlen(s2));
+    char *ret = malloc(strlen(s1) + strlen(s2) + 1);
     ret[0] = '\0';
     strcat(ret, s1);
     strcat(ret, s2);
