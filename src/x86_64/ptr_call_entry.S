@@ -13,7 +13,11 @@ ptr_call_handler:
 	push	rdi
 
 	mov	rdi, rsp
+#ifdef SYMBOL_USCORE
+	call	_handle_ptr_call
+#else
 	call	handle_ptr_call
+#endif
 
 	leave
 	ret
