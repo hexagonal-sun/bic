@@ -8,7 +8,7 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  struct_torture array_torture union basic_enum		\
                  forward_declare double_pointer				\
                  typedef_decl_mul_ambiguity function_pointer		\
-                 double_extern_fn_decl
+                 double_extern_fn_decl static_ints
 
 TESTS = $(check_PROGRAMS)
 

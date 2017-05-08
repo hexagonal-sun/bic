@@ -35,5 +35,6 @@ double_pointer
 typedef_decl_mul_ambiguity
 function_pointer
 double_extern_fn_decl
+static_ints
 
 *.trs
