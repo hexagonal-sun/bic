@@ -1474,6 +1474,34 @@ static tree eval_deref(tree t, int depth)
     return ret;
 }
 
+static tree eval_static_mapping(tree t, int depth)
+{
+    tree ret, mapping;
+
+    /* When we encounter an E_STATIC_MAPPING object, we need to merge
+     * it's id_map into the cur_ctx's.  We can easily do this by
+     * iterating through it's map and calling `map_identifier'.  We
+     * don't need to worry about adding the mappings allocations
+     * cur_ctx since they are stored within the E_STATIC_MAPPING
+     * object itself and their lifetime will outlive that of
+     * cur_ctx. */
+
+    for_each_tree(mapping, t->data.ectx.id_map) {
+        tree id;
+
+        if (!is_E_MAP(mapping))
+            eval_die(t, "Unknown type in static mapping\n");
+
+        id = mapping->data.bin.left;
+
+        map_identifier(mapping->data.bin.left, mapping->data.bin.right);
+
+        ret = id;
+    }
+
+    return ret;
+}
+
 static tree eval_self(tree t, int depth)
 {
     return t;
@@ -1525,6 +1553,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_DEREF:      result = eval_deref(t, depth + 1);      break;
     case T_POINTER:    result = eval_self(t, depth + 1);       break;
     case D_T_VOID:     result = eval_self(t, depth + 1);       break;
+    case E_STATIC_MAPPING: result = eval_static_mapping(t, depth + 1); break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
