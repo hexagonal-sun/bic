@@ -296,6 +296,10 @@ primary_expression
     set_locus(str, @1);
     $$ = str;
 }
+| '(' assignment_expression ')'
+{
+    $$ = $2;
+}
 ;
 
 postfix_expression
