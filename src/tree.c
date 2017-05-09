@@ -95,7 +95,8 @@ static void tree_dump_decl(tree t, int depth)
 
 static void tree_dump_function(tree t, int depth)
 {
-    eprintf(" name: %s\n", t->data.function.id->data.id.name);
+    eprintf(" name: %s\n", t->data.function.id ?
+            t->data.function.id->data.id.name : "<Unnamed>");
     tree_print_indent(depth);
 
     eprintf(" Return Type:\n");
