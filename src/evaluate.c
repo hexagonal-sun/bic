@@ -1561,6 +1561,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_IDENTIFIER: result = eval_identifier(t, depth + 1); break;
     case T_FN_CALL:    result = eval_fn_call(t, depth + 1);    break;
     case T_FN_DEF:     result = eval_fn_def(t, depth + 1);     break;
+    case T_DECL_FN:    result = eval_self(t, depth + 1);       break;
     case T_DECL:       result = eval_decl(t, depth + 1);       break;
     case T_ASSIGN:     result = eval_assign(t, depth + 1);     break;
     case T_FLOAT:      result = eval_self(t, depth + 1);       break;
