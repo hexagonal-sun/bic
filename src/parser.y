@@ -1013,6 +1013,24 @@ declaration
         }
     }
 }
+| type_specifier '(' pointer IDENTIFIER ')' argument_specifier
+{
+    tree function, decl;
+    function = tree_make(T_DECL_FN);
+    function->data.function.id = NULL;
+    function->data.function.return_type = $1;
+    function->data.function.arguments = $6;
+    function->data.function.stmts = NULL;
+
+    decl = tree_make(T_DECL);
+    decl->data.decl.type = function;
+    decl->data.decl.decls = make_pointer_type($3, get_identifier($4));
+
+    set_locus(function, @1);
+    set_locus(decl, @4);
+
+    $$ = decl;
+}
 | type_specifier
 {
     tree decl = tree_make(T_DECL);
