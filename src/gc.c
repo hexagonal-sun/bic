@@ -28,6 +28,7 @@ static void mark_tree(tree t)
     case T_DEREF:
     case T_EXTERN:
     case T_STATIC:
+    case T_RETURN:
     case T_STRUCT:
     case T_UNION:
     case T_TYPEDEF:
