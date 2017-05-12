@@ -100,6 +100,7 @@ int is_typename(char *identifier);
 %type <tree> statement_list
 %type <tree> expression_statement
 %type <tree> iteration_statement
+%type <tree> jump_statement
 %type <tree> primary_expression
 %type <tree> postfix_expression
 %type <tree> argument_expression_list
@@ -225,6 +226,7 @@ statement
 : expression_statement
 | compound_statement
 | iteration_statement
+| jump_statement
 ;
 
 statement_list: statement
@@ -263,6 +265,19 @@ iteration_statement
     for_loop->data.floop.stmts = $7;
     set_locus(for_loop, @1);
     $$ = for_loop;
+}
+;
+
+jump_statement
+: RETURN ';'
+{
+    $$ = tree_make(T_RETURN);
+}
+| RETURN expression_statement
+{
+    tree ret = tree_make(T_RETURN);
+    ret->data.exp = $2;
+    $$ = ret;
 }
 ;
 
