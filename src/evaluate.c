@@ -244,7 +244,7 @@ static tree eval_fn_call(tree t, int depth)
     if (is_T_FN_DEF(function)) {
         tree arg_decls = function->data.function.arguments,
             arg_vals = t->data.fncall.arguments,
-            arg_decl, arg_val;
+            arg_decl, arg_val, return_val;
 
         push_ctx(function->data.function.id->data.id.name);
 
@@ -301,9 +301,11 @@ static tree eval_fn_call(tree t, int depth)
             }
         }
 
-        __evaluate(function->data.function.stmts, depth + 1);
+        return_val = __evaluate(function->data.function.stmts, depth + 1);
 
         pop_ctx();
+
+        return return_val;
     }
 
     if (is_T_DECL_FN(function)) {
@@ -1201,6 +1203,12 @@ static tree eval_loop_for(tree t, int depth)
     return NULL;
 }
 
+static tree eval_return(tree t, int depth)
+{
+    t->data.exp = __evaluate_1(t->data.exp, depth + 1);
+
+    return t;
+}
 
 /* Build a simplified decl chain, ensuring all decls with multiple
  * identifiers are split.
@@ -1585,6 +1593,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_TYPEDEF:    result = eval_self(t, depth + 1);       break;
     case T_STATIC:     result = eval_self(t, depth + 1);       break;
     case T_LOOP_FOR:   result = eval_loop_for(t, depth + 1);   break;
+    case T_RETURN:     result = eval_return(t, depth + 1);     break;
     case T_DECL_COMPOUND:result = eval_decl_compound(t, depth + 1);break;
     case T_ENUMERATOR: result = eval_enumerator(t, depth + 1); break;
     case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
@@ -1617,8 +1626,12 @@ static tree __evaluate(tree head, int depth)
     if (!is_CHAIN_HEAD(head))
         return __evaluate_1(head, depth);
 
-    for_each_tree(i, head)
+    for_each_tree(i, head) {
         result = __evaluate_1(i, depth);
+
+        if (is_T_RETURN(result))
+            return result->data.exp;
+    }
 
     return result;
 }
