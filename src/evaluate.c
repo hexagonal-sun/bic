@@ -191,6 +191,37 @@ static tree make_int_from_live_var(tree var)
     return ret;
 }
 
+#define DEFCTYPE(tname, desc, ctype, fmt)                               \
+    static inline tree convert_int_to_##tname(tree intval)              \
+    {                                                                   \
+        tree dest_type = tree_make(tname);                              \
+        tree ret = make_live_var(dest_type);                            \
+        if (!is_T_INTEGER(intval))                                      \
+            eval_die(intval, "attempted to convert from non-integer\n"); \
+        ret->data.var.val->tname = (ctype)mpz_get_si(intval->data.integer); \
+        return ret;                                                     \
+    }
+#include "ctypes.def"
+#undef DEFCTYPE
+
+static tree cast_live_var_to_type(tree dest_type, tree live_var)
+{
+    tree ret, ival = make_int_from_live_var(live_var);
+
+    switch (dest_type->type) {
+#define DEFCTYPE(tname, desc, ctype, fmt)                       \
+        case tname:                                             \
+            ret = convert_int_to_##tname(ival);                 \
+            break;
+#include "ctypes.def"
+#undef DEFCTYPE
+        default:
+            eval_die(live_var, "attempted to cast to non C type");
+        }
+
+    return ret;
+}
+
 static tree make_fncall_result(tree type, ptrdiff_t result)
 {
     tree ret;
