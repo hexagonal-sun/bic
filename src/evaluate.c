@@ -218,6 +218,19 @@ static tree make_fncall_result(tree type, ptrdiff_t result)
     return ret;
 }
 
+static tree eval_fn_args(tree args, int depth)
+{
+    tree arg, ret = tree_make(CHAIN_HEAD);
+
+    for_each_tree(arg, args) {
+        tree fn_arg = tree_make(T_FN_ARG);
+        fn_arg->data.exp = __evaluate_1(arg, depth + 1);
+        tree_chain(fn_arg, ret);
+    }
+
+    return ret;
+}
+
 static tree eval_fn_call(tree t, int depth)
 {
     /* There are four possibilities here:
@@ -309,7 +322,7 @@ static tree eval_fn_call(tree t, int depth)
     }
 
     if (is_T_DECL_FN(function)) {
-        tree arg, fn_arg_chain = NULL, args = t->data.fncall.arguments;
+        tree fn_arg_chain = NULL, args = t->data.fncall.arguments;
         char *function_name = function->data.function.id->data.id.name;
         ptrdiff_t res;
         void *function_address = dlsym(RTLD_DEFAULT, function_name);
@@ -319,12 +332,7 @@ static tree eval_fn_call(tree t, int depth)
 
         /* Evaluate all arguments before passing into the marshalling
          * function. */
-        fn_arg_chain = tree_make(CHAIN_HEAD);
-        for_each_tree(arg, args) {
-            tree fn_arg = tree_make(T_FN_ARG);
-            fn_arg->data.exp = __evaluate_1(arg, depth + 1);
-            tree_chain(fn_arg, fn_arg_chain);
-        }
+        fn_arg_chain = eval_fn_args(args, depth);
 
          res = do_call(function_address, fn_arg_chain);
 
@@ -332,7 +340,7 @@ static tree eval_fn_call(tree t, int depth)
     }
 
     if (is_T_LIVE_VAR(function)) {
-        tree fn_arg_chain, arg, args = t->data.fncall.arguments,
+        tree fn_arg_chain, args = t->data.fncall.arguments,
             live_var_type = function->data.var.type,
             function_type;
         ptrdiff_t res;
@@ -347,12 +355,7 @@ static tree eval_fn_call(tree t, int depth)
 
         /* Evaluate all arguments before passing into the marshalling
          * function. */
-        fn_arg_chain = tree_make(CHAIN_HEAD);
-        for_each_tree(arg, args) {
-            tree fn_arg = tree_make(T_FN_ARG);
-            fn_arg->data.exp = __evaluate_1(arg, depth + 1);
-            tree_chain(fn_arg, fn_arg_chain);
-        }
+        fn_arg_chain = eval_fn_args(args, depth);
 
         res = do_call(function->data.var.val->D_T_PTR, fn_arg_chain);
 
