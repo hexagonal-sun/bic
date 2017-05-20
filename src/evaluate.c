@@ -696,7 +696,7 @@ static tree handle_extern(tree extern_type, tree decls, int depth)
 static tree handle_typedef(tree typedef_type, tree decls, int depth)
 {
     tree ret;
-    tree type = __evaluate_1(typedef_type->data.exp, depth + 1), i;
+    tree type = __evaluate_1(tTYPEDEF_EXP(typedef_type), depth + 1), i;
 
     if (is_CHAIN_HEAD(decls))
         for_each_tree(i, decls)
