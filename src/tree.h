@@ -2,6 +2,8 @@
 #define __TREE_H_
 
 #include <gmp.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include "list.h"
@@ -172,14 +174,31 @@ struct tree {
 #define TYPE(obj) (obj)->type
 #define _DATA(obj) (obj)->data
 
-/* This macro will ensure that all accesses of an object are of the
- * correct type. */
-#define _CHECKTYPE(obj, type) assert(TYPE((obj)) == (type));
+static inline tree tree_check(tree obj, enum tree_type type,
+                              const char *file,
+                              int line,
+                              const char *function)
+{
+    if (TYPE (obj) != type) {
+        fprintf(stderr, "Fatal error: %s:%d %s: Tree type miss-match",
+                file, line, function);
+        exit(1);
+    }
+
+    return obj;
+}
+
+#ifdef ENABLE_TREE_CHECKS
+#define TREE_CHECK(obj, type)                                           \
+    (tree_check((obj), (type), __FILE__, __LINE__, __func__))
+#else
+#define TREE_CHECK(obj, type) (obj)
+#endif
 
 /* Access integer objects contents. */
-#define tINT(obj) ({_CHECKTYPE((obj), T_INTEGER); _DATA(obj).integer;})
-#define tFLOAT(obj) ({_CHECKTYPE((obj), T_FLOAT); _DATA(obj).ffloat;})
-#define tSTRING(obj) ({_CHECKTYPE((obj), T_STRING); _DATA(obj).string;})
+#define tINT(obj) (_DATA( TREE_CHECK((obj), T_INTEGER) ).integer)
+#define tFLOAT(obj) (_DATA( TREE_CHECK((obj), T_FLOAT) ).ffloat)
+#define tSTRING(obj) (_DATA( TREE_CHECK((obj), T_STRING) ).string)
 
 tree tree_make(enum tree_type);
 tree get_identifier(char *name);
