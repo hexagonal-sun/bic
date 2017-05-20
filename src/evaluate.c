@@ -379,7 +379,7 @@ static tree eval_fn_call(tree t, int depth)
         if (!is_D_T_PTR(live_var_type))
             eval_die(t, "could not call non-pointer type\n");
 
-        function_type = live_var_type->data.exp;
+        function_type = tDTPTR_EXP(live_var_type);
 
         if (!is_T_DECL_FN(function_type))
             eval_die(t, "could not call non-function pointer type\n");
@@ -443,7 +443,7 @@ static tree instantiate_array(tree array_decl, tree base_type, void *base,
     /* An array is basically a pointer; it has no bounds checking.
      * Therefore all we need to do is create a live var with a pointer
      * type. */
-    ptr->data.exp = base_type;
+    tDTPTR_EXP(ptr) = base_type;
     live_var = make_live_var(ptr);
     live_var->data.var.val->D_T_PTR = base;
 
@@ -618,7 +618,7 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
             eval_die(fndecl, "attempted to re-declare %s as different type",
                      id->data.id.name);
 
-        if (!is_T_DECL_FN(live_var_type->data.exp))
+        if (!is_T_DECL_FN(tDTPTR_EXP(live_var_type)))
             eval_die(fndecl, "attempted to re-declare %s as different type",
                      id->data.id.name);
 
@@ -628,7 +628,7 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
     fndecl->data.function.return_type = return_type;
 
     func_ptr_type = tree_make(D_T_PTR);
-    func_ptr_type->data.exp = fndecl;
+    tDTPTR_EXP(func_ptr_type) = fndecl;
 
     if (!is_T_IDENTIFIER(id))
         eval_die(fndecl, "attempted to extern function that isn't an "
@@ -1428,7 +1428,7 @@ static tree eval_array_access(tree t, int depth)
     base = array->data.var.val->D_T_PTR;
 
     /* Find the size of the type that the pointer points to. */
-    base_type_length = get_size_of_type(array->data.var.type->data.exp, depth);
+    base_type_length = get_size_of_type(tDTPTR_EXP(array->data.var.type), depth);
 
     /* Calculate the offset into the array and make a pointer to point
      * to that offset. */
@@ -1498,7 +1498,7 @@ static tree handle_addr_fn_def(tree fndef)
     fun_sig->data.function.return_type = fndef->data.function.return_type;
     fun_sig->data.function.arguments = fndef->data.function.arguments;
 
-    ptr_type->data.exp = fun_sig;
+    tDTPTR_EXP(ptr_type) = fun_sig;
 
     live_var = make_live_var(ptr_type);
 
@@ -1519,7 +1519,7 @@ static tree eval_addr(tree t, int depth)
         eval_die(t, "attempted to take address of non-live variable.\n");
 
     ptr_type = tree_make(D_T_PTR);
-    ptr_type->data.exp = exp->data.var.type;
+    tDTPTR_EXP(ptr_type) = exp->data.var.type;
 
     ret = make_live_var(ptr_type);
 
@@ -1539,7 +1539,7 @@ static tree eval_deref(tree t, int depth)
     if (!is_D_T_PTR(exp->data.var.type))
         eval_die(t, "Attempted to dereference a non-pointer\n");
 
-    new_type = exp->data.var.type->data.exp;
+    new_type = tDTPTR_EXP(exp->data.var.type);
 
     if (is_T_DECL_COMPOUND(new_type))
         return instantiate_struct(new_type, depth,
