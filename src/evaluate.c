@@ -118,7 +118,7 @@ static size_t get_size_of_type(tree type, int depth)
         return type->data.comp_decl.length;
     else {
         tree sz, szof = tree_make(T_SIZEOF);
-        szof->data.exp = type;
+        tSZOF_EXP(szof) = type;
         sz = __evaluate_1(szof, depth);
         return mpz_get_ui(tINT(sz));
     }
@@ -1458,7 +1458,7 @@ static int get_ctype_size(tree t)
 
 static tree eval_sizeof(tree t, int depth)
 {
-    tree exp = __evaluate_1(t->data.exp, depth + 1),
+    tree exp = __evaluate_1(tSZOF_EXP(t), depth + 1),
         type = exp,
          ret = tree_make(T_INTEGER);
 

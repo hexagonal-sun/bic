@@ -199,6 +199,7 @@ static inline tree tree_check(tree obj, enum tree_type type,
 #define tINT(obj) (_DATA( TREE_CHECK((obj), T_INTEGER) ).integer)
 #define tFLOAT(obj) (_DATA( TREE_CHECK((obj), T_FLOAT) ).ffloat)
 #define tSTRING(obj) (_DATA( TREE_CHECK((obj), T_STRING) ).string)
+#define tSZOF_EXP(obj) (_DATA( TREE_CHECK((obj), T_SIZEOF) ).exp)
 
 tree tree_make(enum tree_type);
 tree get_identifier(char *name);
