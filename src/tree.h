@@ -179,6 +179,7 @@ struct tree {
 /* Access integer objects contents. */
 #define tINT(obj) ({_CHECKTYPE((obj), T_INTEGER); _DATA(obj).integer;})
 #define tFLOAT(obj) ({_CHECKTYPE((obj), T_FLOAT); _DATA(obj).ffloat;})
+#define tSTRING(obj) ({_CHECKTYPE((obj), T_STRING); _DATA(obj).string;})
 
 tree tree_make(enum tree_type);
 tree get_identifier(char *name);

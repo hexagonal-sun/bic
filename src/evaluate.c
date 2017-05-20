@@ -862,7 +862,7 @@ static void assign_ptr(tree var, tree right)
     switch (right->type)
     {
     case T_STRING:
-        ptr = right->data.string;
+        ptr = tSTRING(right);
         break;
     case T_LIVE_VAR:
         ptr = (void *)right->data.var.val->D_T_PTR;
