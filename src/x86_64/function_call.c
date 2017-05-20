@@ -44,7 +44,7 @@ ptrdiff_t do_call(void *function_address, tree args)
 
     if (args)
         for_each_tree(fn_arg, args) {
-            tree arg = fn_arg->data.exp;
+            tree arg = tFNARG_EXP(fn_arg);
             struct arg *new_arg = malloc(sizeof(*new_arg));
 
             switch(arg->type) {

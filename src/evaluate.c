@@ -255,7 +255,7 @@ static tree eval_fn_args(tree args, int depth)
 
     for_each_tree(arg, args) {
         tree fn_arg = tree_make(T_FN_ARG);
-        fn_arg->data.exp = __evaluate_1(arg, depth + 1);
+        tFNARG_EXP(fn_arg) = __evaluate_1(arg, depth + 1);
         tree_chain(fn_arg, ret);
     }
 
