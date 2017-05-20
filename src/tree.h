@@ -168,6 +168,17 @@ struct tree {
     int reachable;
 };
 
+/* These macros access the members of the `tree' struct. */
+#define TYPE(obj) (obj)->type
+#define _DATA(obj) (obj)->data
+
+/* This macro will ensure that all accesses of an object are of the
+ * correct type. */
+#define _CHECKTYPE(obj, type) assert(TYPE((obj)) == (type));
+
+/* Access integer objects contents. */
+#define tINT(obj) ({_CHECKTYPE((obj), T_INTEGER); _DATA(obj).integer;})
+
 tree tree_make(enum tree_type);
 tree get_identifier(char *name);
 
