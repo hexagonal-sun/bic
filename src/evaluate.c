@@ -120,7 +120,7 @@ static size_t get_size_of_type(tree type, int depth)
         tree sz, szof = tree_make(T_SIZEOF);
         szof->data.exp = type;
         sz = __evaluate_1(szof, depth);
-        return mpz_get_ui(sz->data.integer);
+        return mpz_get_ui(tINT(sz));
     }
 }
 
@@ -171,7 +171,7 @@ static tree make_int_from_live_var(tree var)
     switch (type->type) {
 #define SETINT(type)                                                    \
         case type:                                                      \
-            mpz_init_set_si(ret->data.integer, var->data.var.val->type); \
+            mpz_init_set_si(tINT(ret), var->data.var.val->type);        \
             break;
         SETINT(D_T_CHAR);
         SETINT(D_T_SHORT);
@@ -198,7 +198,7 @@ static tree make_int_from_live_var(tree var)
         tree ret = make_live_var(dest_type);                            \
         if (!is_T_INTEGER(intval))                                      \
             eval_die(intval, "attempted to convert from non-integer\n"); \
-        ret->data.var.val->tname = (ctype)mpz_get_si(intval->data.integer); \
+        ret->data.var.val->tname = (ctype)mpz_get_si(tINT(intval));     \
         return ret;                                                     \
     }
 #include "ctypes.def"
@@ -426,7 +426,7 @@ static size_t get_array_size(tree array_decl, tree base_type, int depth)
     if (!is_T_INTEGER(no_elements))
         eval_die(array_decl, "Attempted to create array with non-constant size\n");
 
-    no_elms = mpz_get_ui(no_elements->data.integer);
+    no_elms = mpz_get_ui(tINT(no_elements));
 
     return sz_of_each_element * no_elms;
 }
@@ -802,7 +802,7 @@ static void assign_integer(tree var, tree right)
     switch (right->type)
     {
     case T_INTEGER:
-         val = mpz_get_si(right->data.integer);
+         val = mpz_get_si(tINT(right));
          break;
     case T_LIVE_VAR:
         val = right->data.var.val->D_T_LONG;
@@ -831,7 +831,7 @@ static void assign_float(tree var, tree right)
     switch (right->type)
     {
     case T_INTEGER:
-        val = (double)mpz_get_si(right->data.integer);
+        val = (double)mpz_get_si(tINT(right));
          break;
     case T_FLOAT:
         val = (double)mpf_get_d(right->data.ffloat);
@@ -868,7 +868,7 @@ static void assign_ptr(tree var, tree right)
         ptr = (void *)right->data.var.val->D_T_PTR;
         break;
     case T_INTEGER:
-        ptr = (void *)mpz_get_ui(right->data.integer);
+        ptr = (void *)mpz_get_ui(tINT(right));
         break;
     default:
         eval_die(right, "Could not assign to non-pointer type");
@@ -991,7 +991,7 @@ static tree eval_add(tree t, int depth)
     tree right = __evaluate_1(t->data.bin.right, depth + 1);
 
     tree ret = tree_make(T_INTEGER);
-    mpz_init(ret->data.integer);
+    mpz_init(tINT(ret));
 
     /* Resolve all identifiers. */
     if (is_T_LIVE_VAR(left))
@@ -1003,8 +1003,7 @@ static tree eval_add(tree t, int depth)
     if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
         eval_die(t, "Could not add to non integer type\n");
 
-    mpz_add(ret->data.integer, left->data.integer,
-            right->data.integer);
+    mpz_add(tINT(ret), tINT(left), tINT(right));
 
     return ret;
 }
@@ -1016,7 +1015,7 @@ static tree eval_sub(tree t, int depth)
 
 
     tree ret = tree_make(T_INTEGER);
-    mpz_init(ret->data.integer);
+    mpz_init(tINT(ret));
 
     if (is_T_LIVE_VAR(left))
         left = make_int_from_live_var(left);
@@ -1027,8 +1026,7 @@ static tree eval_sub(tree t, int depth)
     if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
         eval_die(t, "Could not subtract to non integer type\n");
 
-    mpz_sub(ret->data.integer, left->data.integer,
-            right->data.integer);
+    mpz_sub(tINT(ret), tINT(left), tINT(right));
 
     return ret;
 }
@@ -1040,7 +1038,7 @@ static tree eval_mul(tree t, int depth)
 
 
     tree ret = tree_make(T_INTEGER);
-    mpz_init(ret->data.integer);
+    mpz_init(tINT(ret));
 
     if (is_T_LIVE_VAR(left))
         left = make_int_from_live_var(left);
@@ -1051,8 +1049,7 @@ static tree eval_mul(tree t, int depth)
     if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
         eval_die(t, "Could not subtract to non integer type\n");
 
-    mpz_mul(ret->data.integer, left->data.integer,
-            right->data.integer);
+    mpz_mul(tINT(ret), tINT(left), tINT(right));
 
     return ret;
 }
@@ -1064,7 +1061,7 @@ static tree eval_div(tree t, int depth)
 
 
     tree ret = tree_make(T_INTEGER);
-    mpz_init(ret->data.integer);
+    mpz_init(tINT(ret));
 
     if (is_T_LIVE_VAR(left))
         left = make_int_from_live_var(left);
@@ -1075,8 +1072,7 @@ static tree eval_div(tree t, int depth)
     if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
         eval_die(t, "Could not subtract to non integer type\n");
 
-    mpz_div(ret->data.integer, left->data.integer,
-            right->data.integer);
+    mpz_div(tINT(ret), tINT(left), tINT(right));
 
     return ret;
 }
@@ -1118,9 +1114,9 @@ static tree eval_lt(tree t, int depth)
     switch (left->type) {
     case T_INTEGER:
     {
-        int result = mpz_cmp(left->data.integer, right->data.integer);
+        int result = mpz_cmp(tINT(left), tINT(right));
         ret = tree_make(T_INTEGER);
-        mpz_init_set_ui(ret->data.integer, result < 0 ? 1 : 0);
+        mpz_init_set_ui(tINT(ret), result < 0 ? 1 : 0);
         break;
     }
     default:
@@ -1142,9 +1138,9 @@ static tree eval_gt(tree t, int depth)
     switch (left->type) {
     case T_INTEGER:
     {
-        int result = mpz_cmp(left->data.integer, right->data.integer);
+        int result = mpz_cmp(tINT(left), tINT(right));
         ret = tree_make(T_INTEGER);
-        mpz_init_set_ui(ret->data.integer, result > 0 ? 1 : 0);
+        mpz_init_set_ui(tINT(ret), result > 0 ? 1 : 0);
         break;
     }
     default:
@@ -1166,9 +1162,9 @@ static tree eval_lteq(tree t, int depth)
     switch (left->type) {
     case T_INTEGER:
     {
-        int result = mpz_cmp(left->data.integer, right->data.integer);
+        int result = mpz_cmp(tINT(left), tINT(right));
         ret = tree_make(T_INTEGER);
-        mpz_init_set_ui(ret->data.integer, result <= 0 ? 1 : 0);
+        mpz_init_set_ui(tINT(ret), result <= 0 ? 1 : 0);
         break;
     }
     default:
@@ -1190,9 +1186,9 @@ static tree eval_gteq(tree t, int depth)
     switch (left->type) {
     case T_INTEGER:
     {
-        int result = mpz_cmp(left->data.integer, right->data.integer);
+        int result = mpz_cmp(tINT(left), tINT(right));
         ret = tree_make(T_INTEGER);
-        mpz_init_set_ui(ret->data.integer, result >= 0 ? 1 : 0);
+        mpz_init_set_ui(tINT(ret), result >= 0 ? 1 : 0);
         break;
     }
     default:
@@ -1223,7 +1219,7 @@ static tree eval_loop_for(tree t, int depth)
         if (!is_T_INTEGER(cond_result))
             eval_die(t, "Unknown condition result");
 
-        if (!mpz_get_si(cond_result->data.integer))
+        if (!mpz_get_si(tINT(cond_result)))
             break;
 
         push_ctx("For Loop");
@@ -1373,7 +1369,7 @@ static tree eval_enumerator(tree t, int depth)
      * identifier to the value. */
     for_each_tree(enum_id, t->data.enumerator.enums) {
         tree integer = tree_make(T_INTEGER);
-        mpz_init_set_ui(integer->data.integer, enum_val);
+        mpz_init_set_ui(tINT(integer), enum_val);
 
         map_identifier(enum_id, integer);
 
@@ -1427,7 +1423,7 @@ static tree eval_array_access(tree t, int depth)
     if (!is_T_INTEGER(index))
         eval_die(index, "Unknown index type\n");
 
-    idx = mpz_get_ui(index->data.integer);
+    idx = mpz_get_ui(tINT(index));
 
     base = array->data.var.val->D_T_PTR;
 
@@ -1476,17 +1472,17 @@ static tree eval_sizeof(tree t, int depth)
         type = tree_make(D_T_PTR);
 
     if (is_D_T_PTR(type) && exp->data.var.is_array) {
-        mpz_init_set_ui(ret->data.integer, exp->data.var.array_length);
+        mpz_init_set_ui(tINT(ret), exp->data.var.array_length);
         return ret;
     }
 
     if (is_CTYPE(type)) {
-        mpz_init_set_ui(ret->data.integer, get_ctype_size(type));
+        mpz_init_set_ui(tINT(ret), get_ctype_size(type));
         return ret;
     }
 
     if (is_T_DECL_COMPOUND(type)) {
-        mpz_init_set_ui(ret->data.integer, type->data.comp_decl.length);
+        mpz_init_set_ui(tINT(ret), type->data.comp_decl.length);
         return ret;
     }
 
