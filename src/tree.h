@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include "../config.h"
 #include "list.h"
 
 typedef struct tree *tree;

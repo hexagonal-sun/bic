@@ -74,6 +74,15 @@ AC_DEFINE([SYMBOL_USCORE], [1],
           [defined when compiled symbols are prefiex with and underscore])
 fi
 
+# Add debug option that will turn on tree checking.
+AC_ARG_ENABLE([debug],
+    AS_HELP_STRING([--enable-debug],
+        [Enable various debugging features (tree-check)]))
+
+AS_IF([test "x$enable_debug" = "xyes"], [
+    AC_DEFINE([ENABLE_TREE_CHECKS], [1],
+              [Defined when all tree accesses should be checked])
+])
 
 # Checks for library functions.
 AC_FUNC_MALLOC
