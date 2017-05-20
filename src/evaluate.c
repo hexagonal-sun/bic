@@ -682,7 +682,7 @@ static tree handle_extern_decl(tree extern_type, tree decl)
 static tree handle_extern(tree extern_type, tree decls, int depth)
 {
     tree ret;
-    tree type = __evaluate_1(extern_type->data.exp, depth +1), i;
+    tree type = __evaluate_1(tEXTERN_EXP(extern_type), depth +1), i;
 
     if (is_CHAIN_HEAD(decls))
         for_each_tree(i, decls)
