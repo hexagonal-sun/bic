@@ -211,6 +211,7 @@ static inline tree tree_check(tree obj, enum tree_type type,
 #define tINC_EXP(obj) (_DATA( TREE_CHECK((obj), T_INC) ).exp)
 #define tRET_EXP(obj) (_DATA( TREE_CHECK((obj), T_RETURN) ).exp)
 #define tSTRUCT_EXP(obj) (_DATA ( TREE_CHECK((obj), T_STRUCT)).exp)
+#define tUNION_EXP(obj) (_DATA (TREE_CHECK((obj), T_UNION) ).exp)
 #define tSTATIC_EXP(obj) (_DATA ( TREE_CHECK((obj), T_STATIC)).exp)
 
 tree tree_make(enum tree_type);
