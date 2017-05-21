@@ -725,7 +725,7 @@ static tree handle_forward_decl(tree type)
 
 static tree handle_static_decl(tree decl, int depth)
 {
-    tree base_type = decl->data.decl.type->data.exp,
+    tree base_type = tSTATIC_EXP(decl->data.decl.type),
         decls = decl->data.decl.decls,
         i,
         ret;
