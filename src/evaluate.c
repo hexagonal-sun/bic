@@ -936,7 +936,7 @@ static void live_var_sub(tree var, unsigned long int val)
 static tree eval_post_inc(tree t, int depth)
 {
     tree ret;
-    tree exp = __evaluate_1(t->data.exp, depth + 1);
+    tree exp = __evaluate_1(tPINC_EXP(t), depth + 1);
     if (!is_T_LIVE_VAR(exp))
         eval_die(t, "Not a valid lvalue.\n");
 
@@ -950,7 +950,7 @@ static tree eval_post_inc(tree t, int depth)
 static tree eval_inc(tree t, int depth)
 {
     tree ret;
-    tree exp = __evaluate_1(t->data.exp, depth + 1);
+    tree exp = __evaluate_1(tINC_EXP(t), depth + 1);
     if (!is_T_LIVE_VAR(exp))
         eval_die(t, "Not a valid lvalue.\n");
 
@@ -964,7 +964,7 @@ static tree eval_inc(tree t, int depth)
 static tree eval_post_dec(tree t, int depth)
 {
     tree ret;
-    tree exp = __evaluate_1(t->data.exp, depth + 1);
+    tree exp = __evaluate_1(tPDEC_EXP(t), depth + 1);
     if (!is_T_LIVE_VAR(exp))
         eval_die(t, "Not a valid lvalue.\n");
 
@@ -976,7 +976,7 @@ static tree eval_post_dec(tree t, int depth)
 static tree eval_dec(tree t, int depth)
 {
     tree ret;
-    tree exp = __evaluate_1(t->data.exp, depth + 1);
+    tree exp = __evaluate_1(tDEC_EXP(t), depth + 1);
     if (!is_T_LIVE_VAR(exp))
         eval_die(t, "Not a valid lvalue.\n");
 

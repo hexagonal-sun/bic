@@ -205,6 +205,10 @@ static inline tree tree_check(tree obj, enum tree_type type,
 #define tDTPTR_EXP(obj) (_DATA( TREE_CHECK((obj), D_T_PTR) ).exp)
 #define tEXTERN_EXP(obj) (_DATA( TREE_CHECK((obj), T_EXTERN) ).exp)
 #define tTYPEDEF_EXP(obj) (_DATA( TREE_CHECK((obj), T_TYPEDEF) ).exp)
+#define tPINC_EXP(obj) (_DATA( TREE_CHECK((obj), T_P_INC) ).exp)
+#define tPDEC_EXP(obj) (_DATA( TREE_CHECK((obj), T_P_DEC) ).exp)
+#define tDEC_EXP(obj) (_DATA( TREE_CHECK((obj), T_DEC) ).exp)
+#define tINC_EXP(obj) (_DATA( TREE_CHECK((obj), T_INC) ).exp)
 
 tree tree_make(enum tree_type);
 tree get_identifier(char *name);
