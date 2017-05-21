@@ -1395,7 +1395,7 @@ static tree eval_access(tree t, int depth)
 
 static tree eval_struct(tree t, int depth)
 {
-    return __evaluate_1(t->data.exp, depth);
+    return __evaluate_1(tSTRUCT_EXP(t), depth);
 }
 
 static tree eval_union(tree t, int depth)
