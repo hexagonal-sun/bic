@@ -1235,7 +1235,7 @@ static tree eval_loop_for(tree t, int depth)
 
 static tree eval_return(tree t, int depth)
 {
-    t->data.exp = __evaluate_1(t->data.exp, depth + 1);
+    tRET_EXP(t) = __evaluate_1(tRET_EXP(t), depth + 1);
 
     return t;
 }
@@ -1660,7 +1660,7 @@ static tree __evaluate(tree head, int depth)
         result = __evaluate_1(i, depth);
 
         if (is_T_RETURN(result))
-            return result->data.exp;
+            return tRET_EXP(result);
     }
 
     return result;

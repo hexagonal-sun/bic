@@ -209,6 +209,7 @@ static inline tree tree_check(tree obj, enum tree_type type,
 #define tPDEC_EXP(obj) (_DATA( TREE_CHECK((obj), T_P_DEC) ).exp)
 #define tDEC_EXP(obj) (_DATA( TREE_CHECK((obj), T_DEC) ).exp)
 #define tINC_EXP(obj) (_DATA( TREE_CHECK((obj), T_INC) ).exp)
+#define tRET_EXP(obj) (_DATA( TREE_CHECK((obj), T_RETURN) ).exp)
 
 tree tree_make(enum tree_type);
 tree get_identifier(char *name);
