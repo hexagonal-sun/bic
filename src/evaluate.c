@@ -1509,7 +1509,7 @@ static tree handle_addr_fn_def(tree fndef)
 
 static tree eval_addr(tree t, int depth)
 {
-    tree exp = __evaluate_1(t->data.exp, depth + 1),
+    tree exp = __evaluate_1(tADDR_EXP(t), depth + 1),
         ptr_type, ret;
 
     if (is_T_FN_DEF(exp))
