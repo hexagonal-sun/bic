@@ -1437,7 +1437,7 @@ static tree eval_array_access(tree t, int depth)
 
     /* Dereference the pointer and return the result. */
     deref = tree_make(T_DEREF);
-    deref->data.exp = new_ptr;
+    tDEREF_EXP(deref) = new_ptr;
 
     return __evaluate_1(deref, depth + 1);
 }
@@ -1530,7 +1530,7 @@ static tree eval_addr(tree t, int depth)
 
 static tree eval_deref(tree t, int depth)
 {
-    tree exp = __evaluate_1(t->data.exp, depth + 1),
+    tree exp = __evaluate_1(tDEREF_EXP(t), depth + 1),
         new_type, ret;
 
     if (!is_T_LIVE_VAR(exp))
