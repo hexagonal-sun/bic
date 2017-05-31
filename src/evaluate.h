@@ -7,9 +7,9 @@ static inline void resolve_ptr_type(tree *ptr, tree *base_type)
 {
     while (is_T_POINTER(*ptr)) {
         tree ptr_type = tree_make(D_T_PTR);
-        ptr_type->data.exp = *base_type;
+        tDTPTR_EXP(ptr_type) = *base_type;
         *base_type = ptr_type;
-        *ptr = (*ptr)->data.exp;
+        *ptr = tPTR_EXP(*ptr);
     }
 }
 
