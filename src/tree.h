@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include "../config.h"
 #include "list.h"
+#include "tree-access.h"
 
 typedef struct tree *tree;
 
@@ -188,34 +188,6 @@ static inline tree tree_check(tree obj, enum tree_type type,
 
     return obj;
 }
-
-#ifdef ENABLE_TREE_CHECKS
-#define TREE_CHECK(obj, type)                                           \
-    (tree_check((obj), (type), __FILE__, __LINE__, __func__))
-#else
-#define TREE_CHECK(obj, type) (obj)
-#endif
-
-/* Access integer objects contents. */
-#define tINT(obj) (_DATA( TREE_CHECK((obj), T_INTEGER) ).integer)
-#define tFLOAT(obj) (_DATA( TREE_CHECK((obj), T_FLOAT) ).ffloat)
-#define tSTRING(obj) (_DATA( TREE_CHECK((obj), T_STRING) ).string)
-#define tSZOF_EXP(obj) (_DATA( TREE_CHECK((obj), T_SIZEOF) ).exp)
-#define tFNARG_EXP(obj) (_DATA( TREE_CHECK((obj), T_FN_ARG) ).exp)
-#define tDTPTR_EXP(obj) (_DATA( TREE_CHECK((obj), D_T_PTR) ).exp)
-#define tEXTERN_EXP(obj) (_DATA( TREE_CHECK((obj), T_EXTERN) ).exp)
-#define tTYPEDEF_EXP(obj) (_DATA( TREE_CHECK((obj), T_TYPEDEF) ).exp)
-#define tPINC_EXP(obj) (_DATA( TREE_CHECK((obj), T_P_INC) ).exp)
-#define tPDEC_EXP(obj) (_DATA( TREE_CHECK((obj), T_P_DEC) ).exp)
-#define tDEC_EXP(obj) (_DATA( TREE_CHECK((obj), T_DEC) ).exp)
-#define tINC_EXP(obj) (_DATA( TREE_CHECK((obj), T_INC) ).exp)
-#define tRET_EXP(obj) (_DATA( TREE_CHECK((obj), T_RETURN) ).exp)
-#define tSTRUCT_EXP(obj) (_DATA ( TREE_CHECK((obj), T_STRUCT)).exp)
-#define tUNION_EXP(obj) (_DATA (TREE_CHECK((obj), T_UNION) ).exp)
-#define tSTATIC_EXP(obj) (_DATA ( TREE_CHECK((obj), T_STATIC)).exp)
-#define tDEREF_EXP(obj) (_DATA (TREE_CHECK((obj), T_DEREF)).exp)
-#define tADDR_EXP(obj) (_DATA (TREE_CHECK((obj), T_ADDR)).exp)
-#define tPTR_EXP(obj) (_DATA (TREE_CHECK((obj), T_POINTER)).exp)
 
 tree tree_make(enum tree_type);
 tree get_identifier(char *name);
