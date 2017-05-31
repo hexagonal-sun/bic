@@ -709,7 +709,14 @@ static tree handle_typedef(tree typedef_type, tree decls, int depth)
 
 static tree handle_forward_decl(tree type)
 {
-    tree id = type->data.exp;
+    tree id;
+
+    if (is_T_STRUCT(type))
+        id = tSTRUCT_EXP(type);
+    else if(is_T_UNION(type))
+        id = tUNION_EXP(type);
+    else
+        eval_die(type, "unknown forward decl type\n");
 
     /* If the declaration already exists, don't attempt to map it
      * again. */
