@@ -276,7 +276,7 @@ jump_statement
 | RETURN expression_statement
 {
     tree ret = tree_make(T_RETURN);
-    ret->data.exp = $2;
+    tRET_EXP(ret) = $2;
     $$ = ret;
 }
 ;
@@ -346,14 +346,14 @@ postfix_expression
 | postfix_expression INC
 {
     tree inc = tree_make(T_P_INC);
-    inc->data.exp = $1;
+    tPINC_EXP(inc) = $1;
     set_locus(inc, @2);
     $$ = inc;
 }
 | postfix_expression DEC
 {
     tree dec = tree_make(T_P_DEC);
-    dec->data.exp = $1;
+    tPDEC_EXP(dec) = $1;
     set_locus(dec, @2);
     $$ = dec;
 }
@@ -371,7 +371,7 @@ postfix_expression
     tree deref = tree_make(T_DEREF);
     tree access = tree_make(T_ACCESS);
 
-    deref->data.exp = $1;
+    tDEREF_EXP(deref) = $1;
     access->data.bin.left = deref;
     access->data.bin.right = get_identifier($3);
 
@@ -398,35 +398,35 @@ unary_expression
 | INC unary_expression
 {
     tree inc = tree_make(T_INC);
-    inc->data.exp = $2;
+    tINC_EXP(inc) = $2;
     set_locus(inc, @1);
     $$ = inc;
 }
 | DEC unary_expression
 {
     tree dec = tree_make(T_DEC);
-    dec->data.exp = $2;
+    tDEC_EXP(dec) = $2;
     set_locus(dec, @1);
     $$ = dec;
 }
 | '&' unary_expression
 {
     tree addr = tree_make(T_ADDR);
-    addr->data.exp = $2;
+    tADDR_EXP(addr) = $2;
     set_locus(addr, @1);
     $$ = addr;
 }
 | '*' unary_expression
 {
     tree deref = tree_make(T_DEREF);
-    deref->data.exp = $2;
+    tDEREF_EXP(deref) = $2;
     set_locus(deref, @1);
     $$ = deref;
 }
 | SIZEOF '(' sizeof_specifier ')'
 {
     tree szof = tree_make(T_SIZEOF);
-    szof->data.exp = $3;
+    tSZOF_EXP(szof) = $3;
     set_locus(szof, @1);
     $$ = szof;
 }
@@ -535,7 +535,7 @@ decl
 | decl '[' ']'
 {
     tree ptr = tree_make(T_POINTER);
-    ptr->data.exp = $1;
+    tPTR_EXP(ptr) = $1;
     set_locus(ptr, @2);
     $$ = ptr;
 }
@@ -551,7 +551,7 @@ pointer
 | '*' pointer
 {
     tree ptr = tree_make(T_POINTER);
-    ptr->data.exp = $2;
+    tPTR_EXP(ptr) = $2;
     set_locus(ptr, @1);
     $$ = ptr;
 }
@@ -821,7 +821,22 @@ type_specifier
 : direct_type_specifier
 | storage_class_specifier direct_type_specifier
 {
-    $1->data.exp = $2;
+    switch ($1->type)
+    {
+    case T_TYPEDEF:
+        tTYPEDEF_EXP($1) = $2;
+        break;
+    case T_EXTERN:
+        tEXTERN_EXP($1) = $2;
+        break;
+    case T_STATIC:
+        tSTATIC_EXP($1) = $2;
+        break;
+    default:
+        yyerror("Unknown storage_class_specifier tree type");
+        YYERROR;
+    }
+
     $$ = $1;
 }
 ;
@@ -852,9 +867,9 @@ struct_specifier
 {
     char *struct_name = concat_string("struct ", $2);
     tree ret = tree_make(T_STRUCT);
-    ret->data.exp = get_identifier(struct_name);
+    tSTRUCT_EXP(ret) = get_identifier(struct_name);
     set_locus(ret, @1);
-    set_locus(ret->data.exp, @2);
+    set_locus(tSTRUCT_EXP(ret), @2);
     free($2);
     $$ = ret;
 }
@@ -862,9 +877,9 @@ struct_specifier
 {
     char *struct_name = concat_string("struct ", $2);
     tree ret = tree_make(T_STRUCT);
-    ret->data.exp = get_identifier(struct_name);
+    tSTRUCT_EXP(ret) = get_identifier(struct_name);
     set_locus(ret, @1);
-    set_locus(ret->data.exp, @2);
+    set_locus(tSTRUCT_EXP(ret), @2);
     free($2);
     $$ = ret;
 }
@@ -896,9 +911,9 @@ union_specifier
 {
     char *union_name = concat_string("union ", $2);
     tree ret = tree_make(T_UNION);
-    ret->data.exp = get_identifier(union_name);
+    tUNION_EXP(ret) = get_identifier(union_name);
     set_locus(ret, @1);
-    set_locus(ret->data.exp, @2);
+    set_locus(tUNION_EXP(ret), @2);
     free($2);
     $$ = ret;
 
@@ -907,9 +922,9 @@ union_specifier
 {
     char *union_name = concat_string("union ", $2);
     tree ret = tree_make(T_UNION);
-    ret->data.exp = get_identifier(union_name);
+    tUNION_EXP(ret) = get_identifier(union_name);
     set_locus(ret, @1);
-    set_locus(ret->data.exp, @2);
+    set_locus(tUNION_EXP(ret), @2);
     free($2);
     $$ = ret;
 
@@ -1013,7 +1028,7 @@ declaration
             tree newid, oldid = i;
 
             while (is_T_POINTER(oldid))
-                oldid = oldid->data.exp;
+                oldid = tPTR_EXP(oldid);
 
             if (is_T_DECL_FN(oldid))
                 oldid = oldid->data.function.id;
