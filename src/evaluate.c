@@ -418,7 +418,7 @@ static void make_and_map_live_var(tree id, tree type)
 static size_t get_array_size(tree array_decl, tree base_type, int depth)
 {
     size_t sz_of_each_element = get_size_of_type(base_type, depth), no_elms;
-    tree no_elements = __evaluate_1(array_decl->data.bin.right, depth + 1);
+    tree no_elements = __evaluate_1(tARRAY_SZ(array_decl), depth + 1);
 
     if (is_T_LIVE_VAR(no_elements))
         no_elements = make_int_from_live_var(no_elements);
@@ -435,7 +435,7 @@ static tree instantiate_array(tree array_decl, tree base_type, void *base,
                               size_t length)
 {
     tree live_var, ptr = tree_make(D_T_PTR),
-        id = array_decl->data.bin.left;
+        id = tARRAY_ID(array_decl);
 
     if (!is_T_IDENTIFIER(id))
         eval_die(array_decl, "Unknown array name type\n");
@@ -473,7 +473,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
                                          base + decl->data.decl.offset,
                                          array_sz);
 
-        __map_identifer(decl_element->data.bin.left, live_element,
+        __map_identifer(tARRAY_ID(decl_element), live_element,
                         live_struct->data.comp.members);
         return;
     }
@@ -548,7 +548,7 @@ static tree handle_decl(tree decl, tree base_type, int depth)
 
     if (is_T_ARRAY(decl)) {
         tree live_var = alloc_array(decl, decl_type, depth);
-        tree id = decl->data.bin.left;
+        tree id = tARRAY_ID(decl);
 
         /* We know that since the array was successfully instantiated,
          * the left element of the decl *must* be an identifier. */

@@ -43,6 +43,9 @@
 #define tEMAP_LEFT(obj) (_DATA( TREE_CHECK((obj), E_MAP)).bin.left)
 #define tEMAP_RIGHT(obj) (_DATA( TREE_CHECK((obj), E_MAP)).bin.right)
 
+#define tARRAY_ID(obj) (_DATA( TREE_CHECK((obj), T_ARRAY)).bin.left)
+#define tARRAY_SZ(obj) (_DATA( TREE_CHECK((obj), T_ARRAY)).bin.right)
+
 /* Evaluation ctx (E_CTX) accessor macros. */
 #define tID_MAP(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.id_map)
 #define tPARENT_CTX(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.parent_ctx)
