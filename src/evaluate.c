@@ -22,14 +22,14 @@ static tree __evaluate(tree t, int depth);
 /* Context management functions. */
 static void pop_ctx(void)
 {
-    if (!cur_ctx->data.ectx.parent_ctx) {
+    if (!tPARENT_CTX(cur_ctx)) {
         /* We attempted to pop off the top-level context.  This is a
          * serious error. */
         fprintf(stderr, "Error: attempted to pop top-level context\n");
         exit(EXIT_FAILURE);
     }
 
-    cur_ctx = cur_ctx->data.ectx.parent_ctx;
+    cur_ctx = tPARENT_CTX(cur_ctx);
 }
 
 static void push_ctx(const char *name)
@@ -41,10 +41,10 @@ static void push_ctx(const char *name)
         exit(EXIT_FAILURE);
     }
 
-    new_ctx->data.ectx.parent_ctx = cur_ctx;
-    new_ctx->data.ectx.name = name;
-    new_ctx->data.ectx.id_map = tree_make(CHAIN_HEAD);
-    new_ctx->data.ectx.alloc_chain = tree_make(CHAIN_HEAD);
+    tPARENT_CTX(new_ctx) = cur_ctx;
+    tCTX_NAME(new_ctx) = name;
+    tID_MAP(new_ctx) = tree_make(CHAIN_HEAD);
+    tALLOC_CHAIN(new_ctx) = tree_make(CHAIN_HEAD);
 
     cur_ctx = new_ctx;
 }
@@ -55,7 +55,7 @@ static void track_alloc(void *ptr)
 
     alloc->data.ptr = ptr;
 
-    tree_chain(alloc, cur_ctx->data.ectx.alloc_chain);
+    tree_chain(alloc, tALLOC_CHAIN(cur_ctx));
 }
 
 static void ctx_backtrace(void)
@@ -92,7 +92,7 @@ static tree resolve_id(tree id, tree idmap)
 
 static tree resolve_identifier(tree id, tree ctx)
 {
-    return resolve_id(id, ctx->data.ectx.id_map);
+    return resolve_id(id, tID_MAP(ctx));
 }
 
 static void __map_identifer(tree id, tree t, tree idmap)
@@ -130,7 +130,7 @@ static void map_identifier(tree id, tree t)
         eval_die(id, "Attempted to map already existing identifier %s.\n",
                 id->data.id.name);
 
-    __map_identifer(id, t, cur_ctx->data.ectx.id_map);
+    __map_identifer(id, t, tID_MAP(cur_ctx));
 }
 
 static tree eval_identifier(tree t, int depth)
@@ -145,7 +145,7 @@ static tree eval_identifier(tree t, int depth)
         if (search_result)
             return search_result;
 
-        search_ctx = search_ctx->data.ectx.parent_ctx;
+        search_ctx = tPARENT_CTX(search_ctx);
     }
 
     eval_die(t, "Could not resolve identifier %s.\n",
@@ -754,14 +754,13 @@ static tree handle_static_decl(tree decl, int depth)
     else
         ret = handle_decl(decls, base_type, depth);
 
-    decl->data.ectx.id_map = cur_ctx->data.ectx.id_map;
     decl->type = E_CTX;
 
-    decl->data.ectx.parent_ctx = NULL;
-    decl->data.ectx.alloc_chain = cur_ctx->data.ectx.alloc_chain;
-    decl->data.ectx.name = "Static declaration";
-    decl->data.ectx.is_compound = 0;
-    decl->data.ectx.is_static = 1;
+    tID_MAP(decl) = tID_MAP(cur_ctx);
+    tPARENT_CTX(decl) = NULL;
+    tALLOC_CHAIN(decl) = tALLOC_CHAIN(cur_ctx);
+    tCTX_NAME(decl) = "Static declaration";
+    tIS_STATIC(decl) = 1;
 
     pop_ctx();
 
@@ -1575,10 +1574,10 @@ static tree eval_evaluator_ctx(tree t, int depth)
      * cur_ctx since they are stored within the E_CTX object itself
      * and it's lifetime will outlive that of cur_ctx. */
 
-    if (!t->data.ectx.is_static)
+    if (!tIS_STATIC(t))
         eval_die(t, "Non static E_CTX object evaluated.\n");
 
-    for_each_tree(mapping, t->data.ectx.id_map) {
+    for_each_tree(mapping, tID_MAP(t)) {
         tree id;
 
         if (!is_E_MAP(mapping))
