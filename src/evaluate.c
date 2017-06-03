@@ -83,8 +83,8 @@ static tree resolve_id(tree id, tree idmap)
     tree i;
 
     for_each_tree(i, idmap) {
-        if (strcmp(i->data.bin.left->data.id.name, id->data.id.name) == 0)
-            return i->data.bin.right;
+        if (strcmp(tEMAP_LEFT(i)->data.id.name, id->data.id.name) == 0)
+            return tEMAP_RIGHT(i);
     }
 
     return NULL;
@@ -102,8 +102,8 @@ static void __map_identifer(tree id, tree t, tree idmap)
     if (!is_T_IDENTIFIER(id))
         eval_die(id, "Attempted to map non-identifier\n");
 
-    new_map->data.bin.left = id;
-    new_map->data.bin.right = t;
+    tEMAP_LEFT(new_map) = id;
+    tEMAP_RIGHT(new_map) = t;
 
     tree_chain(new_map, idmap);
 }
@@ -1583,9 +1583,9 @@ static tree eval_evaluator_ctx(tree t, int depth)
         if (!is_E_MAP(mapping))
             eval_die(t, "Unknown type in static mapping\n");
 
-        id = mapping->data.bin.left;
+        id = tEMAP_LEFT(mapping);
 
-        map_identifier(mapping->data.bin.left, mapping->data.bin.right);
+        map_identifier(tEMAP_LEFT(mapping), tEMAP_RIGHT(mapping));
 
         ret = id;
     }

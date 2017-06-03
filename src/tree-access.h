@@ -38,6 +38,11 @@
 #define tADDR_EXP(obj) (_DATA (TREE_CHECK((obj), T_ADDR)).exp)
 #define tPTR_EXP(obj) (_DATA (TREE_CHECK((obj), T_POINTER)).exp)
 
+/* Below are all objects that have data stored in the 'left' and
+ * 'right' members of the tree union. */
+#define tEMAP_LEFT(obj) (_DATA( TREE_CHECK((obj), E_MAP)).bin.left)
+#define tEMAP_RIGHT(obj) (_DATA( TREE_CHECK((obj), E_MAP)).bin.right)
+
 /* Evaluation ctx (E_CTX) accessor macros. */
 #define tID_MAP(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.id_map)
 #define tPARENT_CTX(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.parent_ctx)
