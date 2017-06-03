@@ -104,6 +104,7 @@ typedef struct eval_ctx {
     tree alloc_chain;
     const char *name;
     int is_compound;
+    int is_static;
 } eval_ctx;
 
 union tree_data {

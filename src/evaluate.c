@@ -739,13 +739,13 @@ static tree handle_static_decl(tree decl, int depth)
 
     /* This function will be called the very first time this static
      * decl is encountered.  We will change the type of tree object
-     * here from a T_DECL to an E_STATIC_MAPPING so subsequent
-     * evaluations of this object result in the static objects being
-     * found from the map (see eval_static_mapping).
+     * here from a T_DECL to an E_CTX so subsequent evaluations of
+     * this object result in the static objects being found from the
+     * map (see eval_evaluator_ctx).
      *
      * For this to work, we push a temporary context, evaluate all
      * decls and retain the id_map and alloc chain.  We then use them
-     * to construct the E_STATIC_MAPPING object. */
+     * to construct the E_CTX object. */
 
     push_ctx("Static declaration");
     if (is_CHAIN_HEAD(decls))
@@ -755,14 +755,15 @@ static tree handle_static_decl(tree decl, int depth)
         ret = handle_decl(decls, base_type, depth);
 
     decl->data.ectx.id_map = cur_ctx->data.ectx.id_map;
+    decl->type = E_CTX;
+
     decl->data.ectx.parent_ctx = NULL;
     decl->data.ectx.alloc_chain = cur_ctx->data.ectx.alloc_chain;
     decl->data.ectx.name = "Static declaration";
     decl->data.ectx.is_compound = 0;
+    decl->data.ectx.is_static = 1;
 
     pop_ctx();
-
-    decl->type = E_STATIC_MAPPING;
 
     __evaluate_1(decl, depth + 1);
 
@@ -1561,17 +1562,21 @@ static tree eval_deref(tree t, int depth)
     return ret;
 }
 
-static tree eval_static_mapping(tree t, int depth)
+static tree eval_evaluator_ctx(tree t, int depth)
 {
     tree ret, mapping;
 
-    /* When we encounter an E_STATIC_MAPPING object, we need to merge
-     * it's id_map into the cur_ctx's.  We can easily do this by
-     * iterating through it's map and calling `map_identifier'.  We
-     * don't need to worry about adding the mappings allocations
-     * cur_ctx since they are stored within the E_STATIC_MAPPING
-     * object itself and their lifetime will outlive that of
-     * cur_ctx. */
+    /* We should only encounter an E_CTX object when it has been set
+     * up by handle_static_decl.  Ensure this is the case by checking
+     * the is_static flag.  If this is a static declaration, we need
+     * to merge it's id_map into the cur_ctx's.  We can easily do this
+     * by iterating through it's map and calling `map_identifier'.  We
+     * don't need to worry about adding the mappings allocations to
+     * cur_ctx since they are stored within the E_CTX object itself
+     * and it's lifetime will outlive that of cur_ctx. */
+
+    if (!t->data.ectx.is_static)
+        eval_die(t, "Non static E_CTX object evaluated.\n");
 
     for_each_tree(mapping, t->data.ectx.id_map) {
         tree id;
@@ -1642,7 +1647,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_DEREF:      result = eval_deref(t, depth + 1);      break;
     case T_POINTER:    result = eval_self(t, depth + 1);       break;
     case D_T_VOID:     result = eval_self(t, depth + 1);       break;
-    case E_STATIC_MAPPING: result = eval_static_mapping(t, depth + 1); break;
+    case E_CTX:        result = eval_evaluator_ctx(t, depth + 1); break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
