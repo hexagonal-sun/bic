@@ -994,8 +994,8 @@ static tree eval_dec(tree t, int depth)
 
 static tree eval_add(tree t, int depth)
 {
-    tree left = __evaluate_1(t->data.bin.left, depth + 1);
-    tree right = __evaluate_1(t->data.bin.right, depth + 1);
+    tree left = __evaluate_1(tADD_LHS(t), depth + 1);
+    tree right = __evaluate_1(tADD_RHS(t), depth + 1);
 
     tree ret = tree_make(T_INTEGER);
     mpz_init(tINT(ret));
