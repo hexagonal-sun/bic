@@ -566,7 +566,7 @@ static tree handle_decl(tree decl, tree base_type, int depth)
         return decl;
     case T_ASSIGN:
     {
-        tree ret = handle_decl(decl->data.bin.left, base_type, depth);
+        tree ret = handle_decl(tASSIGN_LHS(decl), base_type, depth);
         __evaluate_1(decl, depth + 1);
         return ret;
     }
@@ -886,8 +886,8 @@ static void assign_ptr(tree var, tree right)
 
 static tree eval_assign(tree t, int depth)
 {
-    tree left = __evaluate_1(t->data.bin.left, depth + 1);
-    tree right = __evaluate_1(t->data.bin.right, depth + 1);
+    tree left = __evaluate_1(tASSIGN_LHS(t), depth + 1);
+    tree right = __evaluate_1(tASSIGN_RHS(t), depth + 1);
 
     /* Ensure we have a valid lvalue. */
     if (!is_T_LIVE_VAR(left))

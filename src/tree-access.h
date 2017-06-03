@@ -46,6 +46,9 @@
 #define tARRAY_ID(obj) (_DATA( TREE_CHECK((obj), T_ARRAY)).bin.left)
 #define tARRAY_SZ(obj) (_DATA( TREE_CHECK((obj), T_ARRAY)).bin.right)
 
+#define tASSIGN_LHS(obj) (_DATA( TREE_CHECK((obj), T_ASSIGN)).bin.left)
+#define tASSIGN_RHS(obj) (_DATA( TREE_CHECK((obj), T_ASSIGN)).bin.right)
+
 /* Evaluation ctx (E_CTX) accessor macros. */
 #define tID_MAP(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.id_map)
 #define tPARENT_CTX(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.parent_ctx)
