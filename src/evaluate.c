@@ -168,7 +168,7 @@ static tree make_int_from_live_var(tree var)
     tree ret = tree_make(T_INTEGER);
     tree type = tLV_TYPE(var);
 
-    switch (type->type) {
+    switch (TYPE(type)) {
 #define SETINT(type)                                                    \
         case type:                                                      \
             mpz_init_set_si(tINT(ret), tLV_VAL(var)->type);             \
@@ -208,7 +208,7 @@ static tree cast_live_var_to_type(tree dest_type, tree live_var)
 {
     tree ret, ival = make_int_from_live_var(live_var);
 
-    switch (dest_type->type) {
+    switch (TYPE(dest_type)) {
 #define DEFCTYPE(tname, desc, ctype, fmt)                       \
         case tname:                                             \
             ret = convert_int_to_##tname(ival);                 \
@@ -234,7 +234,7 @@ static tree make_fncall_result(tree type, ptrdiff_t result)
 
     ret = make_live_var(type);
 
-    switch (type->type)
+    switch (TYPE(type))
     {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)             \
         case TNAME:                                   \
@@ -406,7 +406,7 @@ static tree eval_fn_def(tree t, int depth)
 
 static void make_and_map_live_var(tree id, tree type)
 {
-    assert(id->type == T_IDENTIFIER);
+    assert(TYPE(id) == T_IDENTIFIER);
 
     if (is_E_INCOMP_TYPE(type))
         eval_die(id, "Can not create incomplete type %s\n",
@@ -556,7 +556,7 @@ static tree handle_decl(tree decl, tree base_type, int depth)
         return id;
     }
 
-    switch (decl->type) {
+    switch (TYPE(decl)) {
     case T_IDENTIFIER:
         make_and_map_live_var(decl, decl_type);
         return decl;
@@ -754,7 +754,7 @@ static tree handle_static_decl(tree decl, int depth)
     else
         ret = handle_decl(decls, base_type, depth);
 
-    decl->type = E_CTX;
+    TYPE(decl) = E_CTX;
 
     tID_MAP(decl) = tID_MAP(cur_ctx);
     tPARENT_CTX(decl) = NULL;
@@ -806,7 +806,7 @@ static void assign_integer(tree var, tree right)
     signed long int val;
 
     /* Obtain the value with which to assign. */
-    switch (right->type)
+    switch (TYPE(right))
     {
     case T_INTEGER:
          val = mpz_get_si(tINT(right));
@@ -818,7 +818,7 @@ static void assign_integer(tree var, tree right)
         eval_die(right, "unknown rvalue assignment to integer.\n");
     }
 
-    switch (tLV_TYPE(var)->type) {
+    switch (TYPE(tLV_TYPE(var))) {
         #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)        \
             case TNAME:                                  \
                 tLV_VAL(var)->TNAME = (CTYPE)val; \
@@ -835,7 +835,7 @@ static void assign_float(tree var, tree right)
     double val;
 
     /* Obtain the value with which to assign. */
-    switch (right->type)
+    switch (TYPE(right))
     {
     case T_INTEGER:
         val = (double)mpz_get_si(tINT(right));
@@ -850,7 +850,7 @@ static void assign_float(tree var, tree right)
         eval_die(right, "unknown rvalue assignment to float.\n");
     }
 
-    switch (tLV_TYPE(var)->type) {
+    switch (TYPE(tLV_TYPE(var))) {
     case D_T_FLOAT:
         tLV_VAL(var)->D_T_FLOAT = (float)val;
         break;
@@ -866,7 +866,7 @@ static void assign_ptr(tree var, tree right)
 {
     void *ptr;
 
-    switch (right->type)
+    switch (TYPE(right))
     {
     case T_STRING:
         ptr = tSTRING(right);
@@ -893,7 +893,7 @@ static tree eval_assign(tree t, int depth)
     if (!is_T_LIVE_VAR(left))
         eval_die(t, "Not a valid lvalue.\n");
 
-    switch (tLV_TYPE(left)->type) {
+    switch (TYPE(tLV_TYPE(left))) {
     case D_T_CHAR ... D_T_ULONGLONG:
         assign_integer(left, right);
         break;
@@ -913,7 +913,7 @@ static tree eval_assign(tree t, int depth)
 static void live_var_add(tree var, unsigned long int val)
 {
     tree type = tLV_TYPE(var);
-    switch (type->type) {
+    switch (TYPE(type)) {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
         case TNAME:                                     \
             tLV_VAL(var)->TNAME += val;   \
@@ -928,7 +928,7 @@ static void live_var_add(tree var, unsigned long int val)
 static void live_var_sub(tree var, unsigned long int val)
 {
     tree type = tLV_TYPE(var);
-    switch (type->type) {
+    switch (TYPE(type)) {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
         case TNAME:                                     \
             tLV_VAL(var)->TNAME -= val;   \
@@ -1088,12 +1088,12 @@ static tree convert_to_comparable_type(tree t, int depth)
     tree evaluated = __evaluate_1(t, depth + 1),
         ret;
 
-    switch (evaluated->type) {
+    switch (TYPE(evaluated)) {
     case T_INTEGER:
         ret = evaluated;
         break;
     case T_LIVE_VAR:
-        switch (tLV_TYPE(evaluated)->type) {
+        switch (TYPE(tLV_TYPE(evaluated))) {
         case D_T_CHAR ... D_T_ULONGLONG:
             ret = make_int_from_live_var(evaluated);
             break;
@@ -1114,10 +1114,10 @@ static tree eval_lt(tree t, int depth)
         right = convert_to_comparable_type(tLT_RHS(t), depth),
         ret;
 
-    if (left->type != right->type)
+    if (TYPE(left) != TYPE(right))
         eval_die(t, "Could not compare different types\n");
 
-    switch (left->type) {
+    switch (TYPE(left)) {
     case T_INTEGER:
     {
         int result = mpz_cmp(tINT(left), tINT(right));
@@ -1138,10 +1138,10 @@ static tree eval_gt(tree t, int depth)
         right = convert_to_comparable_type(tGT_RHS(t), depth),
         ret;
 
-    if (left->type != right->type)
+    if (TYPE(left) != TYPE(right))
         eval_die(t, "Could not compare different types\n");
 
-    switch (left->type) {
+    switch (TYPE(left)) {
     case T_INTEGER:
     {
         int result = mpz_cmp(tINT(left), tINT(right));
@@ -1162,10 +1162,10 @@ static tree eval_lteq(tree t, int depth)
         right = convert_to_comparable_type(tLTEQ_RHS(t), depth),
         ret;
 
-    if (left->type != right->type)
+    if (TYPE(left) != TYPE(right))
         eval_die(t, "Could not compare different types\n");
 
-    switch (left->type) {
+    switch (TYPE(left)) {
     case T_INTEGER:
     {
         int result = mpz_cmp(tINT(left), tINT(right));
@@ -1186,10 +1186,10 @@ static tree eval_gteq(tree t, int depth)
         right = convert_to_comparable_type(tGTEQ_RHS(t), depth),
         ret;
 
-    if (left->type != right->type)
+    if (TYPE(left) != TYPE(right))
         eval_die(t, "Could not compare different types\n");
 
-    switch (left->type) {
+    switch (TYPE(left)) {
     case T_INTEGER:
     {
         int result = mpz_cmp(tINT(left), tINT(right));
@@ -1450,7 +1450,7 @@ static tree eval_array_access(tree t, int depth)
 
 static int get_ctype_size(tree t)
 {
-    switch (t->type)
+    switch (TYPE(t))
     {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
         case TNAME:                             \
@@ -1619,7 +1619,7 @@ static tree __evaluate_1(tree t, int depth)
     if (!t)
         return result;
 
-    switch (t->type)
+    switch (TYPE(t))
     {
     case T_IDENTIFIER: result = eval_identifier(t, depth + 1); break;
     case T_FN_CALL:    result = eval_fn_call(t, depth + 1);    break;
