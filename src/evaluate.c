@@ -286,11 +286,11 @@ static tree eval_fn_call(tree t, int depth)
     tree function = __evaluate_1(tFNCALL_ID(t), depth + 1);
 
     if (is_T_FN_DEF(function)) {
-        tree arg_decls = function->data.function.arguments,
+        tree arg_decls = tFNDEF_ARGS(function),
             arg_vals = tFNCALL_ARGS(t),
             arg_decl, arg_val, return_val;
 
-        push_ctx(tID_STR(function->data.function.id));
+        push_ctx(tID_STR(tFNDEF_NAME(function)));
 
         if (arg_decls) {
             size_t no_decls = 0, no_vals = 0;
@@ -345,7 +345,7 @@ static tree eval_fn_call(tree t, int depth)
             }
         }
 
-        return_val = __evaluate(function->data.function.stmts, depth + 1);
+        return_val = __evaluate(tFNDEF_STMTS(function), depth + 1);
 
         pop_ctx();
 
@@ -399,7 +399,7 @@ static tree eval_fn_call(tree t, int depth)
 
 static tree eval_fn_def(tree t, int depth)
 {
-    map_identifier(t->data.function.id, t);
+    map_identifier(tFNDEF_NAME(t), t);
 
     return NULL;
 }
@@ -1503,8 +1503,8 @@ static tree handle_addr_fn_def(tree fndef)
         fun_sig = tree_make(T_DECL_FN),
         live_var;
 
-    fun_sig->data.function.return_type = fndef->data.function.return_type;
-    fun_sig->data.function.arguments = fndef->data.function.arguments;
+    fun_sig->data.function.return_type = tFNDEF_RET_TYPE(fndef);
+    fun_sig->data.function.arguments = tFNDEF_ARGS(fndef);
 
     tDTPTR_EXP(ptr_type) = fun_sig;
 

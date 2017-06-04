@@ -109,4 +109,10 @@
 #define tFNCALL_ID(obj) (_DATA( TREE_CHECK((obj), T_FN_CALL)).fncall.identifier)
 #define tFNCALL_ARGS(obj) (_DATA( TREE_CHECK((obj), T_FN_CALL)).fncall.arguments)
 
+/* T_FN_DEF accessor macros. */
+#define tFNDEF_NAME(obj) (_DATA( TREE_CHECK((obj), T_FN_DEF)).function.id)
+#define tFNDEF_RET_TYPE(obj) (_DATA( TREE_CHECK((obj), T_FN_DEF)).function.return_type)
+#define tFNDEF_ARGS(obj) (_DATA( TREE_CHECK((obj), T_FN_DEF)).function.arguments)
+#define tFNDEF_STMTS(obj) (_DATA( TREE_CHECK((obj), T_FN_DEF)).function.stmts)
+
 #endif
