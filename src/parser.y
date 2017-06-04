@@ -359,7 +359,7 @@ postfix_expression
 }
 | postfix_expression '.' IDENTIFIER
 {
-    tree access = tree_make(T_ACCESS);
+    tree access = tree_make(T_COMP_ACCESS);
     access->data.bin.left = $1;
     access->data.bin.right = get_identifier($3);
     set_locus(access, @2);
@@ -369,7 +369,7 @@ postfix_expression
 | postfix_expression PTR_ACCESS IDENTIFIER
 {
     tree deref = tree_make(T_DEREF);
-    tree access = tree_make(T_ACCESS);
+    tree access = tree_make(T_COMP_ACCESS);
 
     tDEREF_EXP(deref) = $1;
     access->data.bin.left = deref;

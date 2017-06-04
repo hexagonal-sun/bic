@@ -1385,16 +1385,16 @@ static tree eval_enumerator(tree t, int depth)
     return enum_base_type;
 }
 
-static tree eval_access(tree t, int depth)
+static tree eval_comp_access(tree t, int depth)
 {
-    tree left = __evaluate_1(tACCESS_OBJ(t), depth + 1),
-        id = tACCESS_MEMBER(t);
+    tree left = __evaluate_1(tCOMP_ACCESS_OBJ(t), depth + 1),
+        id = tCOMP_ACCESS_MEMBER(t);
 
     if (!is_T_LIVE_COMPOUND(left))
-        eval_die(t, "Unknown compound type in access\n");
+        eval_die(t, "Unknown compound type in compound access\n");
 
     if (!is_T_IDENTIFIER(id))
-        eval_die(t, "Unknown accessor in access\n");
+        eval_die(t, "Unknown accessor in compound access\n");
 
     return resolve_id(id, left->data.comp.members);
 }
@@ -1637,7 +1637,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_DECL_COMPOUND:result = eval_decl_compound(t, depth + 1);break;
     case T_ENUMERATOR: result = eval_enumerator(t, depth + 1); break;
     case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
-    case T_ACCESS:     result = eval_access(t, depth + 1);     break;
+    case T_COMP_ACCESS:result = eval_comp_access(t, depth + 1);break;
     case T_STRUCT:     result = eval_struct(t, depth + 1);     break;
     case T_UNION:      result = eval_union(t, depth + 1);      break;
     case T_ARRAY_ACCESS:result = eval_array_access(t, depth + 1); break;

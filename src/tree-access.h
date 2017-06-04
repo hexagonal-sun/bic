@@ -73,8 +73,8 @@
 #define tGTEQ_LHS(obj) (_DATA( TREE_CHECK((obj), T_GTEQ)).bin.left)
 #define tGTEQ_RHS(obj) (_DATA( TREE_CHECK((obj), T_GTEQ)).bin.right)
 
-#define tACCESS_OBJ(obj) (_DATA( TREE_CHECK((obj), T_ACCESS)).bin.left)
-#define tACCESS_MEMBER(obj) (_DATA( TREE_CHECK((obj), T_ACCESS)).bin.right)
+#define tCOMP_ACCESS_OBJ(obj) (_DATA( TREE_CHECK((obj), T_COMP_ACCESS)).bin.left)
+#define tCOMP_ACCESS_MEMBER(obj) (_DATA( TREE_CHECK((obj), T_COMP_ACCESS)).bin.right)
 
 #define tARR_ACCESS_OBJ(obj) (_DATA( TREE_CHECK((obj), T_ARRAY_ACCESS)).bin.left)
 #define tARR_ACCESS_IDX(obj) (_DATA( TREE_CHECK((obj), T_ARRAY_ACCESS)).bin.right)
