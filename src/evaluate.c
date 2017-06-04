@@ -1062,8 +1062,8 @@ static tree eval_mul(tree t, int depth)
 
 static tree eval_div(tree t, int depth)
 {
-    tree left = __evaluate_1(t->data.bin.left, depth + 1);
-    tree right = __evaluate_1(t->data.bin.right, depth + 1);
+    tree left = __evaluate_1(tDIV_LHS(t), depth + 1);
+    tree right = __evaluate_1(tDIV_RHS(t), depth + 1);
 
 
     tree ret = tree_make(T_INTEGER);
