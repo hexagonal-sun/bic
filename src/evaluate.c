@@ -1387,8 +1387,8 @@ static tree eval_enumerator(tree t, int depth)
 
 static tree eval_access(tree t, int depth)
 {
-    tree left = __evaluate_1(t->data.bin.left, depth + 1),
-           id = t->data.bin.right;
+    tree left = __evaluate_1(tACCESS_OBJ(t), depth + 1),
+        id = tACCESS_MEMBER(t);
 
     if (!is_T_LIVE_COMPOUND(left))
         eval_die(t, "Unknown compound type in access\n");

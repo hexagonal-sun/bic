@@ -73,6 +73,9 @@
 #define tGTEQ_LHS(obj) (_DATA( TREE_CHECK((obj), T_GTEQ)).bin.left)
 #define tGTEQ_RHS(obj) (_DATA( TREE_CHECK((obj), T_GTEQ)).bin.right)
 
+#define tACCESS_OBJ(obj) (_DATA( TREE_CHECK((obj), T_ACCESS)).bin.left)
+#define tACCESS_MEMBER(obj) (_DATA( TREE_CHECK((obj), T_ACCESS)).bin.right)
+
 /* Evaluation ctx (E_CTX) accessor macros. */
 #define tID_MAP(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.id_map)
 #define tPARENT_CTX(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.parent_ctx)
