@@ -126,4 +126,9 @@
 #define tDECL_DECLS(obj) (_DATA( TREE_CHECK((obj), T_DECL)).decl.decls)
 #define tDECL_OFFSET(obj) (_DATA( TREE_CHECK((obj), T_DECL)).decl.offset)
 
+/* T_LIVE_COMPOUND macros. */
+#define tLV_COMP_DECL(obj) (_DATA( TREE_CHECK((obj), T_LIVE_COMPOUND)).comp.decl)
+#define tLV_COMP_BASE(obj) (_DATA( TREE_CHECK((obj), T_LIVE_COMPOUND)).comp.base)
+#define tLV_COMP_MEMBERS(obj) (_DATA( TREE_CHECK((obj), T_LIVE_COMPOUND)).comp.members)
+
 #endif

@@ -463,7 +463,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
         decl_type = __evaluate_1(tDECL_TYPE(decl), depth + 1),
         decl_element = tDECL_DECLS(decl);
 
-    void *base = live_struct->data.comp.base;
+    void *base = tLV_COMP_BASE(live_struct);
 
     resolve_ptr_type(&decl_element, &decl_type);
 
@@ -474,7 +474,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
                                          array_sz);
 
         __map_identifer(tARRAY_ID(decl_element), live_element,
-                        live_struct->data.comp.members);
+                        tLV_COMP_MEMBERS(live_struct));
         return;
     }
 
@@ -483,7 +483,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
         tLV_TYPE(live_element) = decl_type;
         tLV_VAL(live_element) = base + tDECL_OFFSET(decl);
         __map_identifer(decl_element, live_element,
-                        live_struct->data.comp.members);
+                        tLV_COMP_MEMBERS(live_struct));
         return;
     }
 
@@ -492,7 +492,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
                                           base + tDECL_OFFSET(decl));
 
         __map_identifer(decl_element, live_element,
-                        live_struct->data.comp.members);
+                        tLV_COMP_MEMBERS(live_struct));
 
         return;
     }
@@ -504,9 +504,9 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base)
 {
     tree i, live_struct = tree_make(T_LIVE_COMPOUND);
 
-    live_struct->data.comp.decl = struct_decl;
-    live_struct->data.comp.base = base;
-    live_struct->data.comp.members = tree_make(CHAIN_HEAD);
+    tLV_COMP_DECL(live_struct) = struct_decl;
+    tLV_COMP_BASE(live_struct) = base;
+    tLV_COMP_MEMBERS(live_struct) = tree_make(CHAIN_HEAD);
 
     for_each_tree(i, tCOMP_DECL_DECLS(struct_decl))
         handle_struct_decl(i, live_struct, depth);
@@ -1396,7 +1396,7 @@ static tree eval_comp_access(tree t, int depth)
     if (!is_T_IDENTIFIER(id))
         eval_die(t, "Unknown accessor in compound access\n");
 
-    return resolve_id(id, left->data.comp.members);
+    return resolve_id(id, tLV_COMP_MEMBERS(left));
 }
 
 static tree eval_struct(tree t, int depth)
@@ -1479,7 +1479,7 @@ static tree eval_sizeof(tree t, int depth)
     }
 
     if (is_T_LIVE_COMPOUND(exp))
-        type = exp->data.comp.decl;
+        type = tLV_COMP_DECL(exp);
 
     if (is_T_POINTER(exp))
         type = tree_make(D_T_PTR);
@@ -1533,8 +1533,8 @@ static tree eval_addr(tree t, int depth)
         addr = tLV_VAL(exp);
     }
     else if (is_T_LIVE_COMPOUND(exp)) {
-        live_type = exp->data.comp.decl;
-        addr = exp->data.comp.base;
+        live_type = tLV_COMP_DECL(exp);
+        addr = tLV_COMP_BASE(exp);
     }
     else
         eval_die(t, "Can't take address of unknown live type\n");
