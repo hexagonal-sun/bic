@@ -76,6 +76,9 @@
 #define tACCESS_OBJ(obj) (_DATA( TREE_CHECK((obj), T_ACCESS)).bin.left)
 #define tACCESS_MEMBER(obj) (_DATA( TREE_CHECK((obj), T_ACCESS)).bin.right)
 
+#define tARR_ACCESS_OBJ(obj) (_DATA( TREE_CHECK((obj), T_ARRAY_ACCESS)).bin.left)
+#define tARR_ACCESS_IDX(obj) (_DATA( TREE_CHECK((obj), T_ARRAY_ACCESS)).bin.right)
+
 /* Evaluation ctx (E_CTX) accessor macros. */
 #define tID_MAP(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.id_map)
 #define tPARENT_CTX(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.parent_ctx)

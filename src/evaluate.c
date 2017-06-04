@@ -1411,8 +1411,8 @@ static tree eval_union(tree t, int depth)
 
 static tree eval_array_access(tree t, int depth)
 {
-    tree array = __evaluate_1(t->data.bin.left, depth + 1),
-        index = __evaluate_1(t->data.bin.right, depth + 1),
+    tree array = __evaluate_1(tARR_ACCESS_OBJ(t), depth + 1),
+        index = __evaluate_1(tARR_ACCESS_IDX(t), depth + 1),
         new_ptr, deref;
     size_t idx, base_type_length;
     void *base;
