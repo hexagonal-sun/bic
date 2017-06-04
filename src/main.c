@@ -76,8 +76,8 @@ static void add_call_to_main(tree head)
 {
     tree main_fncall = tree_make(T_FN_CALL);
 
-    main_fncall->data.fncall.identifier = get_identifier("main");
-    main_fncall->data.fncall.arguments = NULL;
+    tFNCALL_ID(main_fncall) = get_identifier("main");
+    tFNCALL_ARGS(main_fncall) = NULL;
 
     tree_chain(main_fncall, head);
 }
