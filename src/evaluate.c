@@ -1215,11 +1215,11 @@ static tree eval_gteq(tree t, int depth)
 
 static tree eval_loop_for(tree t, int depth)
 {
-    __evaluate_1(t->data.floop.initialization, depth + 1);
+    __evaluate_1(tFLOOP_INIT(t), depth + 1);
 
     do {
 
-        tree cond_result = __evaluate_1(t->data.floop.condition,
+        tree cond_result = __evaluate_1(tFLOOP_COND(t),
                                         depth + 1);
 
         if (!is_T_INTEGER(cond_result))
@@ -1229,10 +1229,10 @@ static tree eval_loop_for(tree t, int depth)
             break;
 
         push_ctx("For Loop");
-        __evaluate(t->data.floop.stmts, depth + 1);
+        __evaluate(tFLOOP_STMTS(t), depth + 1);
         pop_ctx();
 
-        __evaluate_1(t->data.floop.afterthrought, depth + 1);
+        __evaluate_1(tFLOOP_AFTER(t), depth + 1);
 
     } while (1);
 

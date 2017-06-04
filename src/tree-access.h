@@ -131,4 +131,10 @@
 #define tLV_COMP_BASE(obj) (_DATA( TREE_CHECK((obj), T_LIVE_COMPOUND)).comp.base)
 #define tLV_COMP_MEMBERS(obj) (_DATA( TREE_CHECK((obj), T_LIVE_COMPOUND)).comp.members)
 
+/* T_LOOP_FOR macros. */
+#define tFLOOP_INIT(obj) (_DATA( TREE_CHECK((obj), T_LOOP_FOR)).floop.initialization)
+#define tFLOOP_COND(obj) (_DATA( TREE_CHECK((obj), T_LOOP_FOR)).floop.condition)
+#define tFLOOP_AFTER(obj) (_DATA( TREE_CHECK((obj), T_LOOP_FOR)).floop.afterthrought)
+#define tFLOOP_STMTS(obj) (_DATA( TREE_CHECK((obj), T_LOOP_FOR)).floop.stmts)
+
 #endif
