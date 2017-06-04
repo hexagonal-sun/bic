@@ -156,9 +156,9 @@ static tree make_live_var(tree type)
 {
     tree live_var = tree_make(T_LIVE_VAR);
 
-    live_var->data.var.type = type;
-    live_var->data.var.val = malloc(sizeof(*live_var->data.var.val));
-    track_alloc(live_var->data.var.val);
+    tLV_TYPE(live_var) = type;
+    tLV_VAL(live_var) = malloc(sizeof(*tLV_VAL(live_var)));
+    track_alloc(tLV_VAL(live_var));
 
     return live_var;
 }
@@ -166,12 +166,12 @@ static tree make_live_var(tree type)
 static tree make_int_from_live_var(tree var)
 {
     tree ret = tree_make(T_INTEGER);
-    tree type = var->data.var.type;
+    tree type = tLV_TYPE(var);
 
     switch (type->type) {
 #define SETINT(type)                                                    \
         case type:                                                      \
-            mpz_init_set_si(tINT(ret), var->data.var.val->type);        \
+            mpz_init_set_si(tINT(ret), tLV_VAL(var)->type);             \
             break;
         SETINT(D_T_CHAR);
         SETINT(D_T_SHORT);
@@ -198,7 +198,7 @@ static tree make_int_from_live_var(tree var)
         tree ret = make_live_var(dest_type);                            \
         if (!is_T_INTEGER(intval))                                      \
             eval_die(intval, "attempted to convert from non-integer\n"); \
-        ret->data.var.val->tname = (ctype)mpz_get_si(tINT(intval));     \
+        tLV_VAL(ret)->tname = (ctype)mpz_get_si(tINT(intval));          \
         return ret;                                                     \
     }
 #include "ctypes.def"
@@ -238,7 +238,7 @@ static tree make_fncall_result(tree type, ptrdiff_t result)
     {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)             \
         case TNAME:                                   \
-            ret->data.var.val->TNAME = (CTYPE)result;  \
+            tLV_VAL(ret)->TNAME = (CTYPE)result;      \
             break;
 #include "ctypes.def"
 #undef DEFCTYPE
@@ -372,7 +372,7 @@ static tree eval_fn_call(tree t, int depth)
 
     if (is_T_LIVE_VAR(function)) {
         tree fn_arg_chain, args = t->data.fncall.arguments,
-            live_var_type = function->data.var.type,
+            live_var_type = tLV_TYPE(function),
             function_type;
         ptrdiff_t res;
 
@@ -388,7 +388,7 @@ static tree eval_fn_call(tree t, int depth)
          * function. */
         fn_arg_chain = eval_fn_args(args, depth);
 
-        res = do_call(function->data.var.val->D_T_PTR, fn_arg_chain);
+        res = do_call(tLV_VAL(function)->D_T_PTR, fn_arg_chain);
 
          return make_fncall_result(function_type->data.function.return_type, res);
 
@@ -445,12 +445,12 @@ static tree instantiate_array(tree array_decl, tree base_type, void *base,
      * type. */
     tDTPTR_EXP(ptr) = base_type;
     live_var = make_live_var(ptr);
-    live_var->data.var.val->D_T_PTR = base;
+    tLV_VAL(live_var)->D_T_PTR = base;
 
     /* These are used by the sizeof() expression to return the correct
      * size. */
-    live_var->data.var.is_array = 1;
-    live_var->data.var.array_length = length;
+    tLV_IS_ARRAY(live_var) = 1;
+    tLV_ARRAY_SZ(live_var) = length;
 
     return live_var;
 }
@@ -480,8 +480,8 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
 
     if (is_CTYPE(decl_type)) {
         live_element = tree_make(T_LIVE_VAR);
-        live_element->data.var.type = decl_type;
-        live_element->data.var.val = base + decl->data.decl.offset;
+        tLV_TYPE(live_element) = decl_type;
+        tLV_VAL(live_element) = base + decl->data.decl.offset;
         __map_identifer(decl_element, live_element,
                         live_struct->data.comp.members);
         return;
@@ -612,7 +612,7 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
     previous_decl = resolve_identifier(id, cur_ctx);
 
     if (is_T_LIVE_VAR(previous_decl)) {
-        tree live_var_type = previous_decl->data.var.type;
+        tree live_var_type = tLV_TYPE(previous_decl);
 
         if (!is_D_T_PTR(live_var_type))
             eval_die(fndecl, "attempted to re-declare %s as different type",
@@ -641,7 +641,7 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
                  tID_STR(id));
 
     live_var = make_live_var(func_ptr_type);
-    live_var->data.var.val->D_T_PTR = func_addr;
+    tLV_VAL(live_var)->D_T_PTR = func_addr;
 
     map_identifier(id, live_var);
 
@@ -671,8 +671,8 @@ static tree handle_extern_decl(tree extern_type, tree decl)
                  tID_STR(id));
 
     live_var = tree_make(T_LIVE_VAR);
-    live_var->data.var.type = extern_type;
-    live_var->data.var.val = sym_addr;
+    tLV_TYPE(live_var) = extern_type;
+    tLV_VAL(live_var) = sym_addr;
 
     map_identifier(id, live_var);
 
@@ -812,16 +812,16 @@ static void assign_integer(tree var, tree right)
          val = mpz_get_si(tINT(right));
          break;
     case T_LIVE_VAR:
-        val = right->data.var.val->D_T_LONG;
+        val = tLV_VAL(right)->D_T_LONG;
         break;
     default:
         eval_die(right, "unknown rvalue assignment to integer.\n");
     }
 
-    switch (var->data.var.type->type) {
+    switch (tLV_TYPE(var)->type) {
         #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)        \
             case TNAME:                                  \
-                var->data.var.val->TNAME = (CTYPE)val;    \
+                tLV_VAL(var)->TNAME = (CTYPE)val; \
                 break;
         #include "ctypes.def"
         #undef DEFCTYPE
@@ -844,18 +844,18 @@ static void assign_float(tree var, tree right)
         val = (double)mpf_get_d(tFLOAT(right));
         break;
     case T_LIVE_VAR:
-        val = right->data.var.val->D_T_DOUBLE;
+        val = tLV_VAL(right)->D_T_DOUBLE;
         break;
     default:
         eval_die(right, "unknown rvalue assignment to float.\n");
     }
 
-    switch (var->data.var.type->type) {
+    switch (tLV_TYPE(var)->type) {
     case D_T_FLOAT:
-        var->data.var.val->D_T_FLOAT = (float)val;
+        tLV_VAL(var)->D_T_FLOAT = (float)val;
         break;
     case D_T_DOUBLE:
-        var->data.var.val->D_T_DOUBLE = val;
+        tLV_VAL(var)->D_T_DOUBLE = val;
         break;
     default:
         eval_die(var, "could not assign to non-float type");
@@ -872,7 +872,7 @@ static void assign_ptr(tree var, tree right)
         ptr = tSTRING(right);
         break;
     case T_LIVE_VAR:
-        ptr = (void *)right->data.var.val->D_T_PTR;
+        ptr = (void *)tLV_VAL(right)->D_T_PTR;
         break;
     case T_INTEGER:
         ptr = (void *)mpz_get_ui(tINT(right));
@@ -881,7 +881,7 @@ static void assign_ptr(tree var, tree right)
         eval_die(right, "Could not assign to non-pointer type");
     }
 
-    var->data.var.val->D_T_PTR = ptr;
+    tLV_VAL(var)->D_T_PTR = ptr;
 }
 
 static tree eval_assign(tree t, int depth)
@@ -893,7 +893,7 @@ static tree eval_assign(tree t, int depth)
     if (!is_T_LIVE_VAR(left))
         eval_die(t, "Not a valid lvalue.\n");
 
-    switch (left->data.var.type->type) {
+    switch (tLV_TYPE(left)->type) {
     case D_T_CHAR ... D_T_ULONGLONG:
         assign_integer(left, right);
         break;
@@ -912,11 +912,11 @@ static tree eval_assign(tree t, int depth)
 
 static void live_var_add(tree var, unsigned long int val)
 {
-    tree type = var->data.var.type;
+    tree type = tLV_TYPE(var);
     switch (type->type) {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
         case TNAME:                                     \
-            var->data.var.val->TNAME += val;             \
+            tLV_VAL(var)->TNAME += val;   \
             break;
 #include "ctypes.def"
 #undef DEFCTYPE
@@ -927,11 +927,11 @@ static void live_var_add(tree var, unsigned long int val)
 
 static void live_var_sub(tree var, unsigned long int val)
 {
-    tree type = var->data.var.type;
+    tree type = tLV_TYPE(var);
     switch (type->type) {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
         case TNAME:                                     \
-            var->data.var.val->TNAME -= val;             \
+            tLV_VAL(var)->TNAME -= val;   \
             break;
 #include "ctypes.def"
 #undef DEFCTYPE
@@ -1093,7 +1093,7 @@ static tree convert_to_comparable_type(tree t, int depth)
         ret = evaluated;
         break;
     case T_LIVE_VAR:
-        switch (evaluated->data.var.type->type) {
+        switch (tLV_TYPE(evaluated)->type) {
         case D_T_CHAR ... D_T_ULONGLONG:
             ret = make_int_from_live_var(evaluated);
             break;
@@ -1420,7 +1420,7 @@ static tree eval_array_access(tree t, int depth)
     if (!is_T_LIVE_VAR(array))
         eval_die(t, "Attempted to access non-live variable.\n");
 
-    if (!is_D_T_PTR(array->data.var.type))
+    if (!is_D_T_PTR(tLV_TYPE(array)))
         eval_die(t, "Attempted deference on non pointer variable.\n");
 
     if (is_T_LIVE_VAR(index))
@@ -1431,15 +1431,15 @@ static tree eval_array_access(tree t, int depth)
 
     idx = mpz_get_ui(tINT(index));
 
-    base = array->data.var.val->D_T_PTR;
+    base = tLV_VAL(array)->D_T_PTR;
 
     /* Find the size of the type that the pointer points to. */
-    base_type_length = get_size_of_type(tDTPTR_EXP(array->data.var.type), depth);
+    base_type_length = get_size_of_type(tDTPTR_EXP(tLV_TYPE(array)), depth);
 
     /* Calculate the offset into the array and make a pointer to point
      * to that offset. */
-    new_ptr = make_live_var(array->data.var.type);
-    new_ptr->data.var.val->D_T_PTR = base + (base_type_length * idx);
+    new_ptr = make_live_var(tLV_TYPE(array));
+    tLV_VAL(new_ptr)->D_T_PTR = base + (base_type_length * idx);
 
     /* Dereference the pointer and return the result. */
     deref = tree_make(T_DEREF);
@@ -1468,19 +1468,21 @@ static tree eval_sizeof(tree t, int depth)
         type = exp,
          ret = tree_make(T_INTEGER);
 
-    if (is_T_LIVE_VAR(exp))
-        type = exp->data.var.type;
+    if (is_T_LIVE_VAR(exp)) {
+
+        type = tLV_TYPE(exp);
+
+        if (is_D_T_PTR(type) && tLV_IS_ARRAY(exp)) {
+            mpz_init_set_ui(tINT(ret), tLV_ARRAY_SZ(exp));
+            return ret;
+        }
+    }
 
     if (is_T_LIVE_COMPOUND(exp))
         type = exp->data.comp.decl;
 
     if (is_T_POINTER(exp))
         type = tree_make(D_T_PTR);
-
-    if (is_D_T_PTR(type) && exp->data.var.is_array) {
-        mpz_init_set_ui(tINT(ret), exp->data.var.array_length);
-        return ret;
-    }
 
     if (is_CTYPE(type)) {
         mpz_init_set_ui(tINT(ret), get_ctype_size(type));
@@ -1508,7 +1510,7 @@ static tree handle_addr_fn_def(tree fndef)
 
     live_var = make_live_var(ptr_type);
 
-    live_var->data.var.val->D_T_PTR = get_entry_point_for_fn(fndef);
+    tLV_VAL(live_var)->D_T_PTR = get_entry_point_for_fn(fndef);
 
     return live_var;
 }
@@ -1516,7 +1518,9 @@ static tree handle_addr_fn_def(tree fndef)
 static tree eval_addr(tree t, int depth)
 {
     tree exp = __evaluate_1(tADDR_EXP(t), depth + 1),
-        ptr_type, ret;
+        ptr_type, ret, live_type;
+
+    void *addr;
 
     if (is_T_FN_DEF(exp))
         return handle_addr_fn_def(exp);
@@ -1524,12 +1528,23 @@ static tree eval_addr(tree t, int depth)
     if (!is_LIVE(exp))
         eval_die(t, "attempted to take address of non-live variable.\n");
 
+    if (is_T_LIVE_VAR(exp)) {
+        live_type = tLV_TYPE(exp);
+        addr = tLV_VAL(exp);
+    }
+    else if (is_T_LIVE_COMPOUND(exp)) {
+        live_type = exp->data.comp.decl;
+        addr = exp->data.comp.base;
+    }
+    else
+        eval_die(t, "Can't take address of unknown live type\n");
+
     ptr_type = tree_make(D_T_PTR);
-    tDTPTR_EXP(ptr_type) = exp->data.var.type;
+    tDTPTR_EXP(ptr_type) = live_type;
 
     ret = make_live_var(ptr_type);
 
-    ret->data.var.val->D_T_PTR = exp->data.var.val;
+    tLV_VAL(ret)->D_T_PTR = addr;
 
     return ret;
 }
@@ -1542,20 +1557,20 @@ static tree eval_deref(tree t, int depth)
     if (!is_T_LIVE_VAR(exp))
         eval_die(t, "Derefencing something that isn't live\n");
 
-    if (!is_D_T_PTR(exp->data.var.type))
+    if (!is_D_T_PTR(tLV_TYPE(exp)))
         eval_die(t, "Attempted to dereference a non-pointer\n");
 
-    new_type = tDTPTR_EXP(exp->data.var.type);
+    new_type = tDTPTR_EXP(tLV_TYPE(exp));
 
     if (is_T_DECL_COMPOUND(new_type))
         return instantiate_struct(new_type, depth,
-                                  exp->data.var.val->D_T_PTR);
+                                  tLV_VAL(exp)->D_T_PTR);
 
     /* All live vars that are created by a pointer dereference won't
      * have their values free'd by the GC. */
     ret = tree_make(T_LIVE_VAR);
-    ret->data.var.type = new_type;
-    ret->data.var.val = exp->data.var.val->D_T_PTR;
+    tLV_TYPE(ret) = new_type;
+    tLV_VAL(ret) = tLV_VAL(exp)->D_T_PTR;
 
     return ret;
 }

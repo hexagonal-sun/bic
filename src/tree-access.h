@@ -99,4 +99,10 @@
 #define tCOMP_DECL_EXPANDED(obj) (_DATA( TREE_CHECK((obj), T_DECL_COMPOUND)).comp_decl.expanded)
 #define tCOMP_DECL_TYPE(obj) (_DATA( TREE_CHECK((obj), T_DECL_COMPOUND)).comp_decl.type)
 
+/* T_LIVE_VAR accessor macros. */
+#define tLV_TYPE(obj) (_DATA( TREE_CHECK((obj), T_LIVE_VAR)).var.type)
+#define tLV_VAL(obj) (_DATA( TREE_CHECK((obj), T_LIVE_VAR)).var.val)
+#define tLV_IS_ARRAY(obj) (_DATA( TREE_CHECK((obj), T_LIVE_VAR)).var.is_array)
+#define tLV_ARRAY_SZ(obj) (_DATA( TREE_CHECK((obj), T_LIVE_VAR)).var.array_length)
+
 #endif
