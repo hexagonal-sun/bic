@@ -53,7 +53,7 @@ static void track_alloc(void *ptr)
 {
     tree alloc = tree_make(E_ALLOC);
 
-    alloc->data.ptr = ptr;
+    tALLOC_PTR(alloc) = ptr;
 
     tree_chain(alloc, tALLOC_CHAIN(cur_ctx));
 }

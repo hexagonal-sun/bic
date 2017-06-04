@@ -86,4 +86,7 @@
 #define tCTX_NAME(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.name)
 #define tIS_STATIC(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.is_static)
 
+/* E_ALLOC accessor macros. */
+#define tALLOC_PTR(obj) (_DATA( TREE_CHECK((obj), E_ALLOC)).ptr)
+
 #endif
