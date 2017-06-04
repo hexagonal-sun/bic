@@ -354,7 +354,7 @@ static tree eval_fn_call(tree t, int depth)
 
     if (is_T_DECL_FN(function)) {
         tree fn_arg_chain = NULL, args = tFNCALL_ARGS(t);
-        char *function_name = tID_STR(function->data.function.id);
+        char *function_name = tID_STR(tFNDECL_NAME(function));
         ptrdiff_t res;
         void *function_address = dlsym(RTLD_DEFAULT, function_name);
 
@@ -367,7 +367,7 @@ static tree eval_fn_call(tree t, int depth)
 
          res = do_call(function_address, fn_arg_chain);
 
-         return make_fncall_result(function->data.function.return_type, res);
+         return make_fncall_result(tFNDECL_RET_TYPE(function), res);
     }
 
     if (is_T_LIVE_VAR(function)) {
@@ -390,7 +390,7 @@ static tree eval_fn_call(tree t, int depth)
 
         res = do_call(tLV_VAL(function)->D_T_PTR, fn_arg_chain);
 
-         return make_fncall_result(function_type->data.function.return_type, res);
+        return make_fncall_result(tFNDECL_RET_TYPE(function_type), res);
 
     }
 
@@ -561,8 +561,8 @@ static tree handle_decl(tree decl, tree base_type, int depth)
         make_and_map_live_var(decl, decl_type);
         return decl;
     case T_DECL_FN:
-        decl->data.function.return_type = decl_type;
-        map_identifier(decl->data.function.id, decl);
+        tFNDECL_RET_TYPE(decl) = decl_type;
+        map_identifier(tFNDECL_NAME(decl), decl);
         return decl;
     case T_ASSIGN:
     {
@@ -581,8 +581,8 @@ static tree map_typedef(tree id, tree type)
 
     if (is_T_DECL_FN(id)) {
         tree fndecl = id;
-        id = fndecl->data.function.id;
-        fndecl->data.function.return_type = type;
+        id = tFNDECL_NAME(fndecl);
+        tFNDECL_RET_TYPE(fndecl) = type;
         type = fndecl;
     }
 
@@ -607,7 +607,7 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
      * this has already been declared, if so, just return the
      * identifier. */
 
-    id = fndecl->data.function.id;
+    id = tFNDECL_NAME(fndecl);
 
     previous_decl = resolve_identifier(id, cur_ctx);
 
@@ -625,7 +625,7 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
         return id;
     }
 
-    fndecl->data.function.return_type = return_type;
+    tFNDECL_RET_TYPE(fndecl) = return_type;
 
     func_ptr_type = tree_make(D_T_PTR);
     tDTPTR_EXP(func_ptr_type) = fndecl;
@@ -1503,8 +1503,8 @@ static tree handle_addr_fn_def(tree fndef)
         fun_sig = tree_make(T_DECL_FN),
         live_var;
 
-    fun_sig->data.function.return_type = tFNDEF_RET_TYPE(fndef);
-    fun_sig->data.function.arguments = tFNDEF_ARGS(fndef);
+    tFNDECL_RET_TYPE(fun_sig) = tFNDEF_RET_TYPE(fndef);
+    tFNDECL_ARGS(fun_sig) = tFNDEF_ARGS(fndef);
 
     tDTPTR_EXP(ptr_type) = fun_sig;
 

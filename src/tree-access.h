@@ -115,4 +115,10 @@
 #define tFNDEF_ARGS(obj) (_DATA( TREE_CHECK((obj), T_FN_DEF)).function.arguments)
 #define tFNDEF_STMTS(obj) (_DATA( TREE_CHECK((obj), T_FN_DEF)).function.stmts)
 
+/* T_FN_DECL accessor macros. */
+#define tFNDECL_NAME(obj) (_DATA( TREE_CHECK((obj), T_DECL_FN)).function.id)
+#define tFNDECL_RET_TYPE(obj) (_DATA( TREE_CHECK((obj), T_DECL_FN)).function.return_type)
+#define tFNDECL_ARGS(obj) (_DATA( TREE_CHECK((obj), T_DECL_FN)).function.arguments)
+#define tFNDECL_STMTS(obj) (_DATA( TREE_CHECK((obj), T_DECL_FN)).function.stmts)
+
 #endif
