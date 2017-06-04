@@ -64,6 +64,9 @@
 #define tLT_LHS(obj) (_DATA( TREE_CHECK((obj), T_LT)).bin.left)
 #define tLT_RHS(obj) (_DATA( TREE_CHECK((obj), T_LT)).bin.right)
 
+#define tGT_LHS(obj) (_DATA( TREE_CHECK((obj), T_GT)).bin.left)
+#define tGT_RHS(obj) (_DATA( TREE_CHECK((obj), T_GT)).bin.right)
+
 /* Evaluation ctx (E_CTX) accessor macros. */
 #define tID_MAP(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.id_map)
 #define tPARENT_CTX(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.parent_ctx)
