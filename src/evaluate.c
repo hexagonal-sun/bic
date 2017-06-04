@@ -1368,12 +1368,12 @@ static tree eval_enumerator(tree t, int depth)
 
     /* Whenever we encounter this decl, we wish to treat it as just a
      * normal integer. */
-    if (t->data.enumerator.id)
-        map_identifier(t->data.enumerator.id, enum_base_type);
+    if (tENUM_NAME(t))
+        map_identifier(tENUM_NAME(t), enum_base_type);
 
     /* Allocate a number for each member of the enumerator and map the
      * identifier to the value. */
-    for_each_tree(enum_id, t->data.enumerator.enums) {
+    for_each_tree(enum_id, tENUM_ENUMS(t)) {
         tree integer = tree_make(T_INTEGER);
         mpz_init_set_ui(tINT(integer), enum_val);
 

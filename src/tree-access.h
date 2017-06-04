@@ -137,4 +137,8 @@
 #define tFLOOP_AFTER(obj) (_DATA( TREE_CHECK((obj), T_LOOP_FOR)).floop.afterthrought)
 #define tFLOOP_STMTS(obj) (_DATA( TREE_CHECK((obj), T_LOOP_FOR)).floop.stmts)
 
+/* T_ENUMERATOR macros. */
+#define tENUM_NAME(obj) (_DATA( TREE_CHECK((obj), T_ENUMERATOR)).enumerator.id)
+#define tENUM_ENUMS(obj) (_DATA( TREE_CHECK((obj), T_ENUMERATOR)).enumerator.enums)
+
 #endif
