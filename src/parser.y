@@ -338,8 +338,8 @@ postfix_expression
 | postfix_expression '[' assignment_expression ']'
 {
     tree arr_access = tree_make(T_ARRAY_ACCESS);
-    arr_access->data.bin.left = $1;
-    arr_access->data.bin.right = $3;
+    tARR_ACCESS_OBJ(arr_access) = $1;
+    tARR_ACCESS_IDX(arr_access) = $3;
     set_locus(arr_access, @1);
     $$ = arr_access;
 }
@@ -360,8 +360,8 @@ postfix_expression
 | postfix_expression '.' IDENTIFIER
 {
     tree access = tree_make(T_COMP_ACCESS);
-    access->data.bin.left = $1;
-    access->data.bin.right = get_identifier($3);
+    tCOMP_ACCESS_OBJ(access) = $1;
+    tCOMP_ACCESS_MEMBER(access) = get_identifier($3);
     set_locus(access, @2);
     set_locus(access->data.bin.right, @3);
     $$ = access;
@@ -372,8 +372,8 @@ postfix_expression
     tree access = tree_make(T_COMP_ACCESS);
 
     tDEREF_EXP(deref) = $1;
-    access->data.bin.left = deref;
-    access->data.bin.right = get_identifier($3);
+    tCOMP_ACCESS_OBJ(access) = deref;
+    tCOMP_ACCESS_MEMBER(access) = get_identifier($3);
 
     set_locus(deref, @2);
     set_locus(access, @2);
@@ -527,8 +527,8 @@ decl
 | decl '[' additive_expression ']'
 {
     tree array = tree_make(T_ARRAY);
-    array->data.bin.left = $1;
-    array->data.bin.right = $3;
+    tARRAY_ID(array) = $1;
+    tARRAY_SZ(array) = $3;
     set_locus(array, @2);
     $$ = array;
 }
