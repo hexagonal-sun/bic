@@ -89,4 +89,7 @@
 /* E_ALLOC accessor macros. */
 #define tALLOC_PTR(obj) (_DATA( TREE_CHECK((obj), E_ALLOC)).ptr)
 
+/* T_IDENTIFIER accessor macros. */
+#define tID_STR(obj) (_DATA( TREE_CHECK((obj), T_IDENTIFIER)).id.name)
+
 #endif

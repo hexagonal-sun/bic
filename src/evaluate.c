@@ -83,7 +83,7 @@ static tree resolve_id(tree id, tree idmap)
     tree i;
 
     for_each_tree(i, idmap) {
-        if (strcmp(tEMAP_LEFT(i)->data.id.name, id->data.id.name) == 0)
+        if (strcmp(tID_STR(tEMAP_LEFT(i)), tID_STR(id)) == 0)
             return tEMAP_RIGHT(i);
     }
 
@@ -128,7 +128,7 @@ static void map_identifier(tree id, tree t)
 {
     if (resolve_identifier(id, cur_ctx))
         eval_die(id, "Attempted to map already existing identifier %s.\n",
-                id->data.id.name);
+                 tID_STR(id));
 
     __map_identifer(id, t, tID_MAP(cur_ctx));
 }
@@ -149,7 +149,7 @@ static tree eval_identifier(tree t, int depth)
     }
 
     eval_die(t, "Could not resolve identifier %s.\n",
-            t->data.id.name);
+             tID_STR(t));
 }
 
 static tree make_live_var(tree type)
@@ -290,7 +290,7 @@ static tree eval_fn_call(tree t, int depth)
             arg_vals = t->data.fncall.arguments,
             arg_decl, arg_val, return_val;
 
-        push_ctx(function->data.function.id->data.id.name);
+        push_ctx(tID_STR(function->data.function.id));
 
         if (arg_decls) {
             size_t no_decls = 0, no_vals = 0;
@@ -354,7 +354,7 @@ static tree eval_fn_call(tree t, int depth)
 
     if (is_T_DECL_FN(function)) {
         tree fn_arg_chain = NULL, args = t->data.fncall.arguments;
-        char *function_name = function->data.function.id->data.id.name;
+        char *function_name = tID_STR(function->data.function.id);
         ptrdiff_t res;
         void *function_address = dlsym(RTLD_DEFAULT, function_name);
 
@@ -410,7 +410,7 @@ static void make_and_map_live_var(tree id, tree type)
 
     if (is_E_INCOMP_TYPE(type))
         eval_die(id, "Can not create incomplete type %s\n",
-                 id->data.id.name);
+                 tID_STR(id));
 
     map_identifier(id, make_live_var(type));
 }
@@ -616,11 +616,11 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
 
         if (!is_D_T_PTR(live_var_type))
             eval_die(fndecl, "attempted to re-declare %s as different type",
-                     id->data.id.name);
+                     tID_STR(id));
 
         if (!is_T_DECL_FN(tDTPTR_EXP(live_var_type)))
             eval_die(fndecl, "attempted to re-declare %s as different type",
-                     id->data.id.name);
+                     tID_STR(id));
 
         return id;
     }
@@ -634,11 +634,11 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
         eval_die(fndecl, "attempted to extern function that isn't an "
                  "identifier\n");
 
-    func_addr = dlsym(RTLD_DEFAULT, id->data.id.name);
+    func_addr = dlsym(RTLD_DEFAULT, tID_STR(id));
 
     if (!func_addr)
         eval_die(fndecl, "Could not resolve external function %s\n",
-                 id->data.id.name);
+                 tID_STR(id));
 
     live_var = make_live_var(func_ptr_type);
     live_var->data.var.val->D_T_PTR = func_addr;
@@ -664,11 +664,11 @@ static tree handle_extern_decl(tree extern_type, tree decl)
         eval_die(decl, "attempted to extern something that isn't an "
                  "identifier\n");
 
-    sym_addr = dlsym(RTLD_DEFAULT, id->data.id.name);
+    sym_addr = dlsym(RTLD_DEFAULT, tID_STR(id));
 
     if (!sym_addr)
         eval_die(decl, "Could not resolve extern symbol %s\n",
-                 id->data.id.name);
+                 tID_STR(id));
 
     live_var = tree_make(T_LIVE_VAR);
     live_var->data.var.type = extern_type;
