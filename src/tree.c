@@ -28,33 +28,6 @@ tree tree_build_bin(enum tree_type type, tree left, tree right)
     return ret;
 }
 
-static const char *tree_desc_string[] = {
-    #define DEFTYPE(ETYPE, DESC) [ETYPE] = DESC ,
-    #include "tree.def"
-    #undef DEFTYPE
-    #define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT) [ETYPE] = DESC ,
-    #include "ctypes.def"
-    #undef DEFCTYPE
-};
-
-static const char *tree_type_string(enum tree_type t)
- {
-    switch (t) {
-        #define DEFTYPE(ETYPE, DESC)    \
-            case ETYPE:                 \
-                return #ETYPE;
-        #include "tree.def"
-        #undef DEFTYPE
-        #define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
-            case ETYPE:                                 \
-                return #ETYPE;
-        #include "ctypes.def"
-        #undef DEFCTYPE
-        default:
-            return "unknown";
-    }
-}
-
 static void __tree_dump(tree head, int depth);
 
 static void tree_print_indent(int depth)

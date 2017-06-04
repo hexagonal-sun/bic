@@ -20,6 +20,33 @@ enum tree_type {
     #undef DEFCTYPE
 };
 
+static const char *tree_desc_string[] = {
+    #define DEFTYPE(ETYPE, DESC) [ETYPE] = DESC ,
+    #include "tree.def"
+    #undef DEFTYPE
+    #define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT) [ETYPE] = DESC ,
+    #include "ctypes.def"
+    #undef DEFCTYPE
+};
+
+static const inline char *tree_type_string(enum tree_type t)
+ {
+    switch (t) {
+        #define DEFTYPE(ETYPE, DESC)    \
+            case ETYPE:                 \
+                return #ETYPE;
+        #include "tree.def"
+        #undef DEFTYPE
+        #define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+            case ETYPE:                                 \
+                return #ETYPE;
+        #include "ctypes.def"
+        #undef DEFCTYPE
+        default:
+            return "unknown";
+    }
+}
+
 struct binary_exp {
     tree left;
     tree right;
@@ -181,8 +208,9 @@ static inline tree tree_check(tree obj, enum tree_type type,
                               const char *function)
 {
     if (TYPE (obj) != type) {
-        fprintf(stderr, "Fatal error: %s:%d %s: Tree type miss-match",
-                file, line, function);
+        fprintf(stderr, "Fatal error: %s:%d %s: Tree type miss-match; have %s, should be %s\n",
+                file, line, function, tree_type_string(TYPE(obj)),
+                tree_type_string(type));
         exit(1);
     }
 
