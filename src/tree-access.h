@@ -105,4 +105,8 @@
 #define tLV_IS_ARRAY(obj) (_DATA( TREE_CHECK((obj), T_LIVE_VAR)).var.is_array)
 #define tLV_ARRAY_SZ(obj) (_DATA( TREE_CHECK((obj), T_LIVE_VAR)).var.array_length)
 
+/* T_FN_CALL accessor macros. */
+#define tFNCALL_ID(obj) (_DATA( TREE_CHECK((obj), T_FN_CALL)).fncall.identifier)
+#define tFNCALL_ARGS(obj) (_DATA( TREE_CHECK((obj), T_FN_CALL)).fncall.arguments)
+
 #endif

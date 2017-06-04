@@ -283,11 +283,11 @@ static tree eval_fn_call(tree t, int depth)
      *
      * 4: The function couldn't be found.  In that case, error.
      */
-    tree function = __evaluate_1(t->data.fncall.identifier, depth + 1);
+    tree function = __evaluate_1(tFNCALL_ID(t), depth + 1);
 
     if (is_T_FN_DEF(function)) {
         tree arg_decls = function->data.function.arguments,
-            arg_vals = t->data.fncall.arguments,
+            arg_vals = tFNCALL_ARGS(t),
             arg_decl, arg_val, return_val;
 
         push_ctx(tID_STR(function->data.function.id));
@@ -353,7 +353,7 @@ static tree eval_fn_call(tree t, int depth)
     }
 
     if (is_T_DECL_FN(function)) {
-        tree fn_arg_chain = NULL, args = t->data.fncall.arguments;
+        tree fn_arg_chain = NULL, args = tFNCALL_ARGS(t);
         char *function_name = tID_STR(function->data.function.id);
         ptrdiff_t res;
         void *function_address = dlsym(RTLD_DEFAULT, function_name);
@@ -371,7 +371,7 @@ static tree eval_fn_call(tree t, int depth)
     }
 
     if (is_T_LIVE_VAR(function)) {
-        tree fn_arg_chain, args = t->data.fncall.arguments,
+        tree fn_arg_chain, args = tFNCALL_ARGS(t),
             live_var_type = tLV_TYPE(function),
             function_type;
         ptrdiff_t res;
