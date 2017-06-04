@@ -59,7 +59,7 @@ tree resolve_fn_call(void *entry_addr)
 static tree get_argument_chain(tree fndef, struct argregs *regs)
 {
     int integer_idx = 0;
-    tree ret, arg, args = fndef->data.function.arguments;
+    tree ret, arg, args = tFNDEF_ARGS(fndef);
 
     if (!args)
         return NULL;
@@ -68,13 +68,13 @@ static tree get_argument_chain(tree fndef, struct argregs *regs)
 
     for_each_tree(arg, args) {
         tree new_arg;
-        resolve_ptr_type(&arg->data.decl.decls, &arg->data.decl.type);
+        resolve_ptr_type(&tDECL_DECLS(arg), &tDECL_TYPE(arg));
 
-        switch (arg->data.decl.type->type) {
+        switch (TYPE(tDECL_TYPE(arg))) {
 #define CREATE_INT_ARG(type, mpz_func, ctype)                           \
             case type:                                                  \
                 new_arg = tree_make(T_INTEGER);                         \
-                mpz_func (new_arg->data.integer,                        \
+                mpz_func (tINT(new_arg),                                \
                           (ctype) regs->iarg[integer_idx]);             \
                 integer_idx++;                                          \
                 break;
@@ -104,8 +104,8 @@ ptrdiff_t handle_ptr_call(struct argregs *regs)
     tree fndef = resolve_fn_call((void *)regs->pc),
         fncall = tree_make(T_FN_CALL);
 
-    fncall->data.fncall.identifier = fndef->data.function.id;
-    fncall->data.fncall.arguments = get_argument_chain(fndef, regs);
+    tFNCALL_ID(fncall) = tFNDEF_NAME(fndef);
+    tFNCALL_ARGS(fncall) = get_argument_chain(fndef, regs);
 
     evaluate(fncall, "<PTR>");
 

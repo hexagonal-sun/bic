@@ -49,15 +49,15 @@ ptrdiff_t do_call(void *function_address, tree args)
 
             switch(arg->type) {
             case T_STRING:
-                new_arg->val.i = (ptrdiff_t)arg->data.string;
+                new_arg->val.i = (ptrdiff_t)tSTRING(arg);
                 new_arg->dest = INTEGER;
                 push_arg(&int_args, new_arg);
                 break;
             case T_LIVE_VAR:
-                switch(arg->data.var.type->type) {
+                switch(TYPE(tLV_TYPE(arg))) {
 #define SETINT(type)                                                    \
                     case type:                                          \
-                        new_arg->val.i = (ptrdiff_t)arg->data.var.val->type; \
+                        new_arg->val.i = (ptrdiff_t)tLV_VAL(arg)->type; \
                         new_arg->dest = INTEGER;                        \
                         push_arg(&int_args, new_arg);                   \
                         break;
@@ -73,17 +73,17 @@ ptrdiff_t do_call(void *function_address, tree args)
                     SETINT(D_T_ULONGLONG);
 #undef SETINT
                 case D_T_FLOAT:
-                    new_arg->val.d = (double)arg->data.var.val->D_T_FLOAT;
+                    new_arg->val.d = (double)tLV_VAL(arg)->D_T_FLOAT;
                     new_arg->dest = SSE;
                     push_arg(&vec_args, new_arg);
                     break;
                 case D_T_DOUBLE:
-                    new_arg->val.d = arg->data.var.val->D_T_DOUBLE;
+                    new_arg->val.d = tLV_VAL(arg)->D_T_DOUBLE;
                     new_arg->dest = SSE;
                     push_arg(&vec_args, new_arg);
                     break;
                 case D_T_PTR:
-                    new_arg->val.i = (ptrdiff_t)arg->data.var.val->D_T_PTR;
+                    new_arg->val.i = (ptrdiff_t)tLV_VAL(arg)->D_T_PTR;
                     new_arg->dest = INTEGER;
                     push_arg(&int_args, new_arg);
                     break;
@@ -92,12 +92,12 @@ ptrdiff_t do_call(void *function_address, tree args)
                 }
                 break;
             case T_INTEGER:
-                new_arg->val.i = (ptrdiff_t)mpz_get_si(arg->data.integer);
+                new_arg->val.i = (ptrdiff_t)mpz_get_si(tINT(arg));
                 new_arg->dest = INTEGER;
                 push_arg(&int_args, new_arg);
                 break;
             case T_FLOAT:
-                new_arg->val.d = mpf_get_d(arg->data.ffloat);
+                new_arg->val.d = mpf_get_d(tFLOAT(arg));
                 new_arg->dest = SSE;
                 push_arg(&vec_args, new_arg);
                 break;
