@@ -48,7 +48,7 @@ int is_typename(char *identifier)
     tree i;
 
     for_each_tree(i, type_names) {
-        if (strcmp(identifier, i->data.id.name) == 0)
+        if (strcmp(identifier, tID_STR(i)) == 0)
             return 1;
     }
 
@@ -153,12 +153,12 @@ function_definition
 : type_specifier IDENTIFIER argument_specifier compound_statement
 {
     tree function_def = tree_make(T_FN_DEF);
-    function_def->data.function.id = get_identifier($2);
-    function_def->data.function.return_type = $1;
-    function_def->data.function.arguments = $3;
-    function_def->data.function.stmts = $4;
+    tFNDEF_NAME(function_def) = get_identifier($2);
+    tFNDEF_RET_TYPE(function_def) = $1;
+    tFNDEF_ARGS(function_def) = $3;
+    tFNDEF_STMTS(function_def) = $4;
     set_locus(function_def, @1);
-    set_locus(function_def->data.function.id, @2);
+    set_locus(tFNDEF_NAME(function_def), @2);
     $$ = function_def;
 }
 ;
@@ -201,22 +201,22 @@ argument_decl
 : type_specifier decl_possible_pointer
 {
     tree decl = tree_make(T_DECL);
-    decl->data.decl.type = $1;
-    decl->data.decl.decls = $2;
+    tDECL_TYPE(decl) = $1;
+    tDECL_DECLS(decl) = $2;
     set_locus(decl, @1);
     $$ = decl;
 }
 | type_specifier pointer
 {
     tree decl = tree_make(T_DECL);
-    decl->data.decl.type = make_pointer_type($2, $1);
+    tDECL_TYPE(decl) = make_pointer_type($2, $1);
     set_locus(decl, @1);
     $$ = decl;
 }
 | type_specifier
 {
     tree decl = tree_make(T_DECL);
-    decl->data.decl.type = $1;
+    tDECL_TYPE(decl) = $1;
     set_locus(decl, @1);
     $$ = decl;
 }
@@ -259,10 +259,10 @@ iteration_statement
 : FOR '(' expression_statement expression_statement assignment_expression ')' statement
 {
     tree for_loop = tree_make(T_LOOP_FOR);
-    for_loop->data.floop.initialization = $3;
-    for_loop->data.floop.condition = $4;
-    for_loop->data.floop.afterthrought = $5;
-    for_loop->data.floop.stmts = $7;
+    tFLOOP_INIT(for_loop) = $3;
+    tFLOOP_COND(for_loop) = $4;
+    tFLOOP_AFTER(for_loop) = $5;
+    tFLOOP_STMTS(for_loop) = $7;
     set_locus(for_loop, @1);
     $$ = for_loop;
 }
@@ -285,7 +285,7 @@ primary_expression
 : INTEGER
 {
     tree number = tree_make(T_INTEGER);
-    mpz_init_set(number->data.integer, $1);
+    mpz_init_set(tINT(number), $1);
     mpz_clear($1);
     set_locus(number, @1);
     $$ = number;
@@ -293,7 +293,7 @@ primary_expression
 | FLOAT_CST
 {
     tree ffloat = tree_make(T_FLOAT);
-    mpf_init_set(ffloat->data.ffloat, $1);
+    mpf_init_set(tFLOAT(ffloat), $1);
     mpf_clear($1);
     set_locus(ffloat, @1);
     $$ = ffloat;
@@ -307,7 +307,7 @@ primary_expression
 | CONST_STRING
 {
     tree str = tree_make(T_STRING);
-    str->data.string = $1;
+    tSTRING(str) = $1;
     set_locus(str, @1);
     $$ = str;
 }
@@ -322,16 +322,16 @@ postfix_expression
 | postfix_expression '(' ')'
 {
     tree fncall = tree_make(T_FN_CALL);
-    fncall->data.fncall.identifier = $1;
-    fncall->data.fncall.arguments = NULL;
+    tFNCALL_ID(fncall) = $1;
+    tFNCALL_ARGS(fncall) = NULL;
     set_locus(fncall, @1);
     $$ = fncall;
 }
 | postfix_expression '(' argument_expression_list ')'
 {
     tree fncall = tree_make(T_FN_CALL);
-    fncall->data.fncall.identifier = $1;
-    fncall->data.fncall.arguments = $3;
+    tFNCALL_ID(fncall) = $1;
+    tFNCALL_ARGS(fncall) = $3;
     set_locus(fncall, @1);
     $$ = fncall;
 }
@@ -363,7 +363,7 @@ postfix_expression
     tCOMP_ACCESS_OBJ(access) = $1;
     tCOMP_ACCESS_MEMBER(access) = get_identifier($3);
     set_locus(access, @2);
-    set_locus(access->data.bin.right, @3);
+    set_locus(tCOMP_ACCESS_MEMBER(access), @3);
     $$ = access;
 }
 | postfix_expression PTR_ACCESS IDENTIFIER
@@ -518,10 +518,10 @@ decl
 | IDENTIFIER argument_specifier
 {
     tree fn_decl = tree_make(T_DECL_FN);
-    fn_decl->data.function.id = get_identifier($1);
-    fn_decl->data.function.arguments = $2;
+    tFNDECL_NAME(fn_decl) = get_identifier($1);
+    tFNDECL_ARGS(fn_decl) = $2;
     set_locus(fn_decl, @1);
-    set_locus(fn_decl->data.function.id, @1);
+    set_locus(tFNDECL_NAME(fn_decl), @1);
     $$ = fn_decl;
 }
 | decl '[' additive_expression ']'
@@ -846,20 +846,20 @@ struct_specifier
 {
     char *struct_name = concat_string("struct ", $2);
     tree decl = tree_make(T_DECL_COMPOUND);
-    decl->data.comp_decl.id = get_identifier(struct_name);
-    decl->data.comp_decl.decls = $4;
-    decl->data.comp_decl.type = sstruct;
+    tCOMP_DECL_ID(decl) = get_identifier(struct_name);
+    tCOMP_DECL_DECLS(decl) = $4;
+    tCOMP_DECL_TYPE(decl) = sstruct;
     set_locus(decl, @1);
-    set_locus(decl->data.comp_decl.id, @2);
+    set_locus(tCOMP_DECL_ID(decl), @2);
     free($2);
     $$ = decl;
 }
 | STRUCT '{' compound_decl_list '}'
 {
     tree decl = tree_make(T_DECL_COMPOUND);
-    decl->data.comp_decl.id = NULL;
-    decl->data.comp_decl.decls = $3;
-    decl->data.comp_decl.type = sstruct;
+    tCOMP_DECL_ID(decl) = NULL;
+    tCOMP_DECL_DECLS(decl) = $3;
+    tCOMP_DECL_TYPE(decl) = sstruct;
     set_locus(decl, @1);
     $$ = decl;
 }
@@ -890,20 +890,20 @@ union_specifier
 {
     char *union_name = concat_string("union ", $2);
     tree decl = tree_make(T_DECL_COMPOUND);
-    decl->data.comp_decl.id = get_identifier(union_name);
-    decl->data.comp_decl.decls = $4;
-    decl->data.comp_decl.type = uunion;
+    tCOMP_DECL_ID(decl) = get_identifier(union_name);
+    tCOMP_DECL_DECLS(decl) = $4;
+    tCOMP_DECL_TYPE(decl) = uunion;
     set_locus(decl, @1);
-    set_locus(decl->data.comp_decl.id, @2);
+    set_locus(tCOMP_DECL_ID(decl), @2);
     free($2);
     $$ = decl;
 }
 | UNION '{' compound_decl_list '}'
 {
     tree decl = tree_make(T_DECL_COMPOUND);
-    decl->data.comp_decl.id = NULL;
-    decl->data.comp_decl.decls = $3;
-    decl->data.comp_decl.type = uunion;
+    tCOMP_DECL_ID(decl) = NULL;
+    tCOMP_DECL_DECLS(decl) = $3;
+    tCOMP_DECL_TYPE(decl) = uunion;
     set_locus(decl, @1);
     $$ = decl;
 }
@@ -935,8 +935,8 @@ enum_specifier
 : ENUM '{' enumerator_list '}'
 {
     tree enumerator = tree_make(T_ENUMERATOR);
-    enumerator->data.enumerator.id = NULL;
-    enumerator->data.enumerator.enums = $3;
+    tENUM_NAME(enumerator) = NULL;
+    tENUM_ENUMS(enumerator) = $3;
     set_locus(enumerator, @1);
     $$ = enumerator;
 }
@@ -944,10 +944,10 @@ enum_specifier
 {
     char *enum_name = concat_string("enum ", $2);
     tree enumerator = tree_make(T_ENUMERATOR);
-    enumerator->data.enumerator.id = get_identifier(enum_name);
-    enumerator->data.enumerator.enums = $4;
+    tENUM_NAME(enumerator) = get_identifier(enum_name);
+    tENUM_ENUMS(enumerator) = $4;
     set_locus(enumerator, @1);
-    set_locus(enumerator->data.enumerator.id, @2);
+    set_locus(tENUM_NAME(enumerator), @2);
     free($2);
     $$ = enumerator;
 }
@@ -1003,8 +1003,8 @@ compound_decl
 : type_specifier direct_declarator_list ';'
 {
     tree decl = tree_make(T_DECL);
-    decl->data.decl.type = $1;
-    decl->data.decl.decls = $2;
+    tDECL_TYPE(decl) = $1;
+    tDECL_DECLS(decl) = $2;
     set_locus(decl, @1);
     $$ = decl;
 }
@@ -1013,8 +1013,8 @@ declaration
 : type_specifier declarator_list
 {
     tree decl = tree_make(T_DECL);
-    decl->data.decl.type = $1;
-    decl->data.decl.decls = $2;
+    tDECL_TYPE(decl) = $1;
+    tDECL_DECLS(decl) = $2;
     set_locus(decl, @1);
     $$ = decl;
 
@@ -1031,14 +1031,14 @@ declaration
                 oldid = tPTR_EXP(oldid);
 
             if (is_T_DECL_FN(oldid))
-                oldid = oldid->data.function.id;
+                oldid = tFNDECL_NAME(oldid);
 
             if (!is_T_IDENTIFIER(oldid)) {
                 YYERROR;
             }
 
             newid = tree_make(T_IDENTIFIER);
-            newid->data.id.name = strdup(oldid->data.id.name);
+            tID_STR(newid) = strdup(tID_STR(oldid));
             tree_chain(newid, type_names);
         }
     }
@@ -1047,14 +1047,14 @@ declaration
 {
     tree function, decl;
     function = tree_make(T_DECL_FN);
-    function->data.function.id = NULL;
-    function->data.function.return_type = $1;
-    function->data.function.arguments = $6;
-    function->data.function.stmts = NULL;
+    tFNDECL_NAME(function) = NULL;
+    tFNDECL_RET_TYPE(function) = $1;
+    tFNDECL_ARGS(function) = $6;
+    tFNDECL_STMTS(function) = NULL;
 
     decl = tree_make(T_DECL);
-    decl->data.decl.type = function;
-    decl->data.decl.decls = make_pointer_type($3, get_identifier($4));
+    tDECL_TYPE(decl) = function;
+    tDECL_DECLS(decl) = make_pointer_type($3, get_identifier($4));
 
     set_locus(function, @1);
     set_locus(decl, @4);
@@ -1064,8 +1064,8 @@ declaration
 | type_specifier
 {
     tree decl = tree_make(T_DECL);
-    decl->data.decl.type = $1;
-    decl->data.decl.decls = NULL;
+    tDECL_TYPE(decl) = $1;
+    tDECL_DECLS(decl) = NULL;
     set_locus(decl, @1);
     $$ = decl;
 }
