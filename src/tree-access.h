@@ -121,4 +121,9 @@
 #define tFNDECL_ARGS(obj) (_DATA( TREE_CHECK((obj), T_DECL_FN)).function.arguments)
 #define tFNDECL_STMTS(obj) (_DATA( TREE_CHECK((obj), T_DECL_FN)).function.stmts)
 
+/* T_DECL accessor macros.  */
+#define tDECL_TYPE(obj) (_DATA( TREE_CHECK((obj), T_DECL)).decl.type)
+#define tDECL_DECLS(obj) (_DATA( TREE_CHECK((obj), T_DECL)).decl.decls)
+#define tDECL_OFFSET(obj) (_DATA( TREE_CHECK((obj), T_DECL)).decl.offset)
+
 #endif

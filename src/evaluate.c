@@ -460,8 +460,8 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base);
 static void handle_struct_decl(tree decl, tree live_struct, int depth)
 {
     tree live_element,
-        decl_type = __evaluate_1(decl->data.decl.type, depth + 1),
-        decl_element = decl->data.decl.decls;
+        decl_type = __evaluate_1(tDECL_TYPE(decl), depth + 1),
+        decl_element = tDECL_DECLS(decl);
 
     void *base = live_struct->data.comp.base;
 
@@ -470,7 +470,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
     if (is_T_ARRAY(decl_element)) {
         size_t array_sz = get_array_size(decl_element, decl_type, depth);
         live_element = instantiate_array(decl_element, decl_type,
-                                         base + decl->data.decl.offset,
+                                         base + tDECL_OFFSET(decl),
                                          array_sz);
 
         __map_identifer(tARRAY_ID(decl_element), live_element,
@@ -481,7 +481,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
     if (is_CTYPE(decl_type)) {
         live_element = tree_make(T_LIVE_VAR);
         tLV_TYPE(live_element) = decl_type;
-        tLV_VAL(live_element) = base + decl->data.decl.offset;
+        tLV_VAL(live_element) = base + tDECL_OFFSET(decl);
         __map_identifer(decl_element, live_element,
                         live_struct->data.comp.members);
         return;
@@ -489,7 +489,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
 
     if (is_T_DECL_COMPOUND(decl_type)) {
         live_element = instantiate_struct(decl_type, depth,
-                                          base + decl->data.decl.offset);
+                                          base + tDECL_OFFSET(decl));
 
         __map_identifer(decl_element, live_element,
                         live_struct->data.comp.members);
@@ -732,8 +732,8 @@ static tree handle_forward_decl(tree type)
 
 static tree handle_static_decl(tree decl, int depth)
 {
-    tree base_type = tSTATIC_EXP(decl->data.decl.type),
-        decls = decl->data.decl.decls,
+    tree base_type = tSTATIC_EXP(tDECL_TYPE(decl)),
+        decls = tDECL_DECLS(decl),
         i,
         ret;
 
@@ -771,14 +771,14 @@ static tree handle_static_decl(tree decl, int depth)
 
 static tree eval_decl(tree t, int depth)
 {
-    tree base_type = t->data.decl.type,
-        decls = t->data.decl.decls,
+    tree base_type = tDECL_TYPE(t),
+        decls = tDECL_DECLS(t),
         i, ret;
 
     if (!decls && (is_T_STRUCT(base_type) || is_T_UNION(base_type)))
         return handle_forward_decl(base_type);
 
-    base_type = __evaluate_1(t->data.decl.type, depth + 1);
+    base_type = __evaluate_1(tDECL_TYPE(t), depth + 1);
 
     if (is_T_TYPEDEF(base_type))
         return handle_typedef(base_type, decls, depth + 1);
@@ -1273,11 +1273,11 @@ static tree expand_decl_chain(tree decl_chain)
     tree decl, decl_element, new_chain = tree_make(CHAIN_HEAD);
 
     for_each_tree(decl, decl_chain) {
-        for_each_tree(decl_element, decl->data.decl.decls) {
+        for_each_tree(decl_element, tDECL_DECLS(decl)) {
             tree new_decl = tree_make(T_DECL);
 
-            new_decl->data.decl.type = decl->data.decl.type;
-            new_decl->data.decl.decls = decl_element;
+            tDECL_TYPE(new_decl) = tDECL_TYPE(decl);
+            tDECL_DECLS(new_decl) = decl_element;
 
             tree_chain(new_decl, new_chain);
         }
@@ -1336,7 +1336,7 @@ static tree eval_decl_compound(tree t, int depth)
 
         id = __evaluate_1(i, depth + 1);
 
-        i->data.decl.offset = offset;
+        tDECL_OFFSET(i) = offset;
 
         member_size = get_size_of_type(resolve_identifier(id, cur_ctx), depth);
 
