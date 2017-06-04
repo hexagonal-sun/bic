@@ -1158,8 +1158,8 @@ static tree eval_gt(tree t, int depth)
 
 static tree eval_lteq(tree t, int depth)
 {
-    tree left  = convert_to_comparable_type(t->data.bin.left, depth),
-        right = convert_to_comparable_type(t->data.bin.right, depth),
+    tree left  = convert_to_comparable_type(tLTEQ_LHS(t), depth),
+        right = convert_to_comparable_type(tLTEQ_RHS(t), depth),
         ret;
 
     if (left->type != right->type)
