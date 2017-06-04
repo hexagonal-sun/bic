@@ -70,6 +70,9 @@
 #define tLTEQ_LHS(obj) (_DATA( TREE_CHECK((obj), T_LTEQ)).bin.left)
 #define tLTEQ_RHS(obj) (_DATA( TREE_CHECK((obj), T_LTEQ)).bin.right)
 
+#define tGTEQ_LHS(obj) (_DATA( TREE_CHECK((obj), T_GTEQ)).bin.left)
+#define tGTEQ_RHS(obj) (_DATA( TREE_CHECK((obj), T_GTEQ)).bin.right)
+
 /* Evaluation ctx (E_CTX) accessor macros. */
 #define tID_MAP(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.id_map)
 #define tPARENT_CTX(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.parent_ctx)
