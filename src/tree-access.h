@@ -92,4 +92,11 @@
 /* T_IDENTIFIER accessor macros. */
 #define tID_STR(obj) (_DATA( TREE_CHECK((obj), T_IDENTIFIER)).id.name)
 
+/* T_COMP_DECL accessor macros. */
+#define tCOMP_DECL_ID(obj) (_DATA( TREE_CHECK((obj), T_DECL_COMPOUND)).comp_decl.id)
+#define tCOMP_DECL_DECLS(obj) (_DATA( TREE_CHECK((obj), T_DECL_COMPOUND)).comp_decl.decls)
+#define tCOMP_DECL_SZ(obj) (_DATA( TREE_CHECK((obj), T_DECL_COMPOUND)).comp_decl.length)
+#define tCOMP_DECL_EXPANDED(obj) (_DATA( TREE_CHECK((obj), T_DECL_COMPOUND)).comp_decl.expanded)
+#define tCOMP_DECL_TYPE(obj) (_DATA( TREE_CHECK((obj), T_DECL_COMPOUND)).comp_decl.type)
+
 #endif
