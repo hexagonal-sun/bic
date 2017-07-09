@@ -1,7 +1,7 @@
 #include "config.h"
 #include "tree.h"
-#include "parser.h"
-#include "lex.h"
+#include "cfileparser.h"
+#include "cfilelex.h"
 #include "evaluate.h"
 #include "gc.h"
 #include <stdio.h>

@@ -4,11 +4,11 @@
 #include <stdlib.h>
 #include "gc.h"
 #include "tree.h"
-#include "parser.h"
+#include "cfileparser.h"
 
-int yyparse(void);
-int yylex(void);
-void yyerror(const char *str);
+int cfileparse(void);
+int cfilelex(void);
+void cfileerror(const char *str);
 
 extern tree parse_head;
 

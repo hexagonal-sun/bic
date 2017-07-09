@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include "tree.h"
-#include "parser.h"
+#include "cfileparser.h"
 #define YY_NO_INPUT
 
 int colnum = 1;
@@ -61,7 +61,7 @@ int cfilewrap(void) {
 }
 %}
 
-%option prefix="cfile" outfile="lex.c"
+%option prefix="cfile" outfile="cfilelex.c"
 
 L                               [a-zA-Z_]
 D                               [0-9]
