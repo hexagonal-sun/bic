@@ -9,11 +9,11 @@
 int colnum = 1;
 int linenum = 1;
 
-#define YY_USER_ACTION {yylloc.first_line = linenum;  \
-        yylloc.first_column = colnum;                 \
-        colnum=colnum+yyleng;                         \
-        yylloc.last_column=colnum - 1;                \
-        yylloc.last_line = linenum;}
+#define CFILE_USER_ACTION {cfilelloc.first_line = linenum;  \
+        cfilelloc.first_column = colnum;                 \
+        colnum=colnum+cfileleng;                         \
+        cfilelloc.last_column=colnum - 1;                \
+        cfilelloc.last_line = linenum;}
 
 
 static char *sl_buf = NULL;
@@ -56,10 +56,12 @@ static void lex_err(char *fmt, ...)
     exit(EXIT_FAILURE);
 }
 
-int yywrap(void) {
+int cfilewrap(void) {
     return 1;
 }
 %}
+
+%option prefix="cfile" outfile="lex.c"
 
 L                               [a-zA-Z_]
 D                               [0-9]
@@ -107,23 +109,23 @@ X                               [0-9A-F]
 "volatile"			return VOLATILE;
 "while"				return WHILE;
 
-{L}({L}|{D})*                   {yylval.string = strdup(yytext);
-                                 if (is_typename(yytext))
+{L}({L}|{D})*                   {cfilelval.string = strdup(cfiletext);
+                                 if (is_typename(cfiletext))
                                      return TYPE_NAME;
                                  else
                                      return IDENTIFIER; }
 
--?[0-9]+                          mpz_init_set_str(yylval.integer, yytext, 10); return INTEGER;
--?[0-9]+\.[0-9]+                mpf_init_set_str(yylval.ffloat, yytext, 10); return FLOAT_CST;
-0x{X}+                          yylval.string = strdup(yytext); return CONST_HEX;
+-?[0-9]+                          mpz_init_set_str(cfilelval.integer, cfiletext, 10); return INTEGER;
+-?[0-9]+\.[0-9]+                mpf_init_set_str(cfilelval.ffloat, cfiletext, 10); return FLOAT_CST;
+0x{X}+                          cfilelval.string = strdup(cfiletext); return CONST_HEX;
 \"                              { BEGIN str_lit; sl_begin(); }
-<str_lit>[^\\"\n]*              { sl_append_str(yytext); }
+<str_lit>[^\\"\n]*              { sl_append_str(cfiletext); }
 <str_lit>\\n                    { sl_append_char('\n'); }
 <str_lit>\\t                    { sl_append_char('\t'); }
-<str_lit>\\[0-7]*               { sl_append_char(strtol(yytext+1, 0, 8)); }
-<str_lit>\\[\\"]                { sl_append_char(yytext[1]); }
-<str_lit>\"                     { yylval.string = strdup(sl_buf); BEGIN 0; return CONST_STRING; }
-<str_lit>\\.                    { lex_err("bogus escape '%s' in string\n", yytext); }
+<str_lit>\\[0-7]*               { sl_append_char(strtol(cfiletext+1, 0, 8)); }
+<str_lit>\\[\\"]                { sl_append_char(cfiletext[1]); }
+<str_lit>\"                     { cfilelval.string = strdup(sl_buf); BEGIN 0; return CONST_STRING; }
+<str_lit>\\.                    { lex_err("bogus escape '%s' in string\n", cfiletext); }
 <str_lit>\n                     { lex_err("newline in string\n"); }
 
 [ \t\r]                         /* skip whitespace */

@@ -19,8 +19,8 @@ char *cmdline = NULL;
 #endif /* HAVE_LIBREADLINE */
 
 
-extern FILE* yyin;
-extern int yyparse();
+extern FILE* cfilein;
+extern int cfileparse();
 
 tree parse_head;
 GC_TREE_DECL(parse_head);
@@ -28,9 +28,9 @@ GC_TREE_DECL(parse_head);
 /*
  * Parser's error callback.
  */
-void yyerror(const char *str)
+void cfileerror(const char *str)
 {
-    fprintf(stderr, "Parser Error: %s:%d %s.\n", "<stdin>", yylloc.first_line, str);
+    fprintf(stderr, "Parser Error: %s:%d %s.\n", "<stdin>", cfilelloc.first_line, str);
     exit(1);
 }
 
@@ -42,9 +42,9 @@ static void bic_repl(void)
     while (line) {
         int parse_result;
 
-        YY_BUFFER_STATE buffer = yy_scan_string(line);
-        parse_result = yyparse();
-        yy_delete_buffer(buffer);
+        YY_BUFFER_STATE buffer = cfile_scan_string(line);
+        parse_result = cfileparse();
+        cfile_delete_buffer(buffer);
 
         if (!parse_result)
             tree_dump(parse_head);
@@ -63,9 +63,9 @@ static int parse_file(char *fname)
         return 1;
     }
 
-    yyin = f;
+    cfilein = f;
 
-    parse_result = yyparse();
+    parse_result = cfileparse();
 
     fclose(f);
 

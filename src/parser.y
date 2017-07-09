@@ -72,6 +72,8 @@ int is_typename(char *identifier);
 %error-verbose
 %locations
 
+%define api.prefix {cfile}
+
 %token AUTO BREAK CASE CHAR CONST CONTINUE DEFAULT DO
 %token DOUBLE ELSE ENUM EXTERN FLOAT FOR GOTO IF INT LONG
 %token REGISTER RETURN SHORT SIGNED SIZEOF STATIC STRUCT
