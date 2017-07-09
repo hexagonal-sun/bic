@@ -41,8 +41,13 @@ void bic_repl()
         repl_delete_buffer(buffer);
 
         if (!parse_result) {
+            tree result;
+
             tree_dump(repl_parse_head);
-            evaluate(repl_parse_head, "<stdin>");
+            result = evaluate(repl_parse_head, "<stdin>");
+
+            if (result)
+                tree_dump(result);
         }
 
         line = readline(BIC_PROMPT);

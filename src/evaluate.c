@@ -1691,10 +1691,10 @@ static tree __evaluate(tree head, int depth)
     return result;
 }
 
-void evaluate(tree t, const char *fname)
+tree evaluate(tree t, const char *fname)
 {
     current_filename = fname;
-    __evaluate(t, 0);
+    return __evaluate(t, 0);
 }
 
 static void eval_init_builtins(void)

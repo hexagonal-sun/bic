@@ -14,5 +14,5 @@ static inline void resolve_ptr_type(tree *ptr, tree *base_type)
 }
 
 void __attribute__((noreturn)) eval_die(tree t, const char *format, ...);
-void evaluate(tree t, const char *filename);
+tree evaluate(tree t, const char *filename);
 void eval_init(void);
