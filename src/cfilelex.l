@@ -4,6 +4,7 @@
 #include <stdarg.h>
 #include "tree.h"
 #include "cfileparser.h"
+#include "typename.h"
 #define YY_NO_INPUT
 
 int colnum = 1;

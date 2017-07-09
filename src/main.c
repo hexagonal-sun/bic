@@ -2,6 +2,7 @@
 #include "tree.h"
 #include "cfileparser.h"
 #include "cfilelex.h"
+#include "typename.h"
 #include "evaluate.h"
 #include "gc.h"
 #include <stdio.h>
@@ -89,7 +90,7 @@ int main(int argc, char *argv[])
 
     top_of_stack = &top;
 
-    parser_init();
+    typename_init();
     eval_init();
 
     if (argc == 1)

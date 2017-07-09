@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "gc.h"
 #include "tree.h"
+#include "typename.h"
 #include "cfileparser.h"
 
 int cfileparse(void);
@@ -26,40 +27,7 @@ static char * concat_string(const char *s1, const char *s2)
     strcat(ret, s2);
     return ret;
 }
-
-static tree type_names;
-GC_TREE_DECL(type_names);
-
-static void add_typename(char *s)
-{
-    tree_chain(get_identifier(s), type_names);
-}
-
-void parser_init(void)
-{
-    type_names = tree_make(CHAIN_HEAD);
-
-    /* Add all builtin types here so the parser knows about them. */
-    add_typename("__builtin_va_list");
-}
-
-int is_typename(char *identifier)
-{
-    tree i;
-
-    for_each_tree(i, type_names) {
-        if (strcmp(identifier, tID_STR(i)) == 0)
-            return 1;
-    }
-
-    return 0;
-}
 %}
-
-%code provides {
-void parser_init(void);
-int is_typename(char *identifier);
-}
 
 %union
 {
@@ -1039,9 +1007,7 @@ declaration
                 YYERROR;
             }
 
-            newid = tree_make(T_IDENTIFIER);
-            tID_STR(newid) = strdup(tID_STR(oldid));
-            tree_chain(newid, type_names);
+            add_typename(strdup(tID_STR(oldid)));
         }
     }
 }
