@@ -20,11 +20,17 @@ src/bic
 src/cfilelex.c
 src/cfilelex.o
 src/cfilelex.h
+src/repllex.c
+src/repllex.o
+src/repllex.h
 src/libbic.a
 src/main.o
 src/cfileparser.c
 src/cfileparser.h
 src/cfileparser.o
+src/replparser.c
+src/replparser.h
+src/replparser.o
 src/tree.o
 stamp-h1
 ylwrap

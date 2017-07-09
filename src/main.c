@@ -5,20 +5,8 @@
 #include "typename.h"
 #include "evaluate.h"
 #include "gc.h"
+#include "repl.h"
 #include <stdio.h>
-#ifdef HAVE_LIBREADLINE
-#  if defined(HAVE_READLINE_READLINE_H)
-#    include <readline/readline.h>
-#  elif defined(HAVE_READLINE_H)
-#    include <readline.h>
-#  else /* !defined(HAVE_READLINE_H) */
-extern char *readline ();
-#  endif /* !defined(HAVE_READLINE_H) */
-char *cmdline = NULL;
-#else /* !defined(HAVE_READLINE_READLINE_H) */
-#error "No readline found"
-#endif /* HAVE_LIBREADLINE */
-
 
 extern FILE* cfilein;
 extern int cfileparse();
@@ -33,25 +21,6 @@ void cfileerror(const char *str)
 {
     fprintf(stderr, "Parser Error: %s:%d %s.\n", "<stdin>", cfilelloc.first_line, str);
     exit(1);
-}
-
-static void bic_repl(void)
-{
-    char *line;
-
-    line = readline(BIC_PROMPT);
-    while (line) {
-        int parse_result;
-
-        YY_BUFFER_STATE buffer = cfile_scan_string(line);
-        parse_result = cfileparse();
-        cfile_delete_buffer(buffer);
-
-        if (!parse_result)
-            tree_dump(parse_head);
-
-        line = readline(BIC_PROMPT);
-    }
 }
 
 static int parse_file(char *fname)
