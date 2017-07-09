@@ -58,16 +58,15 @@ static char * concat_string(const char *s1, const char *s2)
 %token <integer> INTEGER;
 %token <ffloat> FLOAT_CST;
 
-%type <tree> compound_statement
 %type <tree> argument_specifier
 %type <tree> direct_argument_list
 %type <tree> argument_list
 %type <tree> argument_decl
 %type <tree> statement
 %type <tree> statement_list
+%type <tree> declaration_statement
 %type <tree> expression_statement
 %type <tree> iteration_statement
-%type <tree> jump_statement
 %type <tree> primary_expression
 %type <tree> postfix_expression
 %type <tree> argument_expression_list
@@ -95,7 +94,6 @@ static char * concat_string(const char *s1, const char *s2)
 %type <tree> sizeof_specifier
 %type <tree> type_specifier
 %type <tree> declaration
-%type <tree> declaration_list
 
 %%
 
@@ -171,21 +169,12 @@ argument_decl
 
 statement
 : expression_statement
-| compound_statement
 | iteration_statement
-| jump_statement
+| declaration_statement
 ;
 
-compound_statement
-: '{' statement_list '}'
-{
-    $$ = $2;
-}
-| '{' declaration_list statement_list '}'
-{
-    tree_splice_chains($2, $3);
-    $$ = $2;
-}
+declaration_statement
+: declaration ';'
 ;
 
 expression_statement
@@ -202,19 +191,6 @@ iteration_statement
     tFLOOP_STMTS(for_loop) = $7;
     set_locus(for_loop, @1);
     $$ = for_loop;
-}
-;
-
-jump_statement
-: RETURN ';'
-{
-    $$ = tree_make(T_RETURN);
-}
-| RETURN expression_statement
-{
-    tree ret = tree_make(T_RETURN);
-    tRET_EXP(ret) = $2;
-    $$ = ret;
 }
 ;
 
@@ -977,42 +953,5 @@ declaration
             add_typename(strdup(tID_STR(oldid)));
         }
     }
-}
-| type_specifier '(' pointer IDENTIFIER ')' argument_specifier
-{
-    tree function, decl;
-    function = tree_make(T_DECL_FN);
-    tFNDECL_NAME(function) = NULL;
-    tFNDECL_RET_TYPE(function) = $1;
-    tFNDECL_ARGS(function) = $6;
-    tFNDECL_STMTS(function) = NULL;
-
-    decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = function;
-    tDECL_DECLS(decl) = make_pointer_type($3, get_identifier($4));
-
-    set_locus(function, @1);
-    set_locus(decl, @4);
-
-    $$ = decl;
-}
-| type_specifier
-{
-    tree decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = $1;
-    tDECL_DECLS(decl) = NULL;
-    set_locus(decl, @1);
-    $$ = decl;
-}
-;
-
-declaration_list
-: declaration ';'
-{
-    $$ = tree_chain_head($1);
-}
-| declaration_list declaration ';'
-{
-    tree_chain($2, $1);
 }
 ;
