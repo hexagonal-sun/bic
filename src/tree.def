@@ -46,6 +46,7 @@ DEFTYPE(E_CTX, "Evaluator Context")
 DEFTYPE(E_ALLOC, "Evaluator allocation")
 DEFTYPE(E_INCOMP_TYPE, "Incompletel type")
 DEFTYPE(E_MAP, "Evaluator map")
+DEFTYPE(CPP_INCLUDE, "C preprocessor include directive")
 
 /* We have to declare the void type here as using it as a DEFCTYPE
  * would cause a compilation error since we can't declare a variable

@@ -141,4 +141,7 @@
 #define tENUM_NAME(obj) (_DATA( TREE_CHECK((obj), T_ENUMERATOR)).enumerator.id)
 #define tENUM_ENUMS(obj) (_DATA( TREE_CHECK((obj), T_ENUMERATOR)).enumerator.enums)
 
+/* CPP_INCLUDE macros */
+#define tCPP_INCLUDE_STR(obj) (_DATA( TREE_CHECK((obj), CPP_INCLUDE) ).string)
+
 #endif
