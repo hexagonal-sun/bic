@@ -5,10 +5,14 @@
 #include <stdarg.h>
 #include <string.h>
 #include <dlfcn.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "evaluate.h"
 #include "function_call.h"
 #include "ptr_call.h"
+#include "cfileparser.h"
 #include "gc.h"
 
 static tree cur_ctx = NULL;
@@ -1575,6 +1579,73 @@ static tree eval_deref(tree t, int depth)
     return ret;
 }
 
+static tree eval_cpp_include(tree t, int depth)
+{
+    char cpp_file_name[] = "/tmp/bic.cpp.XXXXXX";
+    char out_file_name[] = "/tmp/bic.cpp.XXXXXX";
+    char *command;
+    extern FILE* cfilein;
+    extern tree parse_head;
+    FILE *out_file_stream;
+    int cpp_file_fd, out_file_fd, ret;
+
+    /* We don't have a real C preprocessor that we can call upon
+     * yet. Therefore, we have to call out to the system's
+     * preprocessor (assumed to be `cpp') and parse the results.
+     *
+     * NOTE: this is very limited, since we are calling out to the
+     * system's CPP every time, we can't maintain the state of
+     * definitions.  Therefore, we WILL define things multiple
+     * times. */
+    cpp_file_fd = mkstemp(cpp_file_name);
+
+    if (cpp_file_fd == -1)
+        eval_die(t, "Could not open temp file: %s\n", strerror(errno));
+
+    out_file_fd = mkstemp(out_file_name);
+
+    if (out_file_fd == -1)
+        eval_die(t, "Could not open temp file: %s\n", strerror(errno));
+
+    out_file_stream = fdopen(out_file_fd, "r");
+
+    if (!out_file_stream)
+        eval_die(t, "Could not create stream: %s\n", strerror(errno));
+
+    write(cpp_file_fd, tCPP_INCLUDE_STR(t), strlen(tCPP_INCLUDE_STR(t)));
+
+    close(cpp_file_fd);
+
+    ret = asprintf(&command, "cpp -P %s > %s", cpp_file_name, out_file_name);
+
+    if (ret == -1)
+        eval_die(t, "Could not compose preprocessor command: %s\n",
+                 strerror(errno));
+
+    ret = system(command);
+
+    free(command);
+
+    if (ret < 0)
+        eval_die(t, "Invocation of preprocessor process failed\n");
+
+    if (ret > 0)
+        eval_die(t, "Preprocessor command exited with non-zero status\n");
+
+    cfilein = out_file_stream;
+
+    ret = cfileparse();
+
+    fclose(out_file_stream);
+
+    if (ret)
+        eval_die(t, "Parsing of preprocessor output failed\n");
+
+    __evaluate(parse_head, depth + 1);
+
+    return NULL;
+}
+
 static tree eval_evaluator_ctx(tree t, int depth)
 {
     tree ret, mapping;
@@ -1660,6 +1731,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_DEREF:      result = eval_deref(t, depth + 1);      break;
     case T_POINTER:    result = eval_self(t, depth + 1);       break;
     case D_T_VOID:     result = eval_self(t, depth + 1);       break;
+    case CPP_INCLUDE:  result = eval_cpp_include(t, depth + 1); break;
     case E_CTX:        result = eval_evaluator_ctx(t, depth + 1); break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
