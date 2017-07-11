@@ -1,14 +1,14 @@
 #include "../tree.h"
 
 enum argument_class {
-    INTEGER = 0,
-    SSE,
-    SSEUP,
-    X87,
-    X87UP,
-    COMPLEX_X87,
-    NO_CLASS,
-    MEMORY,
+    CLS_INTEGER = 0,
+    CLS_SSE,
+    CLS_SSEUP,
+    CLS_X87,
+    CLS_X87UP,
+    CLS_COMPLEX_X87,
+    CLS_NONE,
+    CLS_MEMORY,
 };
 
 /* Ensure no structure packing occurs, since we'll be accessing the
