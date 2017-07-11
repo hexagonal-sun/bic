@@ -110,6 +110,9 @@ X                               [0-9A-F]
 "volatile"			return VOLATILE;
 "while"				return WHILE;
 
+"#include"[ \t]*"<"({L}|{D}|\.)+">" {repllval.string = strdup(repltext);
+                                     return C_PRE_INC; }
+
 {L}({L}|{D})*                   {repllval.string = strdup(repltext);
                                  if (is_typename(repltext))
                                      return TYPE_NAME;

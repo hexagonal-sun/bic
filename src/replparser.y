@@ -51,6 +51,7 @@ static char * concat_string(const char *s1, const char *s2)
 %token DEC ELLIPSIS PTR_ACCESS
 
 %token <string> IDENTIFIER
+%token <string> C_PRE_INC
 %token <string> TYPE_NAME
 %token <string> CONST_BITS
 %token <string> CONST_HEX
@@ -171,6 +172,12 @@ statement
 : expression_statement
 | iteration_statement
 | declaration_statement
+| C_PRE_INC
+{
+    tree ret = tree_make(CPP_INCLUDE);
+    tCPP_INCLUDE_STR(ret) = $1;
+    $$ = ret;
+}
 ;
 
 declaration_statement
