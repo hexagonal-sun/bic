@@ -36,5 +36,6 @@ typedef_decl_mul_ambiguity
 function_pointer
 double_extern_fn_decl
 static_ints
+permit_incomplete_struct_ptr
 
 *.trs
