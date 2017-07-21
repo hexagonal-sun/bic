@@ -1341,7 +1341,7 @@ static tree eval_decl_compound(tree t, int depth)
      * size of the compound. */
     for_each_tree(i, tCOMP_DECL_DECLS(t)) {
         tree id;
-        size_t member_size;
+        size_t member_size, padding_size;
 
         /* To calculate the size of each element of the compound, we
          * temporarily push the evaluation ctx, evaluate each decl
@@ -1357,12 +1357,23 @@ static tree eval_decl_compound(tree t, int depth)
 
         id = __evaluate_1(i, depth + 1);
 
-        tDECL_OFFSET(i) = offset;
-
+        /* Calculate the offset of the member within the struct.
+         *
+         * The algorithm we use to calculate the offset of a given
+         * member is as follows: If the current alignment is 0, use
+         * that.  Otherwise, a given member's offset must be a
+         * multiple of it's size aligned within the offset. */
         member_size = get_size_of_type(resolve_identifier(id, SCOPE_CURRENT_CTX), depth);
 
+        if (offset == 0)
+            padding_size = 0;
+        else
+            padding_size = (~offset + 1) & (member_size - 1);
+
+        tDECL_OFFSET(i) = offset + padding_size;
+
         if (tCOMP_DECL_TYPE(t) == sstruct)
-            offset += member_size;
+            offset += padding_size + member_size;
         else {
             offset = 0;
             if (member_size > max_member_sz)
