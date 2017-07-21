@@ -1422,7 +1422,12 @@ static tree eval_comp_access(tree t, int depth)
 
 static tree eval_struct(tree t, int depth)
 {
-    return __evaluate_1(tSTRUCT_EXP(t), depth);
+    tree struct_name = tSTRUCT_EXP(t);
+
+    if (resolve_identifier(tSTRUCT_EXP(t), SCOPE_GLOBAL))
+        return __evaluate_1(tSTRUCT_EXP(t), depth);
+    else
+        return tree_make(E_INCOMP_TYPE);
 }
 
 static tree eval_union(tree t, int depth)
