@@ -23,6 +23,12 @@ static const char *current_filename;
 static tree __evaluate_1(tree t, int depth);
 static tree __evaluate(tree t, int depth);
 
+enum identifier_search_scope
+{
+    SCOPE_CURRENT_CTX,
+    SCOPE_GLOBAL
+};
+
 /* Context management functions. */
 static void pop_ctx(void)
 {
@@ -94,9 +100,26 @@ static tree resolve_id(tree id, tree idmap)
     return NULL;
 }
 
-static tree resolve_identifier(tree id, tree ctx)
+static tree resolve_identifier(tree id,
+                               enum identifier_search_scope scope)
 {
-    return resolve_id(id, tID_MAP(ctx));
+    tree search_ctx = cur_ctx;
+
+    if (scope == SCOPE_CURRENT_CTX)
+        return resolve_id(id, tID_MAP(search_ctx));
+
+    /* Search through the identifier mappings of the current context
+     * stack to find the appropriate object. */
+    while (search_ctx) {
+        tree search_result = resolve_id(id, tID_MAP(search_ctx));
+
+        if (search_result)
+            return search_result;
+
+        search_ctx = tPARENT_CTX(search_ctx);
+    }
+
+    return NULL;
 }
 
 static void __map_identifer(tree id, tree t, tree idmap)
@@ -130,7 +153,7 @@ static size_t get_size_of_type(tree type, int depth)
 
 static void map_identifier(tree id, tree t)
 {
-    if (resolve_identifier(id, cur_ctx))
+    if (resolve_identifier(id, SCOPE_CURRENT_CTX))
         eval_die(id, "Attempted to map already existing identifier %s.\n",
                  tID_STR(id));
 
@@ -141,16 +164,10 @@ static tree eval_identifier(tree t, int depth)
 {
     /* Search through the identifier mappings of the current context
      * stack to find the appropriate object. */
-    tree search_ctx = cur_ctx;
+    tree object = resolve_identifier(t, SCOPE_GLOBAL);
 
-    while (search_ctx) {
-        tree search_result = resolve_identifier(t, search_ctx);
-
-        if (search_result)
-            return search_result;
-
-        search_ctx = tPARENT_CTX(search_ctx);
-    }
+    if (object)
+        return object;
 
     eval_die(t, "Could not resolve identifier %s.\n",
              tID_STR(t));
@@ -613,7 +630,7 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
 
     id = tFNDECL_NAME(fndecl);
 
-    previous_decl = resolve_identifier(id, cur_ctx);
+    previous_decl = resolve_identifier(id, SCOPE_CURRENT_CTX);
 
     if (is_T_LIVE_VAR(previous_decl)) {
         tree live_var_type = tLV_TYPE(previous_decl);
@@ -724,7 +741,7 @@ static tree handle_forward_decl(tree type)
 
     /* If the declaration already exists, don't attempt to map it
      * again. */
-    if (resolve_identifier(id, cur_ctx))
+    if (resolve_identifier(id, SCOPE_CURRENT_CTX))
         return id;
 
     tree forward_decl = tree_make(E_INCOMP_TYPE);
@@ -1303,7 +1320,7 @@ static tree eval_decl_compound(tree t, int depth)
      * unresolved decl and use that as our new 't' so all referencies
      * to it will be updated.*/
     if (struct_id) {
-        tree forward_decl = resolve_identifier(struct_id, cur_ctx);
+        tree forward_decl = resolve_identifier(struct_id, SCOPE_CURRENT_CTX);
 
         if (forward_decl) {
             tree_copy(forward_decl, t);
@@ -1342,7 +1359,7 @@ static tree eval_decl_compound(tree t, int depth)
 
         tDECL_OFFSET(i) = offset;
 
-        member_size = get_size_of_type(resolve_identifier(id, cur_ctx), depth);
+        member_size = get_size_of_type(resolve_identifier(id, SCOPE_CURRENT_CTX), depth);
 
         if (tCOMP_DECL_TYPE(t) == sstruct)
             offset += member_size;
