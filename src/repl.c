@@ -5,6 +5,7 @@
 #include "gc.h"
 #include "replparser.h"
 #include "repllex.h"
+#include "pretty-printer.h"
 
 #ifdef HAVE_LIBREADLINE
 #  if defined(HAVE_READLINE_READLINE_H)
@@ -43,11 +44,10 @@ void bic_repl()
         if (!parse_result) {
             tree result;
 
-            tree_dump(repl_parse_head);
             result = evaluate(repl_parse_head, "<stdin>");
 
             if (result)
-                tree_dump(result);
+                pretty_print(result);
         }
 
         line = readline(BIC_PROMPT);
