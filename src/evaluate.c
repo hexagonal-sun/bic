@@ -1307,6 +1307,39 @@ static tree expand_decl_chain(tree decl_chain)
     return new_chain;
 }
 
+/* Calculate the byte-alignment requirements for a particular type or
+ * live variable. */
+static size_t get_alignment_for_type(tree t, int depth)
+{
+    size_t alignment;
+
+    switch (TYPE(t))
+    {
+    case T_LIVE_VAR:
+        alignment = get_size_of_type(tLV_TYPE(t), depth);
+        break;
+    case T_LIVE_COMPOUND:
+    {
+        tree first_member;
+
+        for_each_tree(first_member, tLV_COMP_MEMBERS(t))
+            break;
+
+        first_member = tEMAP_RIGHT(first_member);
+
+        alignment = get_alignment_for_type(first_member, depth);
+    }
+    break;
+    case D_T_CHAR...D_T_PTR:
+        alignment = get_size_of_type(t, depth);
+        break;
+    default:
+        eval_die(t, "Could not calculate offset for member");
+    }
+
+    return alignment;
+}
+
 static tree eval_decl_compound(tree t, int depth)
 {
     tree i, struct_id = tCOMP_DECL_ID(t);
