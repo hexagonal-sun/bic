@@ -94,6 +94,7 @@ AC_CONFIG_FILES([Makefile
                  etc/Makefile
                  src/Makefile
                  src/x86_64/Makefile
+                 src/aarch64/Makefile
                  testsuite/Makefile])
 
 AC_OUTPUT
