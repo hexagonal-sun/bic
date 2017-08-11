@@ -114,15 +114,10 @@ static void unmark_all_trees(void)
         i->reachable = 0;
 }
 
-static void mark_stack(void)
+static void __attribute__((noinline)) mark_stack(void)
 {
     tree bottom;
     tree *bottom_of_stack = &bottom, *ptr;
-
-    /* This undocumented intrinsic should force all callee-saved
-     * registers on the stack.  This will allow us to find objects
-     * that only have a reference kept in registers. */
-    __builtin_unwind_init();
 
     for (ptr = top_of_stack; ptr > bottom_of_stack; ptr--)
     {
@@ -190,10 +185,15 @@ static void sweep(void)
 
 static void collect(void)
 {
-       unmark_all_trees();
-       mark_stack();
-       mark_static();
-       sweep();
+    /* This undocumented intrinsic should force all callee-saved
+     * registers on the stack.  This will allow us to find objects
+     * that only have a reference kept in registers. */
+    __builtin_unwind_init();
+
+    unmark_all_trees();
+    mark_stack();
+    mark_static();
+    sweep();
 }
 
 static void maybe_collect()
