@@ -49,6 +49,8 @@ void bic_repl()
                 pretty_print(result);
         }
 
+        free(line);
+
         line = readline(BIC_PROMPT);
     }
 }
