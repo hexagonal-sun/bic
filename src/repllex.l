@@ -1,4 +1,5 @@
 %{
+#include <gc.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -22,7 +23,7 @@ static char *sl_buf = NULL;
 static void sl_begin(void)
 {
     if (!sl_buf)
-        sl_buf = malloc(1);
+        sl_buf = GC_MALLOC(1);
 
     sl_buf[0] = '\0';
 }
@@ -30,21 +31,19 @@ static void sl_begin(void)
 static void sl_append_str(const char *s)
 {
     char *buf, *oldbuf = sl_buf;
-    buf = malloc(strlen(sl_buf) + strlen(s) + 1);
+    buf = GC_MALLOC(strlen(sl_buf) + strlen(s) + 1);
     buf[0] = '\0';
     strcat(buf, sl_buf);
     strcat(buf, s);
     sl_buf = buf;
-    free(oldbuf);
 }
 
 static void sl_append_char(char c)
 {
-    char *s = malloc(2);
+    char *s = GC_MALLOC(2);
     s[0] = c;
     s[1] = '\0';
     sl_append_str(s);
-    free(s);
 }
 
 static void lex_err(char *fmt, ...)
@@ -110,7 +109,7 @@ X                               [0-9A-F]
 "volatile"			return VOLATILE;
 "while"				return WHILE;
 
-"#include"[ \t]*"<"({L}|{D}|\.)+">" {repllval.string = strdup(repltext);
+"#include"[ \t]*"<"({L}|{D}|\.)+">" {repllval.string = GC_STRDUP(repltext);
                                      return C_PRE_INC; }
 
 {L}({L}|{D})*                   {repllval.string = strdup(repltext);

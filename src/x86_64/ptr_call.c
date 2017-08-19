@@ -1,3 +1,4 @@
+#include <gc.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -21,7 +22,7 @@ void *get_entry_point_for_fn(tree fndef)
 {
     ptrdiff_t entry_point_delta = &entry_point_1 - &entry_point_0;
     void *entry_point_end = &entry_point_end;
-    struct ptr_map *new_map = malloc(sizeof(*new_map));
+    struct ptr_map *new_map = GC_MALLOC(sizeof(*new_map));
     void *entry_addr = next_entry_point;
 
     if (next_entry_point > entry_point_end) {

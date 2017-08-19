@@ -1,3 +1,4 @@
+#include <gc.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -45,7 +46,7 @@ ptrdiff_t do_call(void *function_address, tree args)
     if (args)
         for_each_tree(fn_arg, args) {
             tree arg = tFNARG_EXP(fn_arg);
-            struct arg *new_arg = malloc(sizeof(*new_arg));
+            struct arg *new_arg = GC_MALLOC(sizeof(*new_arg));
 
             switch(arg->type) {
             case T_STRING:
@@ -114,13 +115,6 @@ ptrdiff_t do_call(void *function_address, tree args)
     push_to_main_arg_head(int_args);
 
     ret = __do_call(function_address, arg_head);
-
-    /* Cleanup consumed arguments. */
-    while (arg_head) {
-        struct arg *old_arg = arg_head;
-        arg_head = arg_head->next;
-        free(old_arg);
-    }
 
     int_args = NULL;
     vec_args = NULL;

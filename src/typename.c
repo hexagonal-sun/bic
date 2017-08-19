@@ -2,7 +2,6 @@
 #include "gc.h"
 
 static tree type_names;
-GC_TREE_DECL(type_names);
 
 void add_typename(char *s)
 {

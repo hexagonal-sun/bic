@@ -4,15 +4,24 @@
 #include "cfilelex.h"
 #include "typename.h"
 #include "evaluate.h"
-#include "gc.h"
 #include "repl.h"
+#include <gc.h>
 #include <stdio.h>
 
 extern FILE* cfilein;
 extern int cfileparse();
 
 tree parse_head;
-GC_TREE_DECL(parse_head);
+
+static void * gmp_realloc_stub(void *ptr, size_t old, size_t new)
+{
+    return GC_realloc(ptr, new);
+}
+
+static void gmp_free_stub(void *ptr, size_t sz)
+{
+    GC_free(ptr);
+}
 
 /*
  * Parser's error callback.
@@ -54,10 +63,10 @@ static void add_call_to_main(tree head)
 
 int main(int argc, char *argv[])
 {
-    tree top;
     int i;
 
-    top_of_stack = &top;
+    GC_INIT();
+    mp_set_memory_functions(&GC_malloc, &gmp_realloc_stub, &gmp_free_stub);
 
     typename_init();
     eval_init();

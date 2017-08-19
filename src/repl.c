@@ -21,7 +21,6 @@ char *cmdline = NULL;
 #endif /* HAVE_LIBREADLINE */
 
 tree repl_parse_head;
-GC_TREE_DECL(repl_parse_head);
 
 void replerror(const char *str)
 {

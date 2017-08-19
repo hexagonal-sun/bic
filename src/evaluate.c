@@ -16,7 +16,6 @@
 #include "gc.h"
 
 static tree cur_ctx = NULL;
-GC_TREE_DECL(cur_ctx);
 
 static const char *current_filename;
 
@@ -57,15 +56,6 @@ static void push_ctx(const char *name)
     tALLOC_CHAIN(new_ctx) = tree_make(CHAIN_HEAD);
 
     cur_ctx = new_ctx;
-}
-
-static void track_alloc(void *ptr)
-{
-    tree alloc = tree_make(E_ALLOC);
-
-    tALLOC_PTR(alloc) = ptr;
-
-    tree_chain(alloc, tALLOC_CHAIN(cur_ctx));
 }
 
 static void ctx_backtrace(void)
@@ -178,8 +168,7 @@ static tree make_live_var(tree type)
     tree live_var = tree_make(T_LIVE_VAR);
 
     tLV_TYPE(live_var) = type;
-    tLV_VAL(live_var) = malloc(sizeof(*tLV_VAL(live_var)));
-    track_alloc(tLV_VAL(live_var));
+    tLV_VAL(live_var) = GC_MALLOC(sizeof(*tLV_VAL(live_var)));
 
     return live_var;
 }
@@ -537,8 +526,7 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base)
 
 static tree alloc_struct(tree struct_decl, int depth)
 {
-    void *base = malloc(tCOMP_DECL_SZ(struct_decl));
-    track_alloc(base);
+    void *base = GC_MALLOC(tCOMP_DECL_SZ(struct_decl));
 
     return instantiate_struct(struct_decl, depth, base);
 }
@@ -546,11 +534,9 @@ static tree alloc_struct(tree struct_decl, int depth)
 static tree alloc_array(tree array_decl, tree base_type, int depth)
 {
     size_t array_sz = get_array_size(array_decl, base_type, depth);
-    void *array_mem = malloc(array_sz);
+    void *array_mem = GC_MALLOC(array_sz);
     tree live_var = instantiate_array(array_decl, base_type, array_mem,
                                       array_sz);
-
-    track_alloc(array_mem);
 
     return live_var;
 }

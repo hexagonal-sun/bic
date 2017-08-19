@@ -1,13 +1,14 @@
+#include <gc.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "tree.h"
-#include "gc.h"
 
 #define eprintf(args...) fprintf (stderr, args)
 
 tree tree_make(enum tree_type type)
 {
-    tree ret = alloc_tree();
+    tree ret = GC_MALLOC(sizeof(*ret));
+    memset(ret, 0, sizeof(*ret));
     ret->type = type;
     INIT_LIST(&ret->chain);
     return ret;

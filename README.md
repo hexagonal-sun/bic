@@ -105,14 +105,6 @@ then passed into the evaluator (`evaluator.c`).  The evaluator will
 then recursively evaluate each tree element, updating the evaluator
 state, thereby executing a program.
 
-Memory is managed by a simple mark-and-sweep garbage collector (GC)
-which is implemented in `gc.c`.  This works by examining the stack and
-looking for possible root objects that exist on the stack, recursing
-into them and setting a marker, telling the sweep phase not to free
-the objects.  Any objects that are declared statically won't exist on
-the stack; the programmer can let the GC know about these objects
-using the `GC_TREE_DECL` macro.
-
 Calls to functions external to the evaluator are handled in a
 platform-dependent way.  Currently IA64 is the only supported platform
 and the code to handle this is in the `x86_64` folder.  This works by

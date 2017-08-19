@@ -1,4 +1,5 @@
 %{
+#include <gc.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -21,7 +22,7 @@ static void set_locus(tree t, YYLTYPE locus)
 
 static char * concat_string(const char *s1, const char *s2)
 {
-    char *ret = malloc(strlen(s1) + strlen(s2) + 1);
+    char *ret = GC_MALLOC(strlen(s1) + strlen(s2) + 1);
     ret[0] = '\0';
     strcat(ret, s1);
     strcat(ret, s2);
@@ -771,7 +772,6 @@ struct_specifier
     tCOMP_DECL_TYPE(decl) = sstruct;
     set_locus(decl, @1);
     set_locus(tCOMP_DECL_ID(decl), @2);
-    free($2);
     $$ = decl;
 }
 | STRUCT '{' compound_decl_list '}'
@@ -790,7 +790,6 @@ struct_specifier
     tSTRUCT_EXP(ret) = get_identifier(struct_name);
     set_locus(ret, @1);
     set_locus(tSTRUCT_EXP(ret), @2);
-    free($2);
     $$ = ret;
 }
 | STRUCT TYPE_NAME
@@ -800,7 +799,6 @@ struct_specifier
     tSTRUCT_EXP(ret) = get_identifier(struct_name);
     set_locus(ret, @1);
     set_locus(tSTRUCT_EXP(ret), @2);
-    free($2);
     $$ = ret;
 }
 ;
@@ -815,7 +813,6 @@ union_specifier
     tCOMP_DECL_TYPE(decl) = uunion;
     set_locus(decl, @1);
     set_locus(tCOMP_DECL_ID(decl), @2);
-    free($2);
     $$ = decl;
 }
 | UNION '{' compound_decl_list '}'
@@ -834,7 +831,6 @@ union_specifier
     tUNION_EXP(ret) = get_identifier(union_name);
     set_locus(ret, @1);
     set_locus(tUNION_EXP(ret), @2);
-    free($2);
     $$ = ret;
 
 }
@@ -845,7 +841,6 @@ union_specifier
     tUNION_EXP(ret) = get_identifier(union_name);
     set_locus(ret, @1);
     set_locus(tUNION_EXP(ret), @2);
-    free($2);
     $$ = ret;
 
 }
@@ -868,7 +863,6 @@ enum_specifier
     tENUM_ENUMS(enumerator) = $4;
     set_locus(enumerator, @1);
     set_locus(tENUM_NAME(enumerator), @2);
-    free($2);
     $$ = enumerator;
 }
 | ENUM IDENTIFIER
@@ -876,7 +870,6 @@ enum_specifier
     char *enum_name = concat_string("enum ", $2);
     tree id = get_identifier(enum_name);
     set_locus(id, @2);
-    free($2);
     $$ = id;
 }
 | ENUM TYPE_NAME
@@ -884,7 +877,6 @@ enum_specifier
     char *enum_name = concat_string("enum ", $2);
     tree id = get_identifier(enum_name);
     set_locus(id, @2);
-    free($2);
     $$ = id;
 }
 ;
@@ -957,7 +949,7 @@ declaration
                 YYERROR;
             }
 
-            add_typename(strdup(tID_STR(oldid)));
+            add_typename(GC_STRDUP(tID_STR(oldid)));
         }
     }
 }
