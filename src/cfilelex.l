@@ -11,7 +11,7 @@
 static int colnum = 1;
 static int linenum = 1;
 
-#define CFILE_USER_ACTION {cfilelloc.first_line = linenum;  \
+#define YY_USER_ACTION {cfilelloc.first_line = linenum;  \
         cfilelloc.first_column = colnum;                 \
         colnum=colnum+cfileleng;                         \
         cfilelloc.last_column=colnum - 1;                \
