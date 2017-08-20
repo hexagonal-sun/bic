@@ -13,9 +13,19 @@
 #include "function_call.h"
 #include "ptr_call.h"
 #include "cfileparser.h"
+#include "typename.h"
 #include "gc.h"
 
 static tree cur_ctx = NULL;
+
+/* This holds the evaluator state after the evaluation of any #include
+ * directives.  */
+static tree include_ctx = NULL;
+
+/* This is a chain of CPP_INCLUDE tree objects that is used to keep
+ * track of all #include directives seen.  See `eval_cpp_include' for
+ * more info. */
+static tree include_chain = NULL;
 
 static const char *current_filename;
 
@@ -107,6 +117,14 @@ static tree resolve_identifier(tree id,
             return search_result;
 
         search_ctx = tPARENT_CTX(search_ctx);
+    }
+
+    /* Also search the include_ctx if it exists. */
+    if (include_ctx) {
+        tree result = resolve_id(id, tID_MAP(include_ctx));
+
+        if (result)
+            return result;
     }
 
     return NULL;
@@ -1642,6 +1660,7 @@ static tree eval_cpp_include(tree t, int depth)
     char *command;
     extern FILE* cfilein;
     extern tree parse_head;
+    tree i, cpp_include = tree_make(CPP_INCLUDE);
     FILE *out_file_stream;
     int cpp_file_fd, out_file_fd, ret;
 
@@ -1653,6 +1672,9 @@ static tree eval_cpp_include(tree t, int depth)
      * system's CPP every time, we can't maintain the state of
      * definitions.  Therefore, we WILL define things multiple
      * times. */
+    tCPP_INCLUDE_STR(cpp_include) = GC_STRDUP(tCPP_INCLUDE_STR(t));
+    tree_chain(cpp_include, include_chain);
+
     cpp_file_fd = mkstemp(cpp_file_name);
 
     if (cpp_file_fd == -1)
@@ -1668,7 +1690,10 @@ static tree eval_cpp_include(tree t, int depth)
     if (!out_file_stream)
         eval_die(t, "Could not create stream: %s\n", strerror(errno));
 
-    write(cpp_file_fd, tCPP_INCLUDE_STR(t), strlen(tCPP_INCLUDE_STR(t)));
+    for_each_tree (i, include_chain) {
+        write(cpp_file_fd, tCPP_INCLUDE_STR(i), strlen(tCPP_INCLUDE_STR(i)));
+        write(cpp_file_fd, "\n", 1);
+    }
 
     close(cpp_file_fd);
 
@@ -1690,14 +1715,26 @@ static tree eval_cpp_include(tree t, int depth)
 
     cfilein = out_file_stream;
 
+    reset_include_typenames();
+    typename_set_include_file();
     ret = cfileparse();
+    typename_unset_include_file();
 
     fclose(out_file_stream);
 
     if (ret)
         eval_die(t, "Parsing of preprocessor output failed\n");
 
+    push_ctx("Include file declarations");
+
+    /* Delete old #include evaluator state before evaluating the parse
+     * tree for the new #includes. */
+    include_ctx = NULL;
     __evaluate(parse_head, depth + 1);
+    include_ctx = cur_ctx;
+    pop_ctx();
+
+    tPARENT_CTX(include_ctx) = NULL;
 
     return NULL;
 }
@@ -1834,4 +1871,5 @@ void eval_init(void)
 {
     push_ctx("Toplevel");
     eval_init_builtins();
+    include_chain = tree_make(CHAIN_HEAD);
 }
