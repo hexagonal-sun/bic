@@ -20,9 +20,11 @@ src/bic
 src/cfilelex.c
 src/cfilelex.o
 src/cfilelex.h
+src/cfilelex.l
 src/repllex.c
 src/repllex.o
 src/repllex.h
+src/repllex.l
 src/libbic.a
 src/main.o
 src/cfileparser.c
