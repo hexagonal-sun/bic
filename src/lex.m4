@@ -78,10 +78,12 @@ X                               [0-9A-F]
 
 %%
 "__attribute__"[ \t]*"((".*"))" /* Ignore attributes */
-"__restrict"                    /* Ignore builtin */
-"__asm__"[ \t]*"(".*")"         /* Ignore asm stmts. */
+"_Nullable"                     /* Ignore builtin */
+("__")?"restrict"               /* Ignore builtin */
+"__asm"("__")?[ \t]*"(".*")"    /* Ignore asm stmts. */
 "__extension__"                 /* Ignore gcc warning suppression
                                  * extension. */
+"inline"                        /* Ignore inlining */
 "auto"				return AUTO;
 "break"				return BREAK;
 "case"				return CASE;
