@@ -17,3 +17,5 @@ bic_LDADD = libbic.a $(BUILD_CPU)/libbic_$(BUILD_CPU).a
 
 %.h: %.l
 	$(LEX) --header-file=$@ -o /dev/null $<
+
+DIST_SUBDIRS = x86_64 aarch64
