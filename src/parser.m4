@@ -1,20 +1,23 @@
+divert(-1)
+include(parser-lex-funcs.m4)
+divert(0)dnl
 %{
-#include <gc.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "tree.h"
-#include "typename.h"
-#include "cfileparser.h"
+`#'include <gc.h>
+`#'include <stdio.h>
+`#'include <string.h>
+`#'include <stdlib.h>
+`#'include "tree.h"
+`#'include "typename.h"
+`#'include "TARGET()parser.h"
 
-int cfileparse(void);
-int cfilelex(void);
-void cfileerror(const char *str);
+int TARGET()parse(void);
+int TARGET()lex(void);
+void TARGET()error(const char *str);
 
-#define YYMALLOC GC_MALLOC
-#define YYFREE GC_FREE
+`#'define YYMALLOC GC_MALLOC
+`#'define YYFREE GC_FREE
 
-extern tree parse_head;
+extern tree TARGET()_parse_head;
 
 static void set_locus(tree t, YYLTYPE locus)
 {
@@ -43,7 +46,7 @@ static char * concat_string(const char *s1, const char *s2)
 %error-verbose
 %locations
 
-%define api.prefix {cfile}
+%define api.prefix {TARGET}
 
 %token AUTO BREAK CASE CHAR CONST CONTINUE DEFAULT DO
 %token DOUBLE ELSE ENUM EXTERN FLOAT FOR GOTO IF INT LONG
@@ -54,6 +57,9 @@ static char * concat_string(const char *s1, const char *s2)
 %token DEC ELLIPSIS PTR_ACCESS
 
 %token <string> IDENTIFIER
+REPL_ONLY
+%token <string> C_PRE_INC
+ALL_TARGETS
 %token <string> TYPE_NAME
 %token <string> CONST_BITS
 %token <string> CONST_HEX
@@ -61,10 +67,16 @@ static char * concat_string(const char *s1, const char *s2)
 %token <integer> INTEGER;
 %token <ffloat> FLOAT_CST;
 
+CFILE_ONLY
 %type <tree> translation_unit
 %type <tree> toplevel_declarations
 %type <tree> compound_statement
 %type <tree> function_definition
+%type <tree> jump_statement
+%type <tree> declaration_list
+REPL_ONLY
+%type <tree> declaration_statement
+ALL_TARGETS
 %type <tree> argument_specifier
 %type <tree> direct_argument_list
 %type <tree> argument_list
@@ -73,7 +85,6 @@ static char * concat_string(const char *s1, const char *s2)
 %type <tree> statement_list
 %type <tree> expression_statement
 %type <tree> iteration_statement
-%type <tree> jump_statement
 %type <tree> primary_expression
 %type <tree> postfix_expression
 %type <tree> argument_expression_list
@@ -101,40 +112,49 @@ static char * concat_string(const char *s1, const char *s2)
 %type <tree> sizeof_specifier
 %type <tree> type_specifier
 %type <tree> declaration
-%type <tree> declaration_list
 
 %%
 
-translation_unit
-: toplevel_declarations
+CFILE_ONLY
+   translation_unit
+   : toplevel_declarations
+REPL_ONLY
+   statement_list: statement
+ALL_TARGETS
 {
-    parse_head = tree_chain_head($1);
-    $$ = parse_head;
+    TARGET()_parse_head = tree_chain_head($1);
+    $$ = TARGET()_parse_head;
 }
-| translation_unit toplevel_declarations
+CFILE_ONLY
+   | translation_unit toplevel_declarations
+REPL_ONLY
+   | statement_list statement
+ALL_TARGETS
 {
     tree_chain($2, $1);
 }
 ;
 
-toplevel_declarations
-: declaration ';'
-| function_definition
-;
+CFILE_ONLY
+    toplevel_declarations
+    : declaration ';'
+    | function_definition
+    ;
 
-function_definition
-: type_specifier IDENTIFIER argument_specifier compound_statement
-{
-    tree function_def = tree_make(T_FN_DEF);
-    tFNDEF_NAME(function_def) = get_identifier($2);
-    tFNDEF_RET_TYPE(function_def) = $1;
-    tFNDEF_ARGS(function_def) = $3;
-    tFNDEF_STMTS(function_def) = $4;
-    set_locus(function_def, @1);
-    set_locus(tFNDEF_NAME(function_def), @2);
-    $$ = function_def;
-}
-;
+    function_definition
+    : type_specifier IDENTIFIER argument_specifier compound_statement
+    {
+        tree function_def = tree_make(T_FN_DEF);
+        tFNDEF_NAME(function_def) = get_identifier($2);
+        tFNDEF_RET_TYPE(function_def) = $1;
+        tFNDEF_ARGS(function_def) = $3;
+        tFNDEF_STMTS(function_def) = $4;
+        set_locus(function_def, @1);
+        set_locus(tFNDEF_NAME(function_def), @2);
+        $$ = function_def;
+    }
+    ;
+ALL_TARGETS
 
 argument_specifier
 : '(' ')'
@@ -197,32 +217,49 @@ argument_decl
 
 statement
 : expression_statement
-| compound_statement
 | iteration_statement
-| jump_statement
+CFILE_ONLY
+    | compound_statement
+    | jump_statement
+REPL_ONLY
+    | declaration_statement
+    | C_PRE_INC
+    {
+        tree ret = tree_make(CPP_INCLUDE);
+        tCPP_INCLUDE_STR(ret) = $1;
+        $$ = ret;
+    }
+ALL_TARGETS
 ;
 
-statement_list: statement
-{
-    $$ = tree_chain_head($1);
-}
-| statement_list statement
-{
-    tree_chain($2, $1);
-}
-;
+CFILE_ONLY
+    statement_list: statement
+    {
+        $$ = tree_chain_head($1);
+    }
+    | statement_list statement
+    {
+        tree_chain($2, $1);
+    }
+    ;
 
-compound_statement
-: '{' statement_list '}'
-{
-    $$ = $2;
-}
-| '{' declaration_list statement_list '}'
-{
-    tree_splice_chains($2, $3);
-    $$ = $2;
-}
-;
+    compound_statement
+    : '{' statement_list '}'
+    {
+        $$ = $2;
+    }
+    | '{' declaration_list statement_list '}'
+    {
+        tree_splice_chains($2, $3);
+        $$ = $2;
+    }
+    ;
+REPL_ONLY
+    declaration_statement
+    : declaration ';'
+    ;
+ALL_TARGETS
+
 
 expression_statement
 : assignment_expression ';'
@@ -241,18 +278,20 @@ iteration_statement
 }
 ;
 
-jump_statement
-: RETURN ';'
-{
-    $$ = tree_make(T_RETURN);
-}
-| RETURN expression_statement
-{
-    tree ret = tree_make(T_RETURN);
-    tRET_EXP(ret) = $2;
-    $$ = ret;
-}
-;
+CFILE_ONLY
+    jump_statement
+    : RETURN ';'
+    {
+        $$ = tree_make(T_RETURN);
+    }
+    | RETURN expression_statement
+    {
+        tree ret = tree_make(T_RETURN);
+        tRET_EXP(ret) = $2;
+        $$ = ret;
+    }
+    ;
+ALL_TARGETS
 
 primary_expression
 : INTEGER
@@ -1005,41 +1044,43 @@ declaration
         }
     }
 }
-| type_specifier '(' pointer IDENTIFIER ')' argument_specifier
-{
-    tree function, decl;
-    function = tree_make(T_DECL_FN);
-    tFNDECL_NAME(function) = NULL;
-    tFNDECL_RET_TYPE(function) = $1;
-    tFNDECL_ARGS(function) = $6;
-    tFNDECL_STMTS(function) = NULL;
+CFILE_ONLY
+    | type_specifier '(' pointer IDENTIFIER ')' argument_specifier
+    {
+        tree function, decl;
+        function = tree_make(T_DECL_FN);
+        tFNDECL_NAME(function) = NULL;
+        tFNDECL_RET_TYPE(function) = $1;
+        tFNDECL_ARGS(function) = $6;
+        tFNDECL_STMTS(function) = NULL;
 
-    decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = function;
-    tDECL_DECLS(decl) = make_pointer_type($3, get_identifier($4));
+        decl = tree_make(T_DECL);
+        tDECL_TYPE(decl) = function;
+        tDECL_DECLS(decl) = make_pointer_type($3, get_identifier($4));
 
-    set_locus(function, @1);
-    set_locus(decl, @4);
+        set_locus(function, @1);
+        set_locus(decl, @4);
 
-    $$ = decl;
-}
-| type_specifier
-{
-    tree decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = $1;
-    tDECL_DECLS(decl) = NULL;
-    set_locus(decl, @1);
-    $$ = decl;
-}
-;
+        $$ = decl;
+    }
+    | type_specifier
+    {
+        tree decl = tree_make(T_DECL);
+        tDECL_TYPE(decl) = $1;
+        tDECL_DECLS(decl) = NULL;
+        set_locus(decl, @1);
+        $$ = decl;
+    }
+    ;
 
-declaration_list
-: declaration ';'
-{
-    $$ = tree_chain_head($1);
-}
-| declaration_list declaration ';'
-{
-    tree_chain($2, $1);
-}
+    declaration_list
+    : declaration ';'
+    {
+        $$ = tree_chain_head($1);
+    }
+    | declaration_list declaration ';'
+    {
+        tree_chain($2, $1);
+    }
+ALL_TARGETS
 ;

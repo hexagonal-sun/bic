@@ -28,9 +28,11 @@ src/repllex.l
 src/libbic.a
 src/main.o
 src/cfileparser.c
+src/cfileparser.y
 src/cfileparser.h
 src/cfileparser.o
 src/replparser.c
+src/replparser.y
 src/replparser.h
 src/replparser.o
 src/tree.o

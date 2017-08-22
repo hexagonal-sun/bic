@@ -11,7 +11,7 @@
 extern FILE* cfilein;
 extern int cfileparse();
 
-tree parse_head;
+tree cfile_parse_head;
 
 static void * gmp_realloc_stub(void *ptr, size_t old, size_t new)
 {
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     else
         for (i = 1; i < argc; i++)
             if (!parse_file(argv[i])) {
-                add_call_to_main(parse_head);
-                evaluate(parse_head, argv[i]);
+                add_call_to_main(cfile_parse_head);
+                evaluate(cfile_parse_head, argv[i]);
             }
 }

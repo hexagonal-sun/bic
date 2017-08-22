@@ -1659,7 +1659,7 @@ static tree eval_cpp_include(tree t, int depth)
     char out_file_name[] = "/tmp/bic.cpp.XXXXXX";
     char *command;
     extern FILE* cfilein;
-    extern tree parse_head;
+    extern tree cfile_parse_head;
     tree i, cpp_include = tree_make(CPP_INCLUDE);
     FILE *out_file_stream;
     int cpp_file_fd, out_file_fd, ret;
@@ -1730,7 +1730,7 @@ static tree eval_cpp_include(tree t, int depth)
     /* Delete old #include evaluator state before evaluating the parse
      * tree for the new #includes. */
     include_ctx = NULL;
-    __evaluate(parse_head, depth + 1);
+    __evaluate(cfile_parse_head, depth + 1);
     include_ctx = cur_ctx;
     pop_ctx();
 
