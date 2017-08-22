@@ -1655,8 +1655,8 @@ static tree eval_deref(tree t, int depth)
 
 static tree eval_cpp_include(tree t, int depth)
 {
-    char cpp_file_name[] = "/tmp/bic.cpp.XXXXXX";
-    char out_file_name[] = "/tmp/bic.cpp.XXXXXX";
+    char cpp_file_name[] = "/tmp/bic.cpp.XXXXXX.c";
+    char out_file_name[] = "/tmp/bic.cpp.XXXXXX.c";
     char *command;
     extern FILE* cfilein;
     extern tree cfile_parse_head;
@@ -1675,12 +1675,12 @@ static tree eval_cpp_include(tree t, int depth)
     tCPP_INCLUDE_STR(cpp_include) = GC_STRDUP(tCPP_INCLUDE_STR(t));
     tree_chain(cpp_include, include_chain);
 
-    cpp_file_fd = mkstemp(cpp_file_name);
+    cpp_file_fd = mkstemps(cpp_file_name, 2);
 
     if (cpp_file_fd == -1)
         eval_die(t, "Could not open temp file: %s\n", strerror(errno));
 
-    out_file_fd = mkstemp(out_file_name);
+    out_file_fd = mkstemps(out_file_name, 2);
 
     if (out_file_fd == -1)
         eval_die(t, "Could not open temp file: %s\n", strerror(errno));
@@ -1697,7 +1697,7 @@ static tree eval_cpp_include(tree t, int depth)
 
     close(cpp_file_fd);
 
-    ret = asprintf(&command, "cpp -P %s > %s", cpp_file_name, out_file_name);
+    ret = asprintf(&command, "gcc -E -P %s > %s", cpp_file_name, out_file_name);
 
     if (ret == -1)
         eval_die(t, "Could not compose preprocessor command: %s\n",
