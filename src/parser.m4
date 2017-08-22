@@ -1037,6 +1037,7 @@ declaration
                 oldid = tFNDECL_NAME(oldid);
 
             if (!is_T_IDENTIFIER(oldid)) {
+                yyerror("Expected identifier when processing typedef");
                 YYERROR;
             }
 
