@@ -1059,6 +1059,9 @@ declaration
             if (is_T_DECL_FN(oldid))
                 oldid = tFNDECL_NAME(oldid);
 
+            if (is_T_ARRAY(oldid))
+               oldid = tARRAY_ID(oldid);
+
             if (!is_T_IDENTIFIER(oldid)) {
                 yyerror("Expected identifier when processing typedef");
                 YYERROR;
