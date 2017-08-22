@@ -92,6 +92,7 @@ ALL_TARGETS
 %type <tree> multiplicative_expression
 %type <tree> additive_expression
 %type <tree> relational_expression
+%type <tree> logical_expression
 %type <tree> assignment_expression
 %type <tree> decl
 %type <tree> decl_possible_pointer
@@ -511,9 +512,25 @@ relational_expression
 }
 ;
 
-assignment_expression
+logical_expression
 : relational_expression
-| unary_expression '=' assignment_expression
+| logical_expression BOOL_OP_OR relational_expression
+{
+    tree logicor = tree_build_bin(T_L_OR, $1, $3);
+    set_locus(logicor, @2);
+    $$ = logicor;
+}
+| logical_expression BOOL_OP_AND relational_expression
+{
+    tree logicand = tree_build_bin(T_L_AND, $1, $3);
+    set_locus(logicand, @2);
+    $$ = logicand;
+}
+;
+
+assignment_expression
+: logical_expression
+| unary_expression '=' logical_expression
 {
     tree assign = tree_build_bin(T_ASSIGN, $1, $3);
     set_locus(assign, @2);

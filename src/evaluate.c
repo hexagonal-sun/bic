@@ -1229,6 +1229,89 @@ static tree eval_gteq(tree t, int depth)
     return ret;
 }
 
+static tree eval_logic_or(tree t, int depth)
+{
+    int iret = 0;
+    tree left  = convert_to_comparable_type(tL_OR_LHS(t), depth),
+        right,
+        ret;
+
+    switch (TYPE(left)) {
+    case T_INTEGER:
+    {
+        if (mpz_cmp_ui(tINT(left), 0)) {
+            iret = 1;
+            /* Short circuit! */
+            goto out;
+        }
+        break;
+    }
+    default:
+        eval_die(t, "Unknown comparable types for gt\n");
+    }
+
+    right = convert_to_comparable_type(tL_OR_RHS(t), depth);
+
+    switch (TYPE(right)) {
+    case T_INTEGER:
+    {
+        if (mpz_cmp_ui(tINT(right), 0))
+            iret = 1;
+        break;
+    }
+    default:
+        eval_die(t, "Unknown comparable types for gt\n");
+    }
+
+
+out:
+    ret = tree_make(T_INTEGER);
+    mpz_init_set_ui(tINT(ret), iret);
+    return ret;
+}
+
+static tree eval_logic_and(tree t, int depth)
+{
+    int iret = 0;
+    tree left  = convert_to_comparable_type(tL_AND_LHS(t), depth),
+        right,
+        ret;
+
+    switch (TYPE(left)) {
+    case T_INTEGER:
+    {
+        if (!mpz_cmp_ui(tINT(left), 0))
+            /* Short circuit! */
+            goto out;
+
+        break;
+    }
+    default:
+        eval_die(t, "Unknown comparable types for gt\n");
+    }
+
+    right = convert_to_comparable_type(tL_AND_RHS(t), depth);
+
+    switch (TYPE(right)) {
+    case T_INTEGER:
+    {
+        if (mpz_cmp_ui(tINT(right), 0))
+            iret = 1;
+        break;
+    }
+    default:
+        eval_die(t, "Unknown comparable types for gt\n");
+    }
+
+
+out:
+    ret = tree_make(T_INTEGER);
+    mpz_init_set_ui(tINT(ret), iret);
+    return ret;
+}
+
+
+
 /* All types evaluate to themselves. */
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
     static tree eval_##TNAME(tree t, int depth) \
@@ -1806,6 +1889,8 @@ static tree __evaluate_1(tree t, int depth)
     case T_GT:         result = eval_gt(t, depth + 1);         break;
     case T_LTEQ:       result = eval_lteq(t, depth + 1);       break;
     case T_GTEQ:       result = eval_gteq(t, depth + 1);       break;
+    case T_L_OR:       result = eval_logic_or(t, depth + 1);   break;
+    case T_L_AND:      result = eval_logic_and(t, depth + 1);  break;
     case T_LIVE_VAR:   result = eval_self(t, depth + 1);       break;
     case T_LIVE_COMPOUND: result = eval_self(t, depth + 1);    break;
     case T_EXTERN:     result = eval_self(t, depth + 1);       break;
