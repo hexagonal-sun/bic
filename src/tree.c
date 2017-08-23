@@ -86,6 +86,24 @@ static void tree_dump_function(tree t, int depth)
     tree_print_indent(depth);
 }
 
+static void tree_dump_if(tree t, int depth)
+{
+    eprintf("\n");
+    tree_print_indent(depth);
+
+    eprintf(" condition:\n");
+    __tree_dump(tIF_COND(t), depth + 1);
+
+    tree_print_indent(depth);
+    eprintf(" true statements:\n");
+    __tree_dump(tIF_TRUE_STMTS(t), depth + 1);
+
+    tree_print_indent(depth);
+    eprintf(" else statements:\n");
+    __tree_dump(tIF_ELSE_STMTS(t), depth + 1);
+    tree_print_indent(depth);
+}
+
 static void tree_dump_for_loop(tree t, int depth)
 {
     eprintf("\n");
@@ -273,6 +291,9 @@ void __tree_dump_1(tree t, int depth)
         break;
     case T_DECL:
         tree_dump_decl(t,  depth);
+        break;
+    case T_IF:
+        tree_dump_if(t, depth);
         break;
     case T_LOOP_FOR:
         tree_dump_for_loop(t, depth);

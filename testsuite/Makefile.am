@@ -9,7 +9,8 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  forward_declare double_pointer				\
                  typedef_decl_mul_ambiguity function_pointer		\
                  double_extern_fn_decl static_ints			\
-                 permit_incomplete_struct_ptr logical_op_test
+                 permit_incomplete_struct_ptr logical_op_test		\
+                 if_stmts
 
 TESTS = $(check_PROGRAMS)
 

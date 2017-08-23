@@ -118,6 +118,12 @@ struct enum_type {
     tree enums;
 };
 
+struct if_stmt {
+    tree condition;
+    tree true_stmts;
+    tree else_stmts;
+};
+
 struct for_loop {
     tree initialization;
     tree condition;
@@ -174,6 +180,9 @@ union tree_data {
 
     /* T_ENUMERATOR */
     struct enum_type enumerator;
+
+    /* T_IF */
+    struct if_stmt ifstmt;
 
     /* T_LOOP_FOR */
     struct for_loop floop;

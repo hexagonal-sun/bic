@@ -85,6 +85,7 @@ ALL_TARGETS
 %type <tree> statement_list
 %type <tree> expression_statement
 %type <tree> iteration_statement
+%type <tree> selection_statement
 %type <tree> primary_expression
 %type <tree> postfix_expression
 %type <tree> argument_expression_list
@@ -220,6 +221,7 @@ argument_decl
 statement
 : expression_statement
 | iteration_statement
+| selection_statement
 CFILE_ONLY
     | compound_statement
     | jump_statement
@@ -277,6 +279,18 @@ iteration_statement
     tFLOOP_STMTS(for_loop) = $7;
     set_locus(for_loop, @1);
     $$ = for_loop;
+}
+;
+
+selection_statement
+: IF '(' assignment_expression ')' statement ELSE statement
+{
+    tree ifstmt = tree_make(T_IF);
+    tIF_COND(ifstmt) = $3;
+    tIF_TRUE_STMTS(ifstmt) = $5;
+    tIF_ELSE_STMTS(ifstmt) = $7;
+    set_locus(ifstmt, @1);
+    $$ = ifstmt;
 }
 ;
 

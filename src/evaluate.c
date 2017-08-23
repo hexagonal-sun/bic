@@ -1347,6 +1347,21 @@ static tree eval_loop_for(tree t, int depth)
     return NULL;
 }
 
+static tree eval_if(tree t, int depth)
+{
+    tree cond_result = convert_to_comparable_type(tIF_COND(t), depth);
+
+    if (!is_T_INTEGER(cond_result))
+        eval_die(t, "Unknown condition result");
+
+    if (mpz_get_si(tINT(cond_result)))
+        __evaluate(tIF_TRUE_STMTS(t), depth + 1);
+    else
+        __evaluate(tIF_ELSE_STMTS(t), depth + 1);
+
+    return NULL;
+}
+
 static tree eval_return(tree t, int depth)
 {
     tRET_EXP(t) = __evaluate_1(tRET_EXP(t), depth + 1);
@@ -1897,6 +1912,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_TYPEDEF:    result = eval_self(t, depth + 1);       break;
     case T_STATIC:     result = eval_self(t, depth + 1);       break;
     case T_LOOP_FOR:   result = eval_loop_for(t, depth + 1);   break;
+    case T_IF:         result = eval_if(t, depth + 1);         break;
     case T_RETURN:     result = eval_return(t, depth + 1);     break;
     case T_DECL_COMPOUND:result = eval_decl_compound(t, depth + 1);break;
     case T_ENUMERATOR: result = eval_enumerator(t, depth + 1); break;
