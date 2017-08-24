@@ -106,28 +106,18 @@ then recursively evaluate each tree element, updating the evaluator
 state, thereby executing a program.
 
 Calls to functions external to the evaluator are handled in a
-platform-dependent way.  Currently IA64 is the only supported platform
-and the code to handle this is in the `x86_64` folder.  This works by
-taking a function call `tree` object from the evaluator with all
-arguments evaluated and marshalling them into a simple linked-list.
-This is then traversed in assembly to move the value into the correct
-register according to the IA64 calling-convention and then branching
-to the function address.
+platform-dependent way.  Currently IA64 and aarch64 are the only
+supported platforms and the code to handle this is in the `x86_64` and
+`aarch64` folders respectively.  This works by taking a function call
+`tree` object from the evaluator with all arguments evaluated and
+marshalling them into a simple linked-list.  This is then traversed in
+assembly to move the value into the correct register according to the
+IA64 calling-convention and then branching to the function address.
 
 Contributing
 ------------
 
 Patches are welcome!  Current outstanding work:
-
- * Parser unification - the repl and file parser contain a _lot_ of
-   code duplication.  It would be good to unify this.  Maybe using m4?
-
- * Handling multiple `#include` directives.  Whenever an include CPP
-   directive is parsed on the REPL, we call out to the system's CPP to
-   process the directive for us.  However, any definitions set (to
-   avoid multiple deviations of the same object) in the headers are
-   lost.  Maybe we need to implement our own CPP?  Can we pipe input
-   to the system's CPP and read the output thereby maintaining state?
 
  * Add a '-l' flag that calls `dlopen` allowing external libraries to
    be search when evaluating function calls.
