@@ -73,6 +73,12 @@
 #define tGTEQ_LHS(obj) (_DATA( TREE_CHECK((obj), T_GTEQ)).bin.left)
 #define tGTEQ_RHS(obj) (_DATA( TREE_CHECK((obj), T_GTEQ)).bin.right)
 
+#define tEQ_LHS(obj) (_DATA( TREE_CHECK((obj), T_EQ)).bin.left)
+#define tEQ_RHS(obj) (_DATA( TREE_CHECK((obj), T_EQ)).bin.right)
+
+#define tN_EQ_LHS(obj) (_DATA( TREE_CHECK((obj), T_N_EQ)).bin.left)
+#define tN_EQ_RHS(obj) (_DATA( TREE_CHECK((obj), T_N_EQ)).bin.right)
+
 #define tL_OR_LHS(obj) (_DATA( TREE_CHECK((obj), T_L_OR)).bin.left)
 #define tL_OR_RHS(obj) (_DATA( TREE_CHECK((obj), T_L_OR)).bin.right)
 

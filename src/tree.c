@@ -280,6 +280,8 @@ void __tree_dump_1(tree t, int depth)
     case T_GT:
     case T_LTEQ:
     case T_GTEQ:
+    case T_EQ:
+    case T_N_EQ:
     case T_L_OR:
     case T_L_AND:
     case T_ARRAY:

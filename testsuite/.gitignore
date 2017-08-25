@@ -39,5 +39,6 @@ static_ints
 permit_incomplete_struct_ptr
 logical_op_test
 if_stmts
+eqneq
 
 *.trs

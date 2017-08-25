@@ -1229,6 +1229,62 @@ static tree eval_gteq(tree t, int depth)
     return ret;
 }
 
+static tree eval_eq(tree t, int depth)
+{
+    tree left = convert_to_comparable_type(tEQ_LHS(t), depth),
+        right = convert_to_comparable_type(tEQ_RHS(t), depth),
+        ret;
+
+    if (TYPE(left) != TYPE(right))
+        eval_die(t, "Could not compare different types\n");
+
+    switch (TYPE(left)) {
+    case T_INTEGER:
+    {
+        int val;
+        if (!mpz_cmp(tINT(left), tINT(right)))
+            val = 1;
+        else
+            val = 0;
+        ret = tree_make(T_INTEGER);
+        mpz_init_set_ui(tINT(ret), val);
+        break;
+    }
+    default:
+        eval_die(t, "Unknown comparable types for eq.\n");
+    }
+
+    return ret;
+}
+
+static tree eval_n_eq(tree t, int depth)
+{
+    tree left = convert_to_comparable_type(tN_EQ_LHS(t), depth),
+        right = convert_to_comparable_type(tN_EQ_RHS(t), depth),
+        ret;
+
+    if (TYPE(left) != TYPE(right))
+        eval_die(t, "Could not compare different types\n");
+
+    switch (TYPE(left)) {
+    case T_INTEGER:
+    {
+        int val;
+        if (!mpz_cmp(tINT(left), tINT(right)))
+            val = 0;
+        else
+            val = 1;
+        ret = tree_make(T_INTEGER);
+        mpz_init_set_ui(tINT(ret), val);
+        break;
+    }
+    default:
+        eval_die(t, "Unknown comparable types for n_eq.\n");
+    }
+
+    return ret;
+}
+
 static tree eval_logic_or(tree t, int depth)
 {
     int iret = 0;
@@ -1905,6 +1961,8 @@ static tree __evaluate_1(tree t, int depth)
     case T_LTEQ:       result = eval_lteq(t, depth + 1);       break;
     case T_GTEQ:       result = eval_gteq(t, depth + 1);       break;
     case T_L_OR:       result = eval_logic_or(t, depth + 1);   break;
+    case T_EQ:         result = eval_eq(t, depth + 1);         break;
+    case T_N_EQ:       result = eval_n_eq(t, depth + 1);       break;
     case T_L_AND:      result = eval_logic_and(t, depth + 1);  break;
     case T_LIVE_VAR:   result = eval_self(t, depth + 1);       break;
     case T_LIVE_COMPOUND: result = eval_self(t, depth + 1);    break;

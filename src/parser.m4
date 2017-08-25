@@ -524,6 +524,18 @@ relational_expression
     set_locus(gtoreq, @2);
     $$ = gtoreq;
 }
+| relational_expression EQUATE additive_expression
+{
+    tree equal = tree_build_bin(T_EQ, $1, $3);
+    set_locus(equal, @2);
+    $$ = equal;
+}
+| relational_expression NOT_EQUATE additive_expression
+{
+    tree not_equal = tree_build_bin(T_N_EQ, $1, $3);
+    set_locus(not_equal, @2);
+    $$ = not_equal;
+}
 ;
 
 logical_expression
