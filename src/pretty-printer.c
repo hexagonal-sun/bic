@@ -26,9 +26,9 @@ static void pp_live_var(tree t, int depth)
         break;
     }
 
-        /* Handle a special case for char * live variables. */
+    /* Handle a special case for char * live variables. */
     if (is_D_T_PTR(type) &&
-        is_D_T_CHAR(tPTR_EXP(type))) {
+        is_D_T_CHAR(tDTPTR_EXP(type))) {
         char *str = tLV_VAL(t)->D_T_PTR;
 
         if (str)
