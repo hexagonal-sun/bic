@@ -1590,7 +1590,7 @@ static tree eval_decl_compound(tree t, int depth)
 
 static tree eval_enumerator(tree t, int depth)
 {
-    tree enum_id, enum_base_type = tree_make(ENUMTYPE);
+    tree enum_expr, enum_base_type = tree_make(ENUMTYPE);
     unsigned int enum_val = 0;
 
     /* Whenever we encounter this decl, we wish to treat it as just a
@@ -1600,12 +1600,33 @@ static tree eval_enumerator(tree t, int depth)
 
     /* Allocate a number for each member of the enumerator and map the
      * identifier to the value. */
-    for_each_tree(enum_id, tENUM_ENUMS(t)) {
-        tree integer = tree_make(T_INTEGER);
+    for_each_tree(enum_expr, tENUM_ENUMS(t)) {
+        tree integer = tree_make(T_INTEGER),
+            enum_id;
+
+        switch(TYPE(enum_expr)) {
+        case T_IDENTIFIER:
+
+            /* In the case where the enumerator is just an identifier,
+             * we use the next available integer. */
+            enum_id = enum_expr;
+            break;
+        case T_ASSIGN:
+        {
+            tree new_val =
+                convert_to_comparable_type(tASSIGN_RHS(enum_expr), depth);
+
+            enum_id = tASSIGN_LHS(enum_expr);
+            enum_val = (unsigned int)mpz_get_ui(tINT(new_val));
+
+            break;
+        }
+        default:
+            eval_die(t, "Unknown enumerator expression\n");
+        }
+
         mpz_init_set_ui(tINT(integer), enum_val);
-
         map_identifier(enum_id, integer);
-
         enum_val++;
     }
 

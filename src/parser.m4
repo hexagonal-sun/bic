@@ -1034,6 +1034,15 @@ enumerator
     set_locus(id, @1);
     $$ = id;
 }
+| IDENTIFIER '=' logical_expression
+{
+    tree id = get_identifier($1);
+    set_locus(id, @1);
+    tree assign = tree_build_bin(T_ASSIGN, id, $3);
+    set_locus(assign, @2);
+    $$ = assign;
+}
+;
 
 compound_decl_list
 : compound_decl

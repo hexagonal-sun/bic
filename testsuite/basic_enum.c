@@ -6,12 +6,16 @@ int main()
         MEMA,
         MEMB,
         MEMC,
-        MEMD
+        MEMD,
+        MEME = 1024,
+        MEMF,
+        MAX = MEMF
     };
 
     enum foobar foob;
-    foob = MEMD;
+    foob = MAX;
 
     printf("%d %d %d %d\n", MEMA, MEMB, MEMC, MEMD);
+    printf("%d %d %d\n", MEME, MEMF, MAX);
     printf("%d\n", foob);
 }
