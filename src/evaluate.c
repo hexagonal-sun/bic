@@ -281,6 +281,9 @@ static tree eval_fn_args(tree args, int depth)
 {
     tree arg, ret = tree_make(CHAIN_HEAD);
 
+    if (!args)
+        return NULL;
+
     for_each_tree(arg, args) {
         tree fn_arg = tree_make(T_FN_ARG);
         tFNARG_EXP(fn_arg) = __evaluate_1(arg, depth + 1);
@@ -393,9 +396,9 @@ static tree eval_fn_call(tree t, int depth)
          * function. */
         fn_arg_chain = eval_fn_args(args, depth);
 
-         res = do_call(function_address, fn_arg_chain);
+        res = do_call(function_address, fn_arg_chain);
 
-         return make_fncall_result(tFNDECL_RET_TYPE(function), res);
+        return make_fncall_result(tFNDECL_RET_TYPE(function), res);
     }
 
     if (is_T_LIVE_VAR(function)) {
