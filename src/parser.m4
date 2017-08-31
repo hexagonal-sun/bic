@@ -73,7 +73,7 @@ CFILE_ONLY
 %type <tree> compound_statement
 %type <tree> function_definition
 %type <tree> jump_statement
-%type <tree> declaration_list
+%type <tree> func_ptr_decl
 REPL_ONLY
 %type <tree> declaration_statement
 ALL_TARGETS
@@ -101,20 +101,17 @@ ALL_TARGETS
 %type <tree> declarator
 %type <tree> initialiser
 %type <tree> declarator_list
-%type <tree> direct_declarator_list
 %type <tree> struct_specifier
 %type <tree> union_specifier
 %type <tree> enum_specifier
 %type <tree> enumerator_list
-%type <tree> func_ptr_decl
 %type <tree> enumerator
-%type <tree> compound_decl_list
-%type <tree> compound_decl
 %type <tree> storage_class_specifier
 %type <tree> direct_type_specifier
 %type <tree> sizeof_specifier
 %type <tree> type_specifier
 %type <tree> declaration
+%type <tree> declaration_list
 
 %%
 
@@ -646,17 +643,6 @@ declarator_list
 }
 ;
 
-direct_declarator_list
-: decl_possible_pointer
-{
-    $$ = tree_chain_head($1);
-}
-| direct_declarator_list ',' decl_possible_pointer
-{
-    tree_chain($3, $1);
-}
-;
-
 storage_class_specifier
 : TYPEDEF
 {
@@ -898,7 +884,7 @@ type_specifier
 ;
 
 struct_specifier
-: STRUCT IDENTIFIER '{' compound_decl_list '}'
+: STRUCT IDENTIFIER '{' declaration_list '}'
 {
     char *struct_name = concat_string("struct ", $2);
     tree decl = tree_make(T_DECL_COMPOUND);
@@ -909,7 +895,7 @@ struct_specifier
     set_locus(tCOMP_DECL_ID(decl), @2);
     $$ = decl;
 }
-| STRUCT '{' compound_decl_list '}'
+| STRUCT '{' declaration_list '}'
 {
     tree decl = tree_make(T_DECL_COMPOUND);
     tCOMP_DECL_ID(decl) = NULL;
@@ -939,7 +925,7 @@ struct_specifier
 ;
 
 union_specifier
-: UNION IDENTIFIER '{' compound_decl_list '}'
+: UNION IDENTIFIER '{' declaration_list '}'
 {
     char *union_name = concat_string("union ", $2);
     tree decl = tree_make(T_DECL_COMPOUND);
@@ -950,7 +936,7 @@ union_specifier
     set_locus(tCOMP_DECL_ID(decl), @2);
     $$ = decl;
 }
-| UNION '{' compound_decl_list '}'
+| UNION '{' declaration_list '}'
 {
     tree decl = tree_make(T_DECL_COMPOUND);
     tCOMP_DECL_ID(decl) = NULL;
@@ -1044,48 +1030,28 @@ enumerator
 }
 ;
 
-compound_decl_list
-: compound_decl
-{
-    $$ = tree_chain_head($1);
-}
-| compound_decl_list compound_decl
-{
-    tree_chain($2, $1);
-}
-;
+CFILE_ONLY
+    func_ptr_decl
+    : type_specifier '(' pointer IDENTIFIER ')' argument_specifier
+    {
+        tree function, decl;
+        function = tree_make(T_DECL_FN);
+        tFNDECL_NAME(function) = NULL;
+        tFNDECL_RET_TYPE(function) = $1;
+        tFNDECL_ARGS(function) = $6;
+        tFNDECL_STMTS(function) = NULL;
 
-func_ptr_decl
-: type_specifier '(' pointer IDENTIFIER ')' argument_specifier
-{
-    tree function, decl;
-    function = tree_make(T_DECL_FN);
-    tFNDECL_NAME(function) = NULL;
-    tFNDECL_RET_TYPE(function) = $1;
-    tFNDECL_ARGS(function) = $6;
-    tFNDECL_STMTS(function) = NULL;
+        decl = tree_make(T_DECL);
+        tDECL_TYPE(decl) = function;
+        tDECL_DECLS(decl) = make_pointer_type($3, get_identifier($4));
 
-    decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = function;
-    tDECL_DECLS(decl) = make_pointer_type($3, get_identifier($4));
+        set_locus(function, @1);
+        set_locus(decl, @4);
 
-    set_locus(function, @1);
-    set_locus(decl, @4);
-
-    $$ = decl;
-}
-
-compound_decl
-: type_specifier direct_declarator_list ';'
-{
-    tree decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = $1;
-    tDECL_DECLS(decl) = $2;
-    set_locus(decl, @1);
-    $$ = decl;
-}
-| func_ptr_decl ';'
-;
+        $$ = decl;
+    }
+    ;
+ALL_TARGETS
 
 declaration
 : type_specifier declarator_list
@@ -1133,16 +1099,16 @@ CFILE_ONLY
         set_locus(decl, @1);
         $$ = decl;
     }
-    ;
-
-    declaration_list
-    : declaration ';'
-    {
-        $$ = tree_chain_head($1);
-    }
-    | declaration_list declaration ';'
-    {
-        tree_chain($2, $1);
-    }
 ALL_TARGETS
+;
+
+declaration_list
+: declaration ';'
+{
+    $$ = tree_chain_head($1);
+}
+| declaration_list declaration ';'
+{
+    tree_chain($2, $1);
+}
 ;
