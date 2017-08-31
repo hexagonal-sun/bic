@@ -83,7 +83,7 @@ X                               [0-9A-F]
 "__asm"("__")?[ \t]*"(".*")"    /* Ignore asm stmts. */
 "__extension__"                 /* Ignore gcc warning suppression
                                  * extension. */
-"inline"                        /* Ignore inlining */
+("__")?"inline"                 /* Ignore inlining */
 "auto"				return AUTO;
 "break"				return BREAK;
 "case"				return CASE;
