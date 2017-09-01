@@ -1455,14 +1455,15 @@ static tree expand_decl_chain(tree decl_chain)
     tree decl, decl_element, new_chain = tree_make(CHAIN_HEAD);
 
     for_each_tree(decl, decl_chain) {
-        for_each_tree(decl_element, tDECL_DECLS(decl)) {
-            tree new_decl = tree_make(T_DECL);
+        if (tDECL_DECLS(decl))
+            for_each_tree(decl_element, tDECL_DECLS(decl)) {
+                tree new_decl = tree_make(T_DECL);
 
-            tDECL_TYPE(new_decl) = tDECL_TYPE(decl);
-            tDECL_DECLS(new_decl) = decl_element;
+                tDECL_TYPE(new_decl) = tDECL_TYPE(decl);
+                tDECL_DECLS(new_decl) = decl_element;
 
-            tree_chain(new_decl, new_chain);
-        }
+                tree_chain(new_decl, new_chain);
+            }
     }
 
     return new_chain;
