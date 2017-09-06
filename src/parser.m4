@@ -731,7 +731,19 @@ direct_type_specifier
     set_locus(type, @1);
     $$ = type;
 }
+| SIGNED
+{
+    tree type = tree_make(D_T_INT);
+    set_locus(type, @1);
+    $$ = type;
+}
 | UNSIGNED INT
+{
+    tree type = tree_make(D_T_UINT);
+    set_locus(type, @1);
+    $$ = type;
+}
+| UNSIGNED
 {
     tree type = tree_make(D_T_UINT);
     set_locus(type, @1);
