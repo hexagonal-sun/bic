@@ -1369,7 +1369,126 @@ out:
     return ret;
 }
 
+static tree eval_cast(tree t, int depth)
+{
+    tree source = __evaluate_1(tCAST_EXP(t), depth + 1),
+        dest_type = tCAST_NEWTYPE(t),
+        ret;
 
+    if (!is_T_LIVE_VAR(source))
+        eval_die(t, "Could not cast non-live variable\n");
+
+#define DEFCAST(SOURCE_TYPE, DEST_TYPE)                           \
+    if (is_##SOURCE_TYPE(tLV_TYPE(source)) &&                     \
+        is_##DEST_TYPE(dest_type)) {                              \
+        ret = make_live_var(dest_type);                           \
+            tLV_VAL(ret)->DEST_TYPE =                             \
+            (DEST_TYPE##_t)tLV_VAL(source)->SOURCE_TYPE;          \
+            return ret;                                           \
+    }
+
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+    DEFCAST(D_T_CHAR, ETYPE);
+#include "ctypes.def"
+#undef DEFCTYPE
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+    DEFCAST(D_T_SHORT, ETYPE);
+#include "ctypes.def"
+#undef DEFCTYPE
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+    DEFCAST(D_T_INT, ETYPE);
+#include "ctypes.def"
+#undef DEFCTYPE
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+    DEFCAST(D_T_LONG, ETYPE);
+#include "ctypes.def"
+#undef DEFCTYPE
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+    DEFCAST(D_T_LONGLONG, ETYPE);
+#include "ctypes.def"
+#undef DEFCTYPE
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+    DEFCAST(D_T_UCHAR, ETYPE);
+#include "ctypes.def"
+#undef DEFCTYPE
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+    DEFCAST(D_T_USHORT, ETYPE);
+#include "ctypes.def"
+#undef DEFCTYPE
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+    DEFCAST(D_T_UINT, ETYPE);
+#include "ctypes.def"
+#undef DEFCTYPE
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+    DEFCAST(D_T_ULONG, ETYPE);
+#include "ctypes.def"
+#undef DEFCTYPE
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+    DEFCAST(D_T_ULONGLONG, ETYPE);
+#include "ctypes.def"
+#undef DEFCTYPE
+
+    DEFCAST(D_T_FLOAT, D_T_CHAR);
+    DEFCAST(D_T_FLOAT, D_T_SHORT);
+    DEFCAST(D_T_FLOAT, D_T_INT);
+    DEFCAST(D_T_FLOAT, D_T_LONG);
+    DEFCAST(D_T_FLOAT, D_T_LONGLONG);
+    DEFCAST(D_T_FLOAT, D_T_UCHAR);
+    DEFCAST(D_T_FLOAT, D_T_USHORT);
+    DEFCAST(D_T_FLOAT, D_T_UINT);
+    DEFCAST(D_T_FLOAT, D_T_ULONG);
+    DEFCAST(D_T_FLOAT, D_T_ULONGLONG);
+    DEFCAST(D_T_FLOAT, D_T_FLOAT);
+    DEFCAST(D_T_FLOAT, D_T_DOUBLE);
+    DEFCAST(D_T_FLOAT, D_T_LONGDOUBLE);
+
+    DEFCAST(D_T_DOUBLE, D_T_CHAR);
+    DEFCAST(D_T_DOUBLE, D_T_SHORT);
+    DEFCAST(D_T_DOUBLE, D_T_INT);
+    DEFCAST(D_T_DOUBLE, D_T_LONG);
+    DEFCAST(D_T_DOUBLE, D_T_LONGLONG);
+    DEFCAST(D_T_DOUBLE, D_T_UCHAR);
+    DEFCAST(D_T_DOUBLE, D_T_USHORT);
+    DEFCAST(D_T_DOUBLE, D_T_UINT);
+    DEFCAST(D_T_DOUBLE, D_T_ULONG);
+    DEFCAST(D_T_DOUBLE, D_T_ULONGLONG);
+    DEFCAST(D_T_DOUBLE, D_T_FLOAT);
+    DEFCAST(D_T_DOUBLE, D_T_DOUBLE);
+    DEFCAST(D_T_DOUBLE, D_T_LONGDOUBLE);
+
+    DEFCAST(D_T_LONGDOUBLE, D_T_CHAR);
+    DEFCAST(D_T_LONGDOUBLE, D_T_SHORT);
+    DEFCAST(D_T_LONGDOUBLE, D_T_INT);
+    DEFCAST(D_T_LONGDOUBLE, D_T_LONG);
+    DEFCAST(D_T_LONGDOUBLE, D_T_LONGLONG);
+    DEFCAST(D_T_LONGDOUBLE, D_T_UCHAR);
+    DEFCAST(D_T_LONGDOUBLE, D_T_USHORT);
+    DEFCAST(D_T_LONGDOUBLE, D_T_UINT);
+    DEFCAST(D_T_LONGDOUBLE, D_T_ULONG);
+    DEFCAST(D_T_LONGDOUBLE, D_T_ULONGLONG);
+    DEFCAST(D_T_LONGDOUBLE, D_T_FLOAT);
+    DEFCAST(D_T_LONGDOUBLE, D_T_DOUBLE);
+    DEFCAST(D_T_LONGDOUBLE, D_T_LONGDOUBLE);
+
+#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
+    DEFCAST(D_T_PTR, D_T_CHAR);
+    DEFCAST(D_T_PTR, D_T_SHORT);
+    DEFCAST(D_T_PTR, D_T_INT);
+    DEFCAST(D_T_PTR, D_T_LONG);
+    DEFCAST(D_T_PTR, D_T_LONGLONG);
+    DEFCAST(D_T_PTR, D_T_UCHAR);
+    DEFCAST(D_T_PTR, D_T_USHORT);
+    DEFCAST(D_T_PTR, D_T_UINT);
+    DEFCAST(D_T_PTR, D_T_ULONG);
+    DEFCAST(D_T_PTR, D_T_ULONGLONG);
+    DEFCAST(D_T_PTR, D_T_PTR);
+
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
+
+    eval_die(t, "Could not perform cast.\n");
+}
 
 /* All types evaluate to themselves. */
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)       \
@@ -1989,6 +2108,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_EQ:         result = eval_eq(t, depth + 1);         break;
     case T_N_EQ:       result = eval_n_eq(t, depth + 1);       break;
     case T_L_AND:      result = eval_logic_and(t, depth + 1);  break;
+    case T_CAST:       result = eval_cast(t, depth + 1);       break;
     case T_LIVE_VAR:   result = eval_self(t, depth + 1);       break;
     case T_LIVE_COMPOUND: result = eval_self(t, depth + 1);    break;
     case T_EXTERN:     result = eval_self(t, depth + 1);       break;

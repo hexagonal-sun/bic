@@ -29,6 +29,11 @@ static const char *tree_desc_string[] = {
     #undef DEFCTYPE
 };
 
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+    typedef STDINTSZ ETYPE##_t;
+#include "ctypes.def"
+#undef DEFCTYPE
+
 static const inline char *tree_type_string(enum tree_type t)
  {
     switch (t) {
