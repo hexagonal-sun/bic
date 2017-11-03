@@ -10,7 +10,7 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  typedef_decl_mul_ambiguity function_pointer		\
                  double_extern_fn_decl static_ints			\
                  permit_incomplete_struct_ptr logical_op_test		\
-                 if_stmts eqneq union-struct
+                 if_stmts eqneq union-struct casts
 
 TESTS = $(check_PROGRAMS)
 
