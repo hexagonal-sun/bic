@@ -90,6 +90,7 @@ ALL_TARGETS
 %type <tree> postfix_expression
 %type <tree> argument_expression_list
 %type <tree> unary_expression
+%type <tree> cast_expression
 %type <tree> multiplicative_expression
 %type <tree> additive_expression
 %type <tree> relational_expression
@@ -457,21 +458,33 @@ unary_expression
 }
 ;
 
-multiplicative_expression
+cast_expression
 : unary_expression
-| multiplicative_expression '*' unary_expression
+| '(' direct_type_specifier ')' unary_expression
+{
+    tree cast = tree_make(T_CAST);
+    tCAST_NEWTYPE(cast) = $2;
+    tCAST_EXP(cast) = $4;
+    set_locus(cast, @1);
+    $$ = cast;
+}
+;
+
+multiplicative_expression
+: cast_expression
+| multiplicative_expression '*' cast_expression
 {
     tree mul = tree_build_bin(T_MUL, $1, $3);
     set_locus(mul, @2);
     $$ = mul;
 }
-| multiplicative_expression '/' unary_expression
+| multiplicative_expression '/' cast_expression
 {
     tree div = tree_build_bin(T_DIV, $1, $3);
     set_locus(div, @2);
     $$ = div;
 }
-| multiplicative_expression '%' unary_expression
+| multiplicative_expression '%' cast_expression
 {
     tree mod = tree_build_bin(T_MOD, $1, $3);
     set_locus(mod, @2);
