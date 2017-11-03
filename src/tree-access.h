@@ -85,6 +85,9 @@
 #define tL_AND_LHS(obj) (_DATA( TREE_CHECK((obj), T_L_AND)).bin.left)
 #define tL_AND_RHS(obj) (_DATA( TREE_CHECK((obj), T_L_AND)).bin.right)
 
+#define tCAST_NEWTYPE(obj) (_DATA( TREE_CHECK((obj), T_CAST)).bin.left)
+#define tCAST_EXP(obj) (_DATA( TREE_CHECK((obj), T_CAST)).bin.right)
+
 #define tCOMP_ACCESS_OBJ(obj) (_DATA( TREE_CHECK((obj), T_COMP_ACCESS)).bin.left)
 #define tCOMP_ACCESS_MEMBER(obj) (_DATA( TREE_CHECK((obj), T_COMP_ACCESS)).bin.right)
 
