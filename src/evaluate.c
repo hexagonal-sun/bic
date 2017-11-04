@@ -1375,6 +1375,18 @@ static tree eval_cast(tree t, int depth)
         dest_type = tCAST_NEWTYPE(t),
         ret;
 
+    if (is_T_INTEGER(source)) {
+        tree lv = make_live_var(dest_type);
+        assign_integer(lv, source);
+        return lv;
+    }
+
+    if (is_T_FLOAT(source)) {
+        tree lv = make_live_var(dest_type);
+        assign_float(lv, source);
+        return lv;
+    }
+
     if (!is_T_LIVE_VAR(source))
         eval_die(t, "Could not cast non-live variable\n");
 
