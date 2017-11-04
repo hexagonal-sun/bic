@@ -118,7 +118,7 @@ X                               [0-9A-F]
 "while"				return WHILE;
 
 REPL_ONLY
-"`#'include"[ \t]*"<"({L}|{D}|\.)+">" {LEXLVAL.string = GC_STRDUP(LEXTEXT);
+"`#'include"[ \t]*"<"({L}|{D}|\.|\/)+">" {LEXLVAL.string = GC_STRDUP(LEXTEXT);
                                      return C_PRE_INC; }
 ALL_TARGETS
 {L}({L}|{D})*                   {LEXLVAL.string = GC_STRDUP(LEXTEXT);
