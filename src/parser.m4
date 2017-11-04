@@ -62,7 +62,6 @@ REPL_ONLY
 ALL_TARGETS
 %token <string> TYPE_NAME
 %token <string> CONST_BITS
-%token <string> CONST_HEX
 %token <string> CONST_STRING
 %token <integer> INTEGER;
 %token <ffloat> FLOAT_CST;

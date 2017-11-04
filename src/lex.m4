@@ -129,7 +129,7 @@ ALL_TARGETS
 
 -?[0-9]+                          mpz_init_set_str(LEXLVAL.integer, LEXTEXT, 10); return INTEGER;
 -?[0-9]+\.[0-9]+                mpf_init_set_str(LEXLVAL.ffloat, LEXTEXT, 10); return FLOAT_CST;
-0x{X}+                          LEXLVAL.string = GC_STRDUP(LEXTEXT); return CONST_HEX;
+0x{X}+                          mpz_init_set_str(LEXLVAL.integer, LEXTEXT, 0); return INTEGER;
 \"                              { BEGIN str_lit; sl_begin(); }
 <str_lit>[^\\"\n]*              { sl_append_str(LEXTEXT); }
 <str_lit>\\n                    { sl_append_char('\n'); }
