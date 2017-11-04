@@ -83,6 +83,7 @@ X                               [0-9A-F]
 "__asm"("__")?[ \t]*"(".*")"    /* Ignore asm stmts. */
 "__extension__"                 /* Ignore gcc warning suppression
                                  * extension. */
+"volatile"                      /* Ignore volatile */
 ("__")?"inline"                 /* Ignore inlining */
 "auto"				return AUTO;
 "break"				return BREAK;
@@ -114,7 +115,6 @@ X                               [0-9A-F]
 "union"				return UNION;
 "unsigned"			return UNSIGNED;
 "void"				return VOID;
-"volatile"			return VOLATILE;
 "while"				return WHILE;
 
 REPL_ONLY
