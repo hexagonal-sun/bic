@@ -1060,7 +1060,14 @@ ALL_TARGETS
 func_ptr_decl
 : type_specifier '(' pointer IDENTIFIER ')' argument_specifier
 {
-    tree function, decl;
+    tree function, decl, id = get_identifier($4),
+         return_type = $1;
+
+    if (is_T_TYPEDEF(return_type)) {
+       add_typename(GC_STRDUP(tID_STR(id)));
+       return_type = tTYPEDEF_EXP(return_type);
+   }
+
     function = tree_make(T_DECL_FN);
     tFNDECL_NAME(function) = NULL;
     tFNDECL_RET_TYPE(function) = $1;
