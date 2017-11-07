@@ -622,6 +622,11 @@ static tree map_typedef(tree id, tree type)
     return id;
 }
 
+static void *__evaluator_alloca(size_t sz)
+{
+    return GC_MALLOC(sz);
+}
+
 static tree handle_extern_fn(tree return_type, tree fndecl)
 {
     void *func_addr;
@@ -662,7 +667,16 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
         eval_die(fndecl, "attempted to extern function that isn't an "
                  "identifier\n");
 
-    func_addr = dlsym(RTLD_DEFAULT, tID_STR(id));
+    /* Intercept calls to alloca, atexit and at_quick_exit to provide
+     * our own implementation of these functions.. */
+    if (strcmp(tID_STR(id), "alloca") == 0)
+        func_addr = &__evaluator_alloca;
+    else if (strcmp(tID_STR(id), "atexit") == 0)
+        func_addr = &atexit;
+    else if (strcmp(tID_STR(id), "at_quick_exit") == 0)
+        func_addr = &at_quick_exit;
+    else
+        func_addr = dlsym(RTLD_DEFAULT, tID_STR(id));
 
     if (!func_addr)
         eval_die(fndecl, "Could not resolve external function %s\n",
