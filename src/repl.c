@@ -20,6 +20,14 @@ char *cmdline = NULL;
 #error "No readline found"
 #endif /* HAVE_LIBREADLINE */
 
+#ifdef HAVE_READLINE_HISTORY
+#  if defined(HAVE_READLINE_HISTORY_H)
+#    include <readline/history.h>
+#  else
+extern void add_history (const char *);
+#  endif /* HAVE_READLINE_HISTORY_H */
+#endif /* HAVE_READLINE_HISTORY */
+
 tree repl_parse_head;
 
 void replerror(const char *str)
@@ -42,6 +50,8 @@ void bic_repl()
 
         if (!parse_result) {
             tree result;
+
+            add_history(line);
 
             result = evaluate(repl_parse_head, "<stdin>");
 
