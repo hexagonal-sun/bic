@@ -36,9 +36,25 @@ void replerror(const char *str)
     exit(1);
 }
 
+static char **bic_completion(const char *text, int start, int end)
+{
+    char **matches = NULL;
+
+    matches = rl_completion_matches(text, bic_identifier_completion);
+
+    return matches;
+}
+
+static void setup_readline()
+{
+    rl_attempted_completion_function = bic_completion;
+}
+
 void bic_repl()
 {
     char *line;
+
+    setup_readline();
 
     line = readline(BIC_PROMPT);
     while (line) {

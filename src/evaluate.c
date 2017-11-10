@@ -130,6 +130,52 @@ static tree resolve_identifier(tree id,
     return NULL;
 }
 
+static void find_identifiers_for_ctx(tree chain, tree ctx, const char *prefix)
+{
+    tree i;
+
+    for_each_tree(i, tID_MAP(ctx)) {
+        tree id = tEMAP_LEFT(i);
+        if (strncmp(tID_STR(id), prefix, strlen(prefix)) == 0)
+            tree_chain(id, chain);
+    }
+}
+
+static tree find_identifiers(const char *prefix)
+{
+    tree chain = tree_make(CHAIN_HEAD),
+        search_ctx = cur_ctx;
+
+    while (search_ctx) {
+        find_identifiers_for_ctx(chain, search_ctx, prefix);
+
+        search_ctx = tPARENT_CTX(search_ctx);
+    }
+
+    if (include_ctx)
+        find_identifiers_for_ctx(chain, include_ctx, prefix);
+
+    return chain;
+}
+
+char *bic_identifier_completion(const char *prefix, int state)
+{
+    static tree matches = NULL;
+    static tree ptr;
+
+    if (!state) {
+        matches = find_identifiers(prefix);
+        ptr = matches;
+    }
+
+    ptr = list_entry(ptr->chain.next, typeof(*ptr), chain);
+
+    if (ptr == matches)
+        return NULL;
+
+    return strdup(tID_STR(ptr));
+}
+
 static void __map_identifer(tree id, tree t, tree idmap)
 {
     tree new_map = tree_make(E_MAP);
