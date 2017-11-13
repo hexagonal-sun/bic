@@ -39,7 +39,7 @@ static char **bic_completion(const char *text, int start, int end)
 {
     char **matches = NULL;
 
-    matches = rl_completion_matches(text, bic_identifier_completion);
+    matches = bic_identifier_completion(text);
 
     return matches;
 }

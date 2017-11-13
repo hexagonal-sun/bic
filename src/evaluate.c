@@ -158,22 +158,56 @@ static tree find_identifiers(const char *prefix)
     return chain;
 }
 
-char *bic_identifier_completion(const char *prefix, int state)
+static char **create_matches_array(const char *prefix, tree chain)
 {
-    static tree matches = NULL;
-    static tree ptr;
+    tree i;
+    char **ret;
+    size_t match_count = 0;
 
-    if (!state) {
-        matches = find_identifiers(prefix);
-        ptr = matches;
-    }
+    for_each_tree(i, chain)
+        match_count++;
 
-    ptr = list_entry(ptr->chain.next, typeof(*ptr), chain);
-
-    if (ptr == matches)
+    if (match_count == 0)
         return NULL;
 
-    return strdup(tID_STR(ptr));
+    /* For a single match, replace `prefix' with the completed
+     * text. */
+    if (match_count == 1) {
+        ret = calloc(2, sizeof(*ret));
+
+        for_each_tree(i, chain)
+            ret[0] = strdup(tID_STR(i));
+
+        ret[1] = NULL;
+
+        return ret;
+    }
+
+    /* If there are multiple matches, return `prefix' as the first
+     * element.  Readline interprets the first element in the array as
+     * the string to replace whatever is being completed with. */
+
+    ret = calloc(match_count + 2, sizeof(*ret));
+
+    match_count = 0;
+
+    ret[match_count] = strdup(prefix);
+
+    for_each_tree(i, chain) {
+        ret[match_count + 1] = strdup(tID_STR(i));
+        match_count++;
+    }
+
+    ret[match_count + 1] = NULL;
+
+    return ret;
+}
+
+char **bic_identifier_completion(const char *prefix)
+{
+    tree matches = find_identifiers(prefix);
+
+    return create_matches_array(prefix, matches);
 }
 
 static void __map_identifer(tree id, tree t, tree idmap)

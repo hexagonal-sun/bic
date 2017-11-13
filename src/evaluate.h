@@ -14,6 +14,6 @@ static inline void resolve_ptr_type(tree *ptr, tree *base_type)
 }
 
 void __attribute__((noreturn)) eval_die(tree t, const char *format, ...);
-char *bic_identifier_completion(const char *prefix, int state);
+char **bic_identifier_completion(const char *prefix);
 tree evaluate(tree t, const char *filename);
 void eval_init(void);
