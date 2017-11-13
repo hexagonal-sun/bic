@@ -32,8 +32,7 @@ tree repl_parse_head;
 
 void replerror(const char *str)
 {
-    fprintf(stderr, "Parser Error: %s:%d %s.\n", "<stdin>", repllloc.first_line, str);
-    exit(1);
+    fprintf(stderr, "Parser Error: %s.\n", str);
 }
 
 static char **bic_completion(const char *text, int start, int end)
