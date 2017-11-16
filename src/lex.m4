@@ -10,6 +10,7 @@ divert(0)dnl
 `#'include <string.h>
 `#'include <stdarg.h>
 `#'include "tree.h"
+`#'include "util.h"
 `#'include "TARGET()parser.h"
 `#'include "typename.h"
 `#'define YY_NO_INPUT
@@ -36,12 +37,7 @@ static void sl_begin(void)
 
 static void sl_append_str(const char *s)
 {
-    char *buf, *oldbuf = sl_buf;
-    buf = GC_MALLOC(strlen(sl_buf) + strlen(s) + 1);
-    buf[0] = '\0';
-    strcat(buf, sl_buf);
-    strcat(buf, s);
-    sl_buf = buf;
+    sl_buf = concat_strings(sl_buf, s);
 }
 
 static void sl_append_char(char c)
