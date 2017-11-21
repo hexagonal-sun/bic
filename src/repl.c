@@ -48,8 +48,8 @@ static int is_compound_access(const char *text)
         if (text[i] == '.')
             return 1;
 
-        if (text[i] == '-' && text[i + 1] == '>')
-        return 1;
+        if (strstr(&text[i], "->"))
+            return 1;
     }
 
     return 0;
@@ -60,6 +60,7 @@ struct completion_comp_access
     char *obj_expr;
     char *access_operator;
     char *member_prefix;
+    int needs_deref;
 };
 
 static int split_compound_access_text(const char *text,
@@ -67,18 +68,30 @@ static int split_compound_access_text(const char *text,
 {
     size_t i, text_len = strlen(text);
 
-    memset(comp_access, 0, sizeof(comp_access));
+    memset(comp_access, 0, sizeof(*comp_access));
 
-    for (i = text_len; i > 0; i--)
+    for (i = text_len; i > 0; i--) {
         if (text[i] == '.') {
             comp_access->obj_expr = GC_STRDUP(text);
             comp_access->obj_expr[i] = '\0';
 
             comp_access->access_operator = GC_STRDUP(".");
+            comp_access->needs_deref = 0;
 
             comp_access->member_prefix = GC_STRDUP(&text[i + 1]);
             break;
         }
+
+        if (strstr(&text[i], "->")) {
+            comp_access->obj_expr = GC_STRDUP(text);
+            comp_access->obj_expr[i] = '\0';
+
+            comp_access->access_operator = GC_STRDUP("->");
+            comp_access->needs_deref = 1;
+
+            comp_access->member_prefix = GC_STRDUP(&text[i + 2]);
+        }
+    }
 
     if (!comp_access->obj_expr)
         return 0;
@@ -88,11 +101,16 @@ static int split_compound_access_text(const char *text,
 
 static tree get_compound_completion_object(struct completion_comp_access comp_access)
 {
-    char *comp_obj_expr;
+    char *comp_obj_expr = GC_STRDUP(comp_access.obj_expr);
+
+    if (comp_access.needs_deref) {
+        comp_obj_expr = concat_strings("*(", comp_obj_expr);
+        comp_obj_expr = concat_strings(comp_obj_expr, ")");
+    }
 
     /* Append a ';' to the `obj_expr' to make it a valid C
      * expression. */
-    comp_obj_expr = concat_strings(comp_access.obj_expr, ";");
+    comp_obj_expr = concat_strings(comp_obj_expr, ";");
 
     YY_BUFFER_STATE lex_buffer = repl_scan_string(comp_obj_expr);
     int parse_result = replparse();
@@ -219,6 +237,7 @@ static char **bic_completion(const char *text, int start, int end)
 
 static void setup_readline()
 {
+    rl_basic_word_break_characters = " ";
     rl_attempted_completion_function = bic_completion;
 }
 
