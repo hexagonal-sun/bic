@@ -211,6 +211,55 @@ static char **do_identifier_completion(const char *text)
     return create_matches_array(text, matches);
 }
 
+static void send_matches(char **matches, int fd)
+{
+    size_t len = 0;
+
+    /* Count the number of matching strings. */
+    while (matches && matches[len])
+        len++;
+
+    write(fd, &len, sizeof(len));
+
+    if (!matches)
+        return;
+
+    /* Send each string. */
+    for (size_t i = 0; matches[i]; i++) {
+        len = strlen(matches[i]) + 1;
+
+        write(fd, &len, sizeof(len));
+        write(fd, matches[i], len);
+    }
+}
+
+static char **recieve_matches(int fd)
+{
+    char **ret;
+    size_t n;
+
+    read(fd, &n, sizeof(n));
+
+    if (!n)
+        return NULL;
+
+    ret = malloc(sizeof(*ret) * (n + 1));
+
+    for (int i = 0; i < n; i++) {
+        size_t match_len;
+
+        read(fd, &match_len, sizeof(match_len));
+
+        ret[i] = malloc(match_len);
+
+        read(fd, ret[i], match_len);
+    }
+
+    ret[n] = NULL;
+
+    return ret;
+}
+
 static char **bic_completion(const char *text, int start, int end)
 {
     char **matches = NULL;
@@ -218,16 +267,46 @@ static char **bic_completion(const char *text, int start, int end)
     if (is_compound_access(text)) {
         tree live_compound;
         struct completion_comp_access comp_access;
+        pid_t ret;
+        int pfds[2];
 
         if (!split_compound_access_text(text, &comp_access))
             return NULL;
 
-        live_compound = get_compound_completion_object(comp_access);
-
-        if (!is_T_LIVE_COMPOUND(live_compound))
+        if (pipe(pfds) == -1) {
+            perror("Error: pipe failed");
             return NULL;
+        }
 
-        matches = do_compound_completion(comp_access, text, live_compound);
+        ret = fork();
+
+        if (ret == -1) {
+            perror("Error: fork failed");
+            return NULL;
+        }
+
+        if (!ret) {
+            close(pfds[0]);
+            char **local_matches = NULL;
+
+            live_compound = get_compound_completion_object(comp_access);
+
+            if (is_T_LIVE_COMPOUND(live_compound))
+                local_matches = do_compound_completion(comp_access,
+                                                       text, live_compound);
+
+            send_matches(local_matches, pfds[1]);
+
+            close(pfds[1]);
+
+            exit(0);
+        } else {
+            close(pfds[1]);
+
+            matches = recieve_matches(pfds[0]);
+
+            close(pfds[1]);
+        }
     }
     else
         matches = do_identifier_completion(text);
