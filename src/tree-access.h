@@ -101,7 +101,6 @@
 /* Evaluation ctx (E_CTX) accessor macros. */
 #define tID_MAP(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.id_map)
 #define tPARENT_CTX(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.parent_ctx)
-#define tALLOC_CHAIN(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.alloc_chain)
 #define tCTX_NAME(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.name)
 #define tIS_STATIC(obj) (_DATA( TREE_CHECK((obj), E_CTX)).ectx.is_static)
 

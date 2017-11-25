@@ -139,7 +139,6 @@ struct for_loop {
 typedef struct eval_ctx {
     tree id_map;
     tree parent_ctx;
-    tree alloc_chain;
     const char *name;
     int is_static;
 } eval_ctx;
