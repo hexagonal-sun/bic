@@ -68,7 +68,7 @@ int TARGET()wrap(void) {
 L                               [a-zA-Z_]
 D                               [0-9]
 W                               [\ \t]
-X                               [0-9A-F]
+X                               [0-9A-Fa-f]
 
 %x str_lit
 
