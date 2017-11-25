@@ -992,8 +992,12 @@ union_specifier
 }
 ;
 
+possible_comma:
+| ','
+;
+
 enum_specifier
-: ENUM '{' enumerator_list '}'
+: ENUM '{' enumerator_list possible_comma '}'
 {
     tree enumerator = tree_make(T_ENUMERATOR);
     tENUM_NAME(enumerator) = NULL;
@@ -1001,7 +1005,7 @@ enum_specifier
     set_locus(enumerator, @1);
     $$ = enumerator;
 }
-| ENUM IDENTIFIER '{' enumerator_list '}'
+| ENUM IDENTIFIER '{' enumerator_list possible_comma '}'
 {
     char *enum_name = concat_string("enum ", $2);
     tree enumerator = tree_make(T_ENUMERATOR);

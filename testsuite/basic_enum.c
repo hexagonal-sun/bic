@@ -12,6 +12,13 @@ int main()
         MAX = MEMF
     };
 
+    enum barbar {
+        BARMEMA,
+        BARMEMB,
+        BARMEMC,
+        BARMEMD,
+    };
+
     enum foobar foob;
     foob = MAX;
 
