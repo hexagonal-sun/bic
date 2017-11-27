@@ -2,9 +2,12 @@
 #include "gc.h"
 
 static tree type_names;
+GC_STATIC_TREE(type_names);
 
 /* Typenames that are located within #include files. */
 static tree include_type_names;
+GC_STATIC_TREE(include_type_names);
+
 static int in_include_file = 0;
 
 void add_typename(char *s)
@@ -35,7 +38,7 @@ void typename_init(void)
     reset_include_typenames();
 
     /* Add all builtin types here so the parser knows about them. */
-    add_typename("__builtin_va_list");
+    add_typename(strdup("__builtin_va_list"));
 }
 
 int is_typename(char *identifier)

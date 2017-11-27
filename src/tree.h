@@ -139,6 +139,7 @@ struct for_loop {
 typedef struct eval_ctx {
     tree id_map;
     tree parent_ctx;
+    tree alloc_chain;
     const char *name;
     int is_static;
 } eval_ctx;
@@ -205,10 +206,6 @@ struct tree {
     union tree_data data;
     struct tree_locus locus;
     list chain;
-
-    /* GC members. */
-    list alloc;
-    int reachable;
 };
 
 /* These macros access the members of the `tree' struct. */

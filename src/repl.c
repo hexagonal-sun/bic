@@ -30,6 +30,7 @@ extern void add_history (const char *);
 #endif /* HAVE_READLINE_HISTORY */
 
 tree repl_parse_head;
+GC_STATIC_TREE(repl_parse_head);
 
 void replerror(const char *str)
 {
@@ -72,24 +73,24 @@ static int split_compound_access_text(const char *text,
 
     for (i = text_len; i > 0; i--) {
         if (text[i] == '.') {
-            comp_access->obj_expr = GC_STRDUP(text);
+            comp_access->obj_expr = strdup(text);
             comp_access->obj_expr[i] = '\0';
 
-            comp_access->access_operator = GC_STRDUP(".");
+            comp_access->access_operator = strdup(".");
             comp_access->needs_deref = 0;
 
-            comp_access->member_prefix = GC_STRDUP(&text[i + 1]);
+            comp_access->member_prefix = strdup(&text[i + 1]);
             break;
         }
 
         if (strstr(&text[i], "->")) {
-            comp_access->obj_expr = GC_STRDUP(text);
+            comp_access->obj_expr = strdup(text);
             comp_access->obj_expr[i] = '\0';
 
-            comp_access->access_operator = GC_STRDUP("->");
+            comp_access->access_operator = strdup("->");
             comp_access->needs_deref = 1;
 
-            comp_access->member_prefix = GC_STRDUP(&text[i + 2]);
+            comp_access->member_prefix = strdup(&text[i + 2]);
         }
     }
 
@@ -101,7 +102,7 @@ static int split_compound_access_text(const char *text,
 
 static tree get_compound_completion_object(struct completion_comp_access comp_access)
 {
-    char *comp_obj_expr = GC_STRDUP(comp_access.obj_expr);
+    char *comp_obj_expr = strdup(comp_access.obj_expr);
 
     if (comp_access.needs_deref) {
         comp_obj_expr = concat_strings("*(", comp_obj_expr);
@@ -304,6 +305,10 @@ static char **bic_completion(const char *text, int start, int end)
             close(pfds[1]);
 
             matches = recieve_matches(pfds[0]);
+
+            free(comp_access.obj_expr);
+            free(comp_access.access_operator);
+            free(comp_access.member_prefix);
 
             close(pfds[1]);
         }

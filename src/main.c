@@ -5,23 +5,14 @@
 #include "typename.h"
 #include "evaluate.h"
 #include "repl.h"
-#include <gc.h>
 #include <stdio.h>
+#include "gc.h"
 
 extern FILE* cfilein;
 extern int cfileparse();
 
 tree cfile_parse_head;
-
-static void * gmp_realloc_stub(void *ptr, size_t old, size_t new)
-{
-    return GC_realloc(ptr, new);
-}
-
-static void gmp_free_stub(void *ptr, size_t sz)
-{
-    GC_free(ptr);
-}
+GC_STATIC_TREE(cfile_parse_head);
 
 /*
  * Parser's error callback.
@@ -44,7 +35,9 @@ static int parse_file(char *fname)
 
     cfilein = f;
 
+    inhibit_gc();
     parse_result = cfileparse();
+    enable_gc();
 
     fclose(f);
 
@@ -55,18 +48,19 @@ static void add_call_to_main(tree head)
 {
     tree main_fncall = tree_make(T_FN_CALL);
 
-    tFNCALL_ID(main_fncall) = get_identifier("main");
+    tFNCALL_ID(main_fncall) = get_identifier(strdup("main"));
     tFNCALL_ARGS(main_fncall) = NULL;
 
     tree_chain(main_fncall, head);
 }
 
+extern gc_obj *top_of_stack;
+
 int main(int argc, char *argv[])
 {
     int i;
-
-    GC_INIT();
-    mp_set_memory_functions(&GC_malloc, &gmp_realloc_stub, &gmp_free_stub);
+    gc_obj top;
+    top_of_stack = &top;
 
     typename_init();
     eval_init();

@@ -2,20 +2,17 @@ divert(-1)
 include(parser-lex-funcs.m4)
 divert(0)dnl
 %{
-`#'include <gc.h>
 `#'include <stdio.h>
 `#'include <string.h>
 `#'include <stdlib.h>
 `#'include "tree.h"
 `#'include "typename.h"
+`#'include "util.h"
 `#'include "TARGET()parser.h"
 
 int TARGET()parse(void);
 int TARGET()lex(void);
 void TARGET()error(const char *str);
-
-`#'define YYMALLOC GC_MALLOC
-`#'define YYFREE GC_FREE
 
 extern tree TARGET()_parse_head;
 
@@ -25,14 +22,6 @@ static void set_locus(tree t, YYLTYPE locus)
     t->locus.column_no = locus.first_column;
 }
 
-static char * concat_string(const char *s1, const char *s2)
-{
-    char *ret = GC_MALLOC(strlen(s1) + strlen(s2) + 1);
-    ret[0] = '\0';
-    strcat(ret, s1);
-    strcat(ret, s2);
-    return ret;
-}
 %}
 
 %union
@@ -911,7 +900,8 @@ type_specifier
 struct_specifier
 : STRUCT IDENTIFIER '{' declaration_list '}'
 {
-    char *struct_name = concat_string("struct ", $2);
+    char *struct_name = concat_strings("struct ", $2);
+    free($2);
     tree decl = tree_make(T_DECL_COMPOUND);
     tCOMP_DECL_ID(decl) = get_identifier(struct_name);
     tCOMP_DECL_DECLS(decl) = $4;
@@ -931,7 +921,8 @@ struct_specifier
 }
 | STRUCT IDENTIFIER
 {
-    char *struct_name = concat_string("struct ", $2);
+    char *struct_name = concat_strings("struct ", $2);
+    free($2);
     tree ret = tree_make(T_STRUCT);
     tSTRUCT_EXP(ret) = get_identifier(struct_name);
     set_locus(ret, @1);
@@ -940,7 +931,8 @@ struct_specifier
 }
 | STRUCT TYPE_NAME
 {
-    char *struct_name = concat_string("struct ", $2);
+    char *struct_name = concat_strings("struct ", $2);
+    free($2);
     tree ret = tree_make(T_STRUCT);
     tSTRUCT_EXP(ret) = get_identifier(struct_name);
     set_locus(ret, @1);
@@ -952,7 +944,8 @@ struct_specifier
 union_specifier
 : UNION IDENTIFIER '{' declaration_list '}'
 {
-    char *union_name = concat_string("union ", $2);
+    char *union_name = concat_strings("union ", $2);
+    free($2);
     tree decl = tree_make(T_DECL_COMPOUND);
     tCOMP_DECL_ID(decl) = get_identifier(union_name);
     tCOMP_DECL_DECLS(decl) = $4;
@@ -972,7 +965,8 @@ union_specifier
 }
 | UNION IDENTIFIER
 {
-    char *union_name = concat_string("union ", $2);
+    char *union_name = concat_strings("union ", $2);
+    free($2);
     tree ret = tree_make(T_UNION);
     tUNION_EXP(ret) = get_identifier(union_name);
     set_locus(ret, @1);
@@ -982,7 +976,8 @@ union_specifier
 }
 | UNION TYPE_NAME
 {
-    char *union_name = concat_string("union ", $2);
+    char *union_name = concat_strings("union ", $2);
+    free($2);
     tree ret = tree_make(T_UNION);
     tUNION_EXP(ret) = get_identifier(union_name);
     set_locus(ret, @1);
@@ -1007,7 +1002,8 @@ enum_specifier
 }
 | ENUM IDENTIFIER '{' enumerator_list possible_comma '}'
 {
-    char *enum_name = concat_string("enum ", $2);
+    char *enum_name = concat_strings("enum ", $2);
+    free($2);
     tree enumerator = tree_make(T_ENUMERATOR);
     tENUM_NAME(enumerator) = get_identifier(enum_name);
     tENUM_ENUMS(enumerator) = $4;
@@ -1017,14 +1013,16 @@ enum_specifier
 }
 | ENUM IDENTIFIER
 {
-    char *enum_name = concat_string("enum ", $2);
+    char *enum_name = concat_strings("enum ", $2);
+    free($2);
     tree id = get_identifier(enum_name);
     set_locus(id, @2);
     $$ = id;
 }
 | ENUM TYPE_NAME
 {
-    char *enum_name = concat_string("enum ", $2);
+    char *enum_name = concat_strings("enum ", $2);
+    free($2);
     tree id = get_identifier(enum_name);
     set_locus(id, @2);
     $$ = id;
@@ -1068,7 +1066,7 @@ func_ptr_decl
          return_type = $1;
 
     if (is_T_TYPEDEF(return_type)) {
-       add_typename(GC_STRDUP(tID_STR(id)));
+       add_typename(strdup(tID_STR(id)));
        return_type = tTYPEDEF_EXP(return_type);
    }
 
@@ -1080,7 +1078,7 @@ func_ptr_decl
 
     decl = tree_make(T_DECL);
     tDECL_TYPE(decl) = function;
-    tDECL_DECLS(decl) = make_pointer_type($3, get_identifier($4));
+    tDECL_DECLS(decl) = make_pointer_type($3, id);
 
     set_locus(function, @1);
     set_locus(decl, @4);
@@ -1121,7 +1119,7 @@ declaration
                 YYERROR;
             }
 
-            add_typename(GC_STRDUP(tID_STR(oldid)));
+            add_typename(strdup(tID_STR(oldid)));
         }
     }
 }

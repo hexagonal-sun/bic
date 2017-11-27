@@ -18,15 +18,18 @@
 #include "gc.h"
 
 static tree cur_ctx = NULL;
+GC_STATIC_TREE(cur_ctx);
 
 /* This holds the evaluator state after the evaluation of any #include
  * directives.  */
 static tree include_ctx = NULL;
+GC_STATIC_TREE(include_ctx);
 
 /* This is a chain of CPP_INCLUDE tree objects that is used to keep
  * track of all #include directives seen.  See `eval_cpp_include' for
  * more info. */
 static tree include_chain = NULL;
+GC_STATIC_TREE(include_chain);
 
 static const char *current_filename;
 
@@ -64,8 +67,18 @@ static void push_ctx(const char *name)
     tPARENT_CTX(new_ctx) = cur_ctx;
     tCTX_NAME(new_ctx) = name;
     tID_MAP(new_ctx) = tree_make(CHAIN_HEAD);
+    tALLOC_CHAIN(new_ctx) = tree_make(CHAIN_HEAD);
 
     cur_ctx = new_ctx;
+}
+
+static void track_alloc(void *ptr)
+{
+    tree alloc = tree_make(E_ALLOC);
+
+    tALLOC_PTR(alloc) = ptr;
+
+    tree_chain(alloc, tALLOC_CHAIN(cur_ctx));
 }
 
 static void ctx_backtrace(void)
@@ -203,7 +216,15 @@ static tree make_live_var(tree type)
     tree live_var = tree_make(T_LIVE_VAR);
 
     tLV_TYPE(live_var) = type;
-    tLV_VAL(live_var) = GC_MALLOC(sizeof(*tLV_VAL(live_var)));
+    tLV_VAL(live_var) = malloc(sizeof(*tLV_VAL(live_var)));
+
+    /* We can not allow the GC to just free the LV_VAL memory as this
+     * may not point to memory that has been allocated, for example in
+     * arrays and struct members.  Therefore, track the allocation
+     * within the current context.  This is sufficent as once the
+     * current context goes out of scope, we can no longer access the
+     * live variable. */
+    track_alloc(tLV_VAL(live_var));
 
     return live_var;
 }
@@ -564,7 +585,9 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base)
 
 static tree alloc_struct(tree struct_decl, int depth)
 {
-    void *base = GC_MALLOC(tCOMP_DECL_SZ(struct_decl));
+    void *base = malloc(tCOMP_DECL_SZ(struct_decl));
+
+    track_alloc(base);
 
     return instantiate_struct(struct_decl, depth, base);
 }
@@ -572,9 +595,11 @@ static tree alloc_struct(tree struct_decl, int depth)
 static tree alloc_array(tree array_decl, tree base_type, int depth)
 {
     size_t array_sz = get_array_size(array_decl, base_type, depth);
-    void *array_mem = GC_MALLOC(array_sz);
+    void *array_mem = malloc(array_sz);
     tree live_var = instantiate_array(array_decl, base_type, array_mem,
                                       array_sz);
+
+    track_alloc(array_mem);
 
     return live_var;
 }
@@ -641,7 +666,7 @@ static tree map_typedef(tree id, tree type)
 
 static void *__evaluator_alloca(size_t sz)
 {
-    return GC_MALLOC(sz);
+    return malloc(sz);
 }
 
 static tree handle_extern_fn(tree return_type, tree fndecl)
@@ -816,6 +841,7 @@ static tree handle_static_decl(tree decl, int depth)
     TYPE(decl) = E_CTX;
 
     tID_MAP(decl) = tID_MAP(cur_ctx);
+    tALLOC_CHAIN(decl) = tALLOC_CHAIN(cur_ctx);
     tPARENT_CTX(decl) = NULL;
     tCTX_NAME(decl) = "Static declaration";
     tIS_STATIC(decl) = 1;
@@ -2012,7 +2038,7 @@ static tree eval_cpp_include(tree t, int depth)
      * system's CPP every time, we can't maintain the state of
      * definitions.  Therefore, we WILL define things multiple
      * times. */
-    tCPP_INCLUDE_STR(cpp_include) = GC_STRDUP(tCPP_INCLUDE_STR(t));
+    tCPP_INCLUDE_STR(cpp_include) = strdup(tCPP_INCLUDE_STR(t));
     tree_chain(cpp_include, include_chain);
 
     cpp_file_fd = mkstemps(cpp_file_name, 2);
@@ -2210,7 +2236,8 @@ tree evaluate(tree t, const char *fname)
 
 static void eval_init_builtins(void)
 {
-    map_identifier(get_identifier("__builtin_va_list"), tree_make(D_T_INT));
+    map_identifier(get_identifier(strdup("__builtin_va_list")),
+                   tree_make(D_T_INT));
 }
 
 void eval_init(void)

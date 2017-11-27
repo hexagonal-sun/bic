@@ -31,9 +31,6 @@ AC_CHECK_LIB(gmp, __gmpz_init, ,
 AC_CHECK_LIB(dl, dlsym, ,
        [AC_MSG_ERROR([Dynamic linker not found])])
 
-AC_CHECK_LIB(gc, GC_malloc, ,
-       [AC_MSG_ERROR([Boehm-Demers-Weiser Garbage Collector not found, see http://www.hboehm.info/gc/])])
-
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h libintl.h malloc.h stddef.h \
                   stdint.h stdlib.h string.h unistd.h])

@@ -5,7 +5,6 @@ define(LEXTEXT, TARGET`text')
 define(LEXLVAL, TARGET`lval')
 divert(0)dnl
 %{
-`#'include <gc.h>
 `#'include <stdio.h>
 `#'include <string.h>
 `#'include <stdarg.h>
@@ -30,22 +29,25 @@ static char *sl_buf = NULL;
 static void sl_begin(void)
 {
     if (!sl_buf)
-        sl_buf = GC_MALLOC(1);
+        sl_buf = malloc(1);
 
     sl_buf[0] = '\0';
 }
 
 static void sl_append_str(const char *s)
 {
+    char *old_sl_buf = sl_buf;
     sl_buf = concat_strings(sl_buf, s);
+    free(old_sl_buf);
 }
 
 static void sl_append_char(char c)
 {
-    char *s = GC_MALLOC(2);
+    char *s = malloc(2);
     s[0] = c;
     s[1] = '\0';
     sl_append_str(s);
+    free(s);
 }
 
 static void lex_err(char *fmt, ...)
@@ -114,10 +116,10 @@ X                               [0-9A-Fa-f]
 "while"				return WHILE;
 
 REPL_ONLY
-"`#'include"[ \t]*"<"({L}|{D}|\.|\/)+">" {LEXLVAL.string = GC_STRDUP(LEXTEXT);
+"`#'include"[ \t]*"<"({L}|{D}|\.|\/)+">" {LEXLVAL.string = strdup(LEXTEXT);
                                      return C_PRE_INC; }
 ALL_TARGETS
-{L}({L}|{D})*                   {LEXLVAL.string = GC_STRDUP(LEXTEXT);
+{L}({L}|{D})*                   {LEXLVAL.string = strdup(LEXTEXT);
                                  if (is_typename(LEXTEXT))
                                      return TYPE_NAME;
                                  else
@@ -127,12 +129,12 @@ ALL_TARGETS
 -?[0-9]+\.[0-9]+                mpf_init_set_str(LEXLVAL.ffloat, LEXTEXT, 10); return FLOAT_CST;
 0x{X}+                          mpz_init_set_str(LEXLVAL.integer, LEXTEXT, 0); return INTEGER;
 \"                              { BEGIN str_lit; sl_begin(); }
-<str_lit>[^\\"\n]*              { sl_append_str(LEXTEXT); }
+<str_lit>[^\\"\n]*              { sl_append_str(strdup(LEXTEXT)); }
 <str_lit>\\n                    { sl_append_char('\n'); }
 <str_lit>\\t                    { sl_append_char('\t'); }
 <str_lit>\\[0-7]*               { sl_append_char(strtol(LEXTEXT+1, 0, 8)); }
 <str_lit>\\[\\"]                { sl_append_char(LEXTEXT[1]); }
-<str_lit>\"                     { LEXLVAL.string = GC_STRDUP(sl_buf); BEGIN 0; return CONST_STRING; }
+<str_lit>\"                     { LEXLVAL.string = strdup(sl_buf); BEGIN 0; return CONST_STRING; }
 <str_lit>\\.                    { lex_err("bogus escape '%s' in string\n", LEXTEXT); }
 <str_lit>\n                     { lex_err("newline in string\n"); }
 
