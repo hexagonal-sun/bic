@@ -20,15 +20,6 @@ enum tree_type {
     #undef DEFCTYPE
 };
 
-static const char *tree_desc_string[] = {
-    #define DEFTYPE(ETYPE, DESC) [ETYPE] = DESC ,
-    #include "tree.def"
-    #undef DEFTYPE
-    #define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT) [ETYPE] = DESC ,
-    #include "ctypes.def"
-    #undef DEFCTYPE
-};
-
 #define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
     typedef STDINTSZ ETYPE##_t;
 #include "ctypes.def"

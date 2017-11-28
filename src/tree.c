@@ -5,6 +5,15 @@
 
 #define eprintf(args...) fprintf (stderr, args)
 
+static const char *tree_desc_string[] = {
+    #define DEFTYPE(ETYPE, DESC) [ETYPE] = DESC ,
+    #include "tree.def"
+    #undef DEFTYPE
+    #define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT) [ETYPE] = DESC ,
+    #include "ctypes.def"
+    #undef DEFCTYPE
+};
+
 tree tree_make(enum tree_type type)
 {
     tree ret = alloc_tree();
