@@ -579,6 +579,15 @@ decl
     set_locus(tFNDECL_NAME(fn_decl), @1);
     $$ = fn_decl;
 }
+| '(' IDENTIFIER ')' argument_specifier
+{
+    tree fn_decl = tree_make(T_DECL_FN);
+    tFNDECL_NAME(fn_decl) = get_identifier($2);
+    tFNDECL_ARGS(fn_decl) = $4;
+    set_locus(fn_decl, @2);
+    set_locus(tFNDECL_NAME(fn_decl), @2);
+    $$ = fn_decl;
+}
 | decl '[' additive_expression ']'
 {
     tree array = tree_make(T_ARRAY);
