@@ -169,9 +169,9 @@ static int is_object(void *addr)
 {
     size_t i;
 
-    for (i = 0; i < alloc_ptr; i++)
-        if (allocs[i] == addr)
-            return 1;
+    if (bsearch(&addr, allocs, alloc_ptr,
+                sizeof(*allocs), compare_allocs))
+        return 1;
 
     return 0;
 }
@@ -274,10 +274,10 @@ static void collect(void)
      * that only have a reference kept in registers. */
     __builtin_unwind_init();
 
+    fixup_alloc_array();
     mark_stack();
     mark_static();
     sweep();
-    fixup_alloc_array();
 }
 
 static void maybe_collect()
