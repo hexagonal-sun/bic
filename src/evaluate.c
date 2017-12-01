@@ -715,8 +715,10 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
         func_addr = &__evaluator_alloca;
     else if (strcmp(tID_STR(id), "atexit") == 0)
         func_addr = &atexit;
+#if defined(BUILD_LINUX)
     else if (strcmp(tID_STR(id), "at_quick_exit") == 0)
         func_addr = &at_quick_exit;
+#endif
     else
         func_addr = dlsym(RTLD_DEFAULT, tID_STR(id));
 
