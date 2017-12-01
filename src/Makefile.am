@@ -10,8 +10,8 @@ libbic_a_SOURCES = cfileparser.y cfilelex.l cfilelex.h tree.c tree.h	\
 tree.def list.h list.c hash_table.c hash_table.h evaluate.c		\
 evaluate.h ctypes.def tree-access.h typename.h typename.c repllex.l	\
 repllex.h replparser.y repl.c repl.h pretty-printer.c			\
-pretty-printer.h lex.m4 parser-lex-funcs.m4 parser.m4 util.c gc.c	\
-gc.h
+pretty-printer.h lex.m4 parser-lex-funcs.m4 parser.m4 util.c util.h	\
+gc.c gc.h
 
 bic_SOURCES = main.c
 bic_LDADD = libbic.a $(BUILD_CPU)/libbic_$(BUILD_CPU).a
