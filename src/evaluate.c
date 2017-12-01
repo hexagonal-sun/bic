@@ -616,6 +616,14 @@ static tree handle_decl(tree decl, tree base_type, int depth)
         return decl;
     }
 
+    if (is_T_ARRAY_TYPE(decl_type)) {
+        tree array = tree_make(T_ARRAY);
+        tARRAY_ID(array) = decl;
+        tARRAY_SZ(array) = tARRAY_TYPE_SZ(decl_type);
+        decl_type = tARRAY_TYPE_BASE_TYPE(decl_type);
+        decl = array;
+    }
+
     if (is_T_ARRAY(decl)) {
         tree live_var = alloc_array(decl, decl_type, depth);
         tree id = tARRAY_ID(decl);
@@ -654,6 +662,14 @@ static tree map_typedef(tree id, tree type)
         id = tFNDECL_NAME(fndecl);
         tFNDECL_RET_TYPE(fndecl) = type;
         type = fndecl;
+    }
+
+    if (is_T_ARRAY(id)) {
+        tree array_type = tree_make(T_ARRAY_TYPE);
+        tARRAY_TYPE_BASE_TYPE(array_type) = type;
+        tARRAY_TYPE_SZ(array_type) = tARRAY_SZ(id);
+        id = tARRAY_ID(id);
+        type = array_type;
     }
 
     if (!is_T_IDENTIFIER(id))
@@ -1929,6 +1945,15 @@ static tree eval_sizeof(tree t, int depth)
 
     if (is_T_POINTER(exp))
         type = tree_make(D_T_PTR);
+
+    if (is_T_ARRAY_TYPE(exp)) {
+        tree array = tree_make(T_ARRAY);
+        tARRAY_SZ(array) = tARRAY_TYPE_SZ(exp);
+        mpz_init_set_ui(tINT(ret),
+                        get_array_size(array, tARRAY_TYPE_BASE_TYPE(exp),
+                                       depth + 1));
+        return ret;
+    }
 
     if (is_CTYPE(type)) {
         mpz_init_set_ui(tINT(ret), get_ctype_size(type));

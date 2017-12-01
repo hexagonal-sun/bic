@@ -1,5 +1,7 @@
 int printf(char *fmt, ...);
 
+typedef long int arrtype[8];
+
 struct foo {
     int a;
     int b;
@@ -19,6 +21,11 @@ int main()
     int i;
     long int double_array[20];
     struct foo ff[20];
+    arrtype bb;
+
+    bb[0] = 1024;
+    printf("%d\n", sizeof(bb));
+    printf("%d\n", sizeof(arrtype));
 
     for (i = 0; i < 20; i++) {
         int j;

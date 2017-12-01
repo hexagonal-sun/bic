@@ -61,6 +61,7 @@ static void mark_object(gc_obj obj)
     case T_EQ:
     case T_CAST:
     case T_ARRAY:
+    case T_ARRAY_TYPE:
     case T_N_EQ:
     case T_L_OR:
     case T_L_AND:

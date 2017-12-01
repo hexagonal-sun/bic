@@ -289,6 +289,7 @@ void __tree_dump_1(tree t, int depth)
     case T_L_AND:
     case T_CAST:
     case T_ARRAY:
+    case T_ARRAY_TYPE:
     case T_ARRAY_ACCESS:
     case T_COMP_ACCESS:
     case T_ASSIGN:

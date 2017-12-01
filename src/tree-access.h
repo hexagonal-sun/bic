@@ -46,6 +46,9 @@
 #define tARRAY_ID(obj) (_DATA( TREE_CHECK((obj), T_ARRAY)).bin.left)
 #define tARRAY_SZ(obj) (_DATA( TREE_CHECK((obj), T_ARRAY)).bin.right)
 
+#define tARRAY_TYPE_BASE_TYPE(obj) (_DATA( TREE_CHECK((obj), T_ARRAY_TYPE)).bin.left)
+#define tARRAY_TYPE_SZ(obj) (_DATA( TREE_CHECK((obj), T_ARRAY_TYPE)).bin.right)
+
 #define tASSIGN_LHS(obj) (_DATA( TREE_CHECK((obj), T_ASSIGN)).bin.left)
 #define tASSIGN_RHS(obj) (_DATA( TREE_CHECK((obj), T_ASSIGN)).bin.right)
 
