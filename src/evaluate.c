@@ -750,6 +750,23 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
     return id;
 }
 
+static void *resolve_symbol(tree id)
+{
+    void *sym_addr;
+
+    if (!is_T_IDENTIFIER(id))
+        eval_die(id, "attempted to extern something that isn't an "
+                 "identifier\n");
+
+    sym_addr = dlsym(RTLD_DEFAULT, tID_STR(id));
+
+    if (!sym_addr)
+        eval_die(id, "Could not resolve extern symbol %s\n",
+                 tID_STR(id));
+
+    return sym_addr;
+}
+
 static tree handle_extern_decl(tree extern_type, tree decl)
 {
     tree live_var, id;
@@ -762,15 +779,19 @@ static tree handle_extern_decl(tree extern_type, tree decl)
     if (is_T_DECL_FN(decl))
         return handle_extern_fn(extern_type, decl);
 
-    if (!is_T_IDENTIFIER(id))
-        eval_die(decl, "attempted to extern something that isn't an "
-                 "identifier\n");
+    if (is_T_ARRAY(decl)) {
+        tree id = tARRAY_ID(decl);
+        size_t array_sz = get_array_size(decl, extern_type, 0);
+        sym_addr = resolve_symbol(tARRAY_ID(decl));
 
-    sym_addr = dlsym(RTLD_DEFAULT, tID_STR(id));
+        map_identifier(id, instantiate_array(decl, extern_type,
+                                             sym_addr, array_sz));
 
-    if (!sym_addr)
-        eval_die(decl, "Could not resolve extern symbol %s\n",
-                 tID_STR(id));
+        return id;
+    }
+
+    /* Handle all other types. */
+    sym_addr = resolve_symbol(decl);
 
     live_var = tree_make(T_LIVE_VAR);
     tLV_TYPE(live_var) = extern_type;
