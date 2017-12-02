@@ -58,6 +58,12 @@
 #define tSUB_LHS(obj) (_DATA( TREE_CHECK((obj), T_SUB)).bin.left)
 #define tSUB_RHS(obj) (_DATA( TREE_CHECK((obj), T_SUB)).bin.right)
 
+#define tLSHIFT_LHS(obj) (_DATA( TREE_CHECK((obj), T_LSHIFT)).bin.left)
+#define tLSHIFT_RHS(obj) (_DATA( TREE_CHECK((obj), T_LSHIFT)).bin.right)
+
+#define tRSHIFT_LHS(obj) (_DATA( TREE_CHECK((obj), T_RSHIFT)).bin.left)
+#define tRSHIFT_RHS(obj) (_DATA( TREE_CHECK((obj), T_RSHIFT)).bin.right)
+
 #define tMUL_LHS(obj) (_DATA( TREE_CHECK((obj), T_MUL)).bin.left)
 #define tMUL_RHS(obj) (_DATA( TREE_CHECK((obj), T_MUL)).bin.right)
 

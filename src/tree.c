@@ -279,6 +279,8 @@ void __tree_dump_1(tree t, int depth)
     case T_MOD:
     case T_ADD:
     case T_SUB:
+    case T_LSHIFT:
+    case T_RSHIFT:
     case T_LT:
     case T_GT:
     case T_LTEQ:
