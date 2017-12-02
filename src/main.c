@@ -1,3 +1,4 @@
+#include <dlfcn.h>
 #include "config.h"
 #include "tree.h"
 #include "cfileparser.h"
@@ -6,6 +7,7 @@
 #include "evaluate.h"
 #include "repl.h"
 #include <stdio.h>
+#include "util.h"
 #include "gc.h"
 
 extern FILE* cfilein;
@@ -54,6 +56,70 @@ static void add_call_to_main(tree head)
     tree_chain(main_fncall, head);
 }
 
+static void usage(char *progname)
+{
+    fprintf(stderr, "Usage: %s [-l library]... [--] [CFILE]\n", progname);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Arguments:\n");
+    fprintf(stderr, "  -l: Open the specified library for external symbol\n");
+    fprintf(stderr, "      resolution in the evaluator.\n");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "  CFILE: Parse, evaluate and call a function called\n");
+    fprintf(stderr, "         `main' within the file.");
+    fprintf(stderr, "\n");
+    fprintf(stderr, "Note: if no CFILE is passed on the command line the\n");
+    fprintf(stderr, "REPL (Read, Eval, Print Loop) is started\n");
+}
+
+static int open_library(char *libname)
+{
+    char *tmp, *full_library_name;
+    int ret;
+
+    /* First, attempt to open just the library, if it has been fully
+     * specified. */
+    if (dlopen(libname, RTLD_NOW | RTLD_GLOBAL))
+        return 1;
+
+    /* Append ".so" and prepend "lib" onto `libname' so that we accept
+     * library names as GCC does. */
+    tmp = concat_strings("lib", libname);
+    full_library_name = concat_strings(tmp, ".so");
+
+    if(dlopen(full_library_name, RTLD_NOW | RTLD_GLOBAL))
+        ret = 1;
+    else
+        ret = 0;
+
+    free(tmp);
+    free(full_library_name);
+
+    return ret;
+}
+
+static int parse_args(int argc, char *argv[])
+{
+    int opt;
+
+    while ((opt = getopt(argc, argv, "l:")) != -1) {
+        switch (opt) {
+        case 'l':
+            if (!open_library(optarg)) {
+                fprintf(stderr, "Error: could not open library %s: %s\n",
+                        optarg, dlerror());
+
+                exit(EXIT_FAILURE);
+            }
+            break;
+        default: /* '?' */
+            usage(argv[0]);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    return optind;
+}
+
 extern gc_obj *top_of_stack;
 
 int main(int argc, char *argv[])
@@ -65,10 +131,12 @@ int main(int argc, char *argv[])
     typename_init();
     eval_init();
 
-    if (argc == 1)
+    int idx = parse_args(argc, argv);
+
+    if (idx == argc)
         bic_repl();
     else
-        for (i = 1; i < argc; i++)
+        for (i = idx; i < argc; i++)
             if (!parse_file(argv[i])) {
                 add_call_to_main(cfile_parse_head);
                 evaluate(cfile_parse_head, argv[i]);
