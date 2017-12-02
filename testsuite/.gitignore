@@ -42,5 +42,6 @@ if_stmts
 eqneq
 union-struct
 casts
+shift
 
 *.trs

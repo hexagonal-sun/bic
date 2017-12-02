@@ -81,6 +81,7 @@ ALL_TARGETS
 %type <tree> cast_expression
 %type <tree> multiplicative_expression
 %type <tree> additive_expression
+%type <tree> shift_expression
 %type <tree> relational_expression
 %type <tree> logical_expression
 %type <tree> assignment_expression
@@ -497,39 +498,55 @@ additive_expression
 }
 ;
 
-relational_expression
+shift_expression
 : additive_expression
-| relational_expression '<' additive_expression
+| shift_expression SHIFT_LEFT additive_expression
+{
+    tree lshift = tree_build_bin(T_LSHIFT, $1, $3);
+    set_locus(lshift, @2);
+    $$ = lshift;
+}
+| shift_expression SHIFT_RIGHT additive_expression
+{
+    tree rshift = tree_build_bin(T_RSHIFT, $1, $3);
+    set_locus(rshift, @2);
+    $$ = rshift;
+}
+;
+
+relational_expression
+: shift_expression
+| relational_expression '<' shift_expression
 {
     tree lt = tree_build_bin(T_LT, $1, $3);
     set_locus(lt, @2);
     $$ = lt;
 }
-| relational_expression '>' additive_expression
+| relational_expression '>' shift_expression
 {
     tree gt = tree_build_bin(T_GT, $1, $3);
     set_locus(gt, @2);
     $$ = gt;
 }
-| relational_expression LESS_OR_EQUAL additive_expression
+| relational_expression LESS_OR_EQUAL shift_expression
 {
     tree ltoreq = tree_build_bin(T_LTEQ, $1, $3);
     set_locus(ltoreq, @2);
     $$ = ltoreq;
 }
-| relational_expression GREATER_OR_EQUAL additive_expression
+| relational_expression GREATER_OR_EQUAL shift_expression
 {
     tree gtoreq = tree_build_bin(T_GTEQ, $1, $3);
     set_locus(gtoreq, @2);
     $$ = gtoreq;
 }
-| relational_expression EQUATE additive_expression
+| relational_expression EQUATE shift_expression
 {
     tree equal = tree_build_bin(T_EQ, $1, $3);
     set_locus(equal, @2);
     $$ = equal;
 }
-| relational_expression NOT_EQUATE additive_expression
+| relational_expression NOT_EQUATE shift_expression
 {
     tree not_equal = tree_build_bin(T_N_EQ, $1, $3);
     set_locus(not_equal, @2);
