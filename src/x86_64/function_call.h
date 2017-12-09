@@ -1,3 +1,5 @@
+#pragma once
+#include <stddef.h>
 #include "../tree.h"
 
 enum argument_class {
