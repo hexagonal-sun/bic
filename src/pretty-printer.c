@@ -6,7 +6,9 @@ static void __pp_1(tree t, int depth);
 
 static void pp_print_indent(int depth)
 {
-    for (int i = 0; i < depth; i ++)
+    int i;
+
+    for (i = 0; i < depth; i ++)
         printf("    ");
 }
 

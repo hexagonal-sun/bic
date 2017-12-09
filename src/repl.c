@@ -214,7 +214,7 @@ static char **do_identifier_completion(const char *text)
 
 static void send_matches(char **matches, int fd)
 {
-    size_t len = 0;
+    size_t i, len = 0;
 
     /* Count the number of matching strings. */
     while (matches && matches[len])
@@ -226,7 +226,7 @@ static void send_matches(char **matches, int fd)
         return;
 
     /* Send each string. */
-    for (size_t i = 0; matches[i]; i++) {
+    for (i = 0; matches[i]; i++) {
         len = strlen(matches[i]) + 1;
 
         write(fd, &len, sizeof(len));
@@ -238,6 +238,7 @@ static char **recieve_matches(int fd)
 {
     char **ret;
     size_t n;
+    int i;
 
     read(fd, &n, sizeof(n));
 
@@ -246,7 +247,7 @@ static char **recieve_matches(int fd)
 
     ret = malloc(sizeof(*ret) * (n + 1));
 
-    for (int i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
         size_t match_len;
 
         read(fd, &match_len, sizeof(match_len));
