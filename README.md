@@ -1,6 +1,8 @@
 `bic`: A Basic Interpreter for C
 ===========================================
 
+[![Build Status](https://travis-ci.org/hexagonal-sun/bic.svg?branch=master)](https://travis-ci.org/hexagonal-sun/bic)
+
 This is a project that allows developers to test out and explore
 C-APIs using a read-eval print loop (REPL).
 
