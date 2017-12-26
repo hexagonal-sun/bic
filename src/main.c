@@ -25,7 +25,7 @@ void cfileerror(const char *str)
     exit(1);
 }
 
-static int parse_file(char *fname)
+static int parse_file(const char *fname)
 {
     int parse_result;
     FILE *f = fopen(fname, "r");
@@ -120,6 +120,22 @@ static int parse_args(int argc, char *argv[])
     return optind;
 }
 
+static int bic_eval_file(const char *file)
+{
+    tree return_val;
+
+    if (parse_file(file))
+        return 1;
+
+    add_call_to_main(cfile_parse_head);
+    return_val = evaluate(cfile_parse_head, file);
+
+    if (!return_val)
+        return 0;
+
+    return get_c_main_return_value(return_val);
+}
+
 extern gc_obj *top_of_stack;
 
 int main(int argc, char *argv[])
@@ -136,9 +152,5 @@ int main(int argc, char *argv[])
     if (idx == argc)
         bic_repl();
     else
-        for (i = idx; i < argc; i++)
-            if (!parse_file(argv[i])) {
-                add_call_to_main(cfile_parse_head);
-                evaluate(cfile_parse_head, argv[i]);
-            }
+        return bic_eval_file(argv[idx]);
 }

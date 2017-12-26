@@ -15,5 +15,6 @@ static inline void resolve_ptr_type(tree *ptr, tree *base_type)
 
 void __attribute__((noreturn)) eval_die(tree t, const char *format, ...);
 tree find_global_identifiers(const char *prefix);
+int get_c_main_return_value(tree t);
 tree evaluate(tree t, const char *filename);
 void eval_init(void);

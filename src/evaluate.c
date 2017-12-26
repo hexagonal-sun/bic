@@ -2322,6 +2322,19 @@ static tree __evaluate(tree head, int depth)
     return result;
 }
 
+int get_c_main_return_value(tree t)
+{
+    int ret;
+    tree retnum = convert_to_comparable_type(t, 0);
+
+    if (!is_T_INTEGER(retnum))
+        return 1;
+
+    ret = mpz_get_si(tINT(retnum));
+
+    return ret;
+}
+
 tree evaluate(tree t, const char *fname)
 {
     current_filename = fname;
