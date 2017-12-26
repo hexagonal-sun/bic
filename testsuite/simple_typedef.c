@@ -14,4 +14,6 @@ int main()
     intptr p = &a;
     foobar(a);
     foobar(*p);
+
+    return 0;
 }

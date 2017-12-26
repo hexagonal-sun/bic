@@ -30,4 +30,6 @@ int main()
     printf("%d\n", a);
     printf("%d\n", foobar);
 
+
+    return 0;
 }

@@ -8,4 +8,6 @@ int foobar(int a)
 int main()
 {
     foobar(20);
+
+    return 0;
 }

@@ -39,4 +39,6 @@ int main()
         free(head);
         head = tmp;
     }
+
+    return 0;
 }

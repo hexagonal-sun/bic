@@ -14,4 +14,6 @@ int main()
         a2 = next;
         printf("%d\n", next);
     }
+
+    return 0;
 }

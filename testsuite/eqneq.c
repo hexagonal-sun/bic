@@ -25,4 +25,6 @@ int main()
     printf("%d\n", a == e);
     printf("%d\n", a != d);
     printf("%d\n", a != e);
+
+    return 0;
 }

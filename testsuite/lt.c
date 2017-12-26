@@ -18,4 +18,6 @@ int main()
     printf("%d\n", a < c);
     printf("%d\n", c < -242);
     printf("%d\n", a < 25);
+
+    return 0;
 }

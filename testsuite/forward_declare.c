@@ -46,4 +46,6 @@ int main()
     printf("%d\n", bat.fooelm->a);
 
     free(bag.fab);
+
+    return 0;
 }

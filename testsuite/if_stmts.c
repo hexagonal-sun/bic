@@ -30,4 +30,6 @@ int main()
     fun1(1);
     fun1(2);
     fun1(242);
+
+    return 0;
 }

@@ -11,4 +11,6 @@ int main()
     gethostname(name, 1024);
     printf("%s\n", name);
     free(name);
+
+    return 0;
 }

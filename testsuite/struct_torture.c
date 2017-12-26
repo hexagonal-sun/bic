@@ -51,4 +51,6 @@ int main()
 
         free(news2.ps);
     }
+
+    return 0;
 }

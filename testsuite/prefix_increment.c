@@ -11,4 +11,6 @@ int main()
     foobar(a);
     foobar(++a);
     foobar(a);
+
+    return 0;
 }

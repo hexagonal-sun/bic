@@ -12,4 +12,6 @@ int main()
     baz.b = 1249;
     printf("%d\n", baz.a);
     printf("%d\n", baz.b);
+
+    return 0;
 }

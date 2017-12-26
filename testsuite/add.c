@@ -9,4 +9,6 @@ int main()
     printf("%d\n", 234587 + 3553);
     printf("%d\n", 11212 + b);
     printf("%d\n", a + b);
+
+    return 0;
 }

@@ -63,4 +63,6 @@ int main()
     printf("%d\n", sizeof(pstruct));
     printf("%d\n", sizeof(array));
     printf("%d\n", sizeof(struct s_with_array));
+
+    return 0;
 }

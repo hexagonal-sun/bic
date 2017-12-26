@@ -11,4 +11,6 @@ int main()
     set_var(&a);
     set_var(&b);
     printf("%d %d\n", a, b);
+
+    return 0;
 }

@@ -9,4 +9,6 @@ int main()
 {
     int a = 10;
     foobar(a);
+
+    return 0;
 }

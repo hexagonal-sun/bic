@@ -25,4 +25,6 @@ int main()
     printf("%d %d %d %d\n", MEMA, MEMB, MEMC, MEMD);
     printf("%d %d %d\n", MEME, MEMF, MAX);
     printf("%d\n", foob);
+
+    return 0;
 }

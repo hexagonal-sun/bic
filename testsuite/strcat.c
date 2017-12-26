@@ -17,4 +17,6 @@ int main()
     strcpy(s3, s1);
     strcat(s3, s2);
     puts(s3);
+
+    return 0;
 }

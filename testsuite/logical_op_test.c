@@ -33,4 +33,6 @@ int main()
     printf("%d\n", zero() || one());
     printf("%d\n", one() || zero());
     printf("%d\n", one() || one());
+
+    return 0;
 }

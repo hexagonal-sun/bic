@@ -6,4 +6,6 @@ int main()
     foo *bar;
 
     a = 0;
+
+    return 0;
 }

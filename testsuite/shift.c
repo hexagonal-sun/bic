@@ -13,4 +13,6 @@ int main()
     printf("%d\n", 0xff << 4);
     printf("%d\n", b << 324);
     printf("%d\n", b >> 0);
+
+    return 0;
 }

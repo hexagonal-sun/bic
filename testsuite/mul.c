@@ -11,4 +11,6 @@ int main()
     printf("%d\n", 11212 * b);
     printf("%d\n", a * b);
     printf("%u\n", c * a);
+
+    return 0;
 }

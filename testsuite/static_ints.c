@@ -28,4 +28,6 @@ int main ()
     foofunc();
 
     printf("%d\n", a);
+
+    return 0;
 }

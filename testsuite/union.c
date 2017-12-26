@@ -19,4 +19,6 @@ int main()
     printf("%d %f %p\n", foob.a, foob.b, foob.ptr);
     printf("%u %u %u %u\n", foob.array[0], foob.array[1],
            foob.array[2], foob.array[3]);
+
+    return 0;
 }

@@ -44,4 +44,6 @@ int main()
 
     for (i = 0; i < 20; i++)
         print_foo(&ff[i]);
+
+    return 0;
 }

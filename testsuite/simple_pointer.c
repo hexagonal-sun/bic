@@ -10,4 +10,6 @@ int main()
     foo = &b;
     *foo = 30;
     printf("%d %d\n", a, b);
+
+    return 0;
 }
