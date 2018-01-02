@@ -298,9 +298,11 @@ static void maybe_collect()
 
 static void extend_allocs()
 {
+    size_t old_alloc_array_sz = alloc_array_sz;
     alloc_array_sz *= 2;
 
     allocs = realloc(allocs, sizeof(*allocs) * alloc_array_sz);
+    memset(&allocs[old_alloc_array_sz], 0, old_alloc_array_sz);
 }
 
 static void track_new_alloc(gc_obj obj)
