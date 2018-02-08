@@ -1722,10 +1722,10 @@ static tree eval_return(tree t, int depth)
  */
 static tree expand_decl_chain(tree decl_chain)
 {
-    tree decl, decl_element, new_chain = tree_make(CHAIN_HEAD);
+    tree tmp, decl, decl_element, new_chain = tree_make(CHAIN_HEAD);
 
-    for_each_tree(decl, decl_chain) {
-        if (tDECL_DECLS(decl))
+    for_each_tree_safe(decl, tmp, decl_chain) {
+        if (is_T_DECL(decl) && tDECL_DECLS(decl))
             for_each_tree(decl_element, tDECL_DECLS(decl)) {
                 tree new_decl = tree_make(T_DECL);
 
@@ -1734,6 +1734,10 @@ static tree expand_decl_chain(tree decl_chain)
 
                 tree_chain(new_decl, new_chain);
             }
+
+        if (is_T_BITFIELD_EXPR(decl)) {
+            tree_chain(decl, new_chain);
+        }
     }
 
     return new_chain;
@@ -1805,8 +1809,14 @@ static tree eval_decl_compound(tree t, int depth)
     /* Populate the decls with their offsets, as well as the total
      * size of the compound. */
     for_each_tree(i, tCOMP_DECL_DECLS(t)) {
-        tree id, live_var;
+        tree id, live_var, decl = i;
         size_t member_size, member_alignment, padding_size;
+
+        /* Since the layout of bit-fields is implementation defined,
+         * we can just treat bitfield declarations as separate live
+         * variables. */
+        if (is_T_BITFIELD_EXPR(decl))
+            decl = tBITFIELD_EXPR_DECL(decl);
 
         /* To calculate the size of each element of the compound, we
          * temporarily push the evaluation ctx, evaluate each decl
@@ -1820,7 +1830,7 @@ static tree eval_decl_compound(tree t, int depth)
          * types at struct installation time. */
         push_ctx("Compound Declaration");
 
-        id = __evaluate_1(i, depth + 1);
+        id = __evaluate_1(decl, depth + 1);
         live_var = resolve_identifier(id, SCOPE_CURRENT_CTX);
 
         /* Calculate the offset of the member within the struct.
@@ -1839,7 +1849,7 @@ static tree eval_decl_compound(tree t, int depth)
         else
             padding_size = (~offset + 1) & (member_alignment - 1);
 
-        tDECL_OFFSET(i) = offset + padding_size;
+        tDECL_OFFSET(decl) = offset + padding_size;
 
         if (tCOMP_DECL_TYPE(t) == sstruct)
             offset += padding_size + member_size;
