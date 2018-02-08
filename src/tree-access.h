@@ -97,6 +97,9 @@
 #define tCAST_NEWTYPE(obj) (_DATA( TREE_CHECK((obj), T_CAST)).bin.left)
 #define tCAST_EXP(obj) (_DATA( TREE_CHECK((obj), T_CAST)).bin.right)
 
+#define tBITFIELD_EXPR_SZ(obj) (_DATA( TREE_CHECK((obj), T_BITFIELD_EXPR)).bin.left)
+#define tBITFIELD_EXPR_DECL(obj) (_DATA( TREE_CHECK((obj), T_BITFIELD_EXPR)).bin.right)
+
 #define tCOMP_ACCESS_OBJ(obj) (_DATA( TREE_CHECK((obj), T_COMP_ACCESS)).bin.left)
 #define tCOMP_ACCESS_MEMBER(obj) (_DATA( TREE_CHECK((obj), T_COMP_ACCESS)).bin.right)
 
