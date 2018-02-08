@@ -100,6 +100,7 @@ ALL_TARGETS
 %type <tree> direct_type_specifier
 %type <tree> sizeof_specifier
 %type <tree> type_specifier
+%type <tree> compound_declarator
 %type <tree> declaration
 %type <tree> declaration_list
 
@@ -1162,12 +1163,23 @@ CFILE_ONLY
 ALL_TARGETS
 ;
 
+compound_declarator
+: declaration
+| declaration ':' unary_expression
+{
+    tree bitfield_expr = tree_make(T_BITFIELD_EXPR);
+    tBITFIELD_EXPR_SZ(bitfield_expr) = $3;
+    tBITFIELD_EXPR_DECL(bitfield_expr) = $1;
+    $$ = bitfield_expr;
+}
+;
+
 declaration_list
-: declaration ';'
+: compound_declarator ';'
 {
     $$ = tree_chain_head($1);
 }
-| declaration_list declaration ';'
+| declaration_list compound_declarator ';'
 {
     tree_chain($2, $1);
 }
