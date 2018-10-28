@@ -105,6 +105,11 @@ struct live_compound {
     tree members;
 };
 
+struct external_func {
+    tree id;
+    tree fndecl;
+};
+
 /* The underlying type that is used to represent a live enumeration
  * value. */
 #define ENUMTYPE D_T_UINT
@@ -173,6 +178,9 @@ union tree_data {
 
     /* T_LIVE_COMPOUND */
     struct live_compound comp;
+
+    /* T_EXT_FUNC */
+    struct external_func extfunc;
 
     /* T_ENUMERATOR */
     struct enum_type enumerator;

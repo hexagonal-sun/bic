@@ -158,6 +158,16 @@ static void tree_dump_compound(tree t, int depth)
     tree_print_indent(depth);
 }
 
+static void tree_dump_ext_func(tree t, int depth)
+{
+    eprintf(" name:\n");
+    __tree_dump(tEXT_FUNC_NAME(t), depth + 1);
+    tree_print_indent(depth);
+    eprintf(" fndecl:\n");
+    __tree_dump(tEXT_FUNC_FNDECL(t), depth + 1);
+    tree_print_indent(depth);
+}
+
 static void tree_dump_type(tree t, int depth)
 {
     eprintf(" TYPE");
@@ -336,6 +346,9 @@ void __tree_dump_1(tree t, int depth)
         break;
     case D_T_PTR:
         tree_dump_single_exp(t, depth);
+        break;
+    case T_EXT_FUNC:
+        tree_dump_ext_func(t, depth);
         break;
     case CHAIN_HEAD:
     case T_VARIADIC:

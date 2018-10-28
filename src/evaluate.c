@@ -2269,6 +2269,7 @@ static tree __evaluate_1(tree t, int depth)
     case D_T_VOID:     result = eval_self(t, depth + 1);       break;
     case CPP_INCLUDE:  result = eval_cpp_include(t, depth + 1); break;
     case E_CTX:        result = eval_evaluator_ctx(t, depth + 1); break;
+    case T_EXT_FUNC:   result = eval_ext_func(t, depth + 1);   break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                               \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"

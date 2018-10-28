@@ -58,6 +58,14 @@ DEFTYPE(E_INCOMP_TYPE, "Incompletel type")
 DEFTYPE(E_MAP, "Evaluator map")
 DEFTYPE(CPP_INCLUDE, "C preprocessor include directive")
 
+/* An unresolved external function.
+ *
+ *  Once this object is evaluated, it is replaced with a live_var of
+ * T_D_PTR, where t_D_PTR->ext = fndecl.  This allows us to do demand
+ * function resolution with the dynamic linker.
+ */
+DEFTYPE(T_EXT_FUNC, "External Function")
+
 /* We have to declare the void type here as using it as a DEFCTYPE
  * would cause a compilation error since we can't declare a variable
  * as a void type. */
