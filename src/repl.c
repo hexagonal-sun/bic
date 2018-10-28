@@ -395,6 +395,9 @@ static tree repl_parse_line(char *line)
 
     stmt = repl_do_parse(line);
 
+    if (!stmt)
+        return NULL;
+
     if (is_CPP_INCLUDE(stmt))
         return stmt;
 
@@ -405,7 +408,6 @@ static tree repl_parse_line(char *line)
     free(line_after_cpp);
 
     return stmt;
-
 }
 
 void bic_repl()
