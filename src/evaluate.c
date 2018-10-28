@@ -16,6 +16,7 @@
 #include "typename.h"
 #include "repl.h"
 #include "gc.h"
+#include "preprocess.h"
 
 static tree cur_ctx = NULL;
 GC_STATIC_TREE(cur_ctx);
@@ -2123,14 +2124,11 @@ static tree eval_deref(tree t, int depth)
 
 static tree eval_cpp_include(tree t, int depth)
 {
-    char cpp_file_name[] = "/tmp/bic.cpp.XXXXXX.c";
-    char out_file_name[] = "/tmp/bic.cpp.XXXXXX.c";
-    char *command;
-    extern FILE* cfilein;
     extern tree cfile_parse_head;
-    tree i, cpp_include = tree_make(CPP_INCLUDE);
+    tree cpp_include = tree_make(CPP_INCLUDE);
     FILE *out_file_stream;
-    int cpp_file_fd, out_file_fd, ret;
+    extern FILE *cfilein;
+    int ret;
 
     /* We don't have a real C preprocessor that we can call upon
      * yet. Therefore, we have to call out to the system's
@@ -2143,43 +2141,7 @@ static tree eval_cpp_include(tree t, int depth)
     tCPP_INCLUDE_STR(cpp_include) = strdup(tCPP_INCLUDE_STR(t));
     tree_chain(cpp_include, include_chain);
 
-    cpp_file_fd = mkstemps(cpp_file_name, 2);
-
-    if (cpp_file_fd == -1)
-        eval_die(t, "Could not open temp file: %s\n", strerror(errno));
-
-    out_file_fd = mkstemps(out_file_name, 2);
-
-    if (out_file_fd == -1)
-        eval_die(t, "Could not open temp file: %s\n", strerror(errno));
-
-    out_file_stream = fdopen(out_file_fd, "r");
-
-    if (!out_file_stream)
-        eval_die(t, "Could not create stream: %s\n", strerror(errno));
-
-    for_each_tree (i, include_chain) {
-        write(cpp_file_fd, tCPP_INCLUDE_STR(i), strlen(tCPP_INCLUDE_STR(i)));
-        write(cpp_file_fd, "\n", 1);
-    }
-
-    close(cpp_file_fd);
-
-    ret = asprintf(&command, "gcc -E -P %s > %s", cpp_file_name, out_file_name);
-
-    if (ret == -1)
-        eval_die(t, "Could not compose preprocessor command: %s\n",
-                 strerror(errno));
-
-    ret = system(command);
-
-    free(command);
-
-    if (ret < 0)
-        eval_die(t, "Invocation of preprocessor process failed\n");
-
-    if (ret > 0)
-        eval_die(t, "Preprocessor command exited with non-zero status\n");
+    out_file_stream = run_cpp(include_chain, "-E -P", NULL);
 
     cfilein = out_file_stream;
 
