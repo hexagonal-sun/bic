@@ -7,6 +7,7 @@
 #include "repllex.h"
 #include "util.h"
 #include "pretty-printer.h"
+#include "preprocess.h"
 
 #ifdef HAVE_LIBREADLINE
 #  if defined(HAVE_READLINE_READLINE_H)
@@ -326,26 +327,103 @@ static void setup_readline()
     rl_attempted_completion_function = bic_completion;
 }
 
+static char *run_cpp_on_line(char *line)
+{
+    char *ret;
+    const tree include_chain = get_include_chain();
+    FILE *output = run_cpp(include_chain, "-E -P", line);
+    char c = 0;
+    size_t pos = 0,line_len = 0;
+
+    fseek(output, 0, SEEK_END);
+
+    while (c != '\n') {
+        line_len++;
+        fseek(output, -2, SEEK_CUR);
+        c = fgetc(output);
+    }
+
+    ret = calloc(line_len + 1, sizeof(*ret));
+
+    while (pos != line_len)
+        ret[pos++] = fgetc(output);
+
+    return ret;
+}
+
+static tree repl_do_parse(char *line)
+{
+    int parse_result;
+    tree i, ret = NULL;
+
+    YY_BUFFER_STATE buffer = repl_scan_string(line);
+    parse_result = replparse();
+    repl_delete_buffer(buffer);
+
+    if (parse_result)
+        return NULL;
+
+    for_each_tree(i, repl_parse_head) {
+        if (ret) {
+            fprintf (stderr,
+                     "Error: The REPL only supports single"
+                     " C statements per line.\n");
+            exit (1);
+        }
+
+        ret = i;
+    }
+
+    return ret;
+}
+
+static tree repl_parse_line(char *line)
+{
+    tree stmt;
+    char *line_after_cpp;
+    /* Parsing a line happens in two passes.  We firstly parse the
+     * line as given by the user to see whether we are including a
+     * header file.
+     *
+     * If that is the case we simply pass that down to the evaluator
+     * to add to the `include_chain'.
+     *
+     * If not, then we copy the line to the end of a small C file that
+     * has all the include statments from `inline_chain' before it,
+     * preprocess it and then parse that as the tree to be
+     * evaluated. */
+
+    stmt = repl_do_parse(line);
+
+    if (is_CPP_INCLUDE(stmt))
+        return stmt;
+
+    line_after_cpp = run_cpp_on_line(line);
+
+    stmt = repl_do_parse(line_after_cpp);
+
+    free(line_after_cpp);
+
+    return stmt;
+
+}
+
 void bic_repl()
 {
-    char *line;
+    char *line, *preprocess_line;
 
     setup_readline();
 
     line = readline(BIC_PROMPT);
     while (line) {
-        int parse_result;
+        tree parsed_line = repl_parse_line(line);
 
-        YY_BUFFER_STATE buffer = repl_scan_string(line);
-        parse_result = replparse();
-        repl_delete_buffer(buffer);
-
-        if (!parse_result) {
+        if (parsed_line) {
             tree result;
 
             add_history(line);
 
-            result = evaluate(repl_parse_head, "<stdin>");
+            result = evaluate(parsed_line, "<stdin>");
 
             if (result)
                 pretty_print(result);
