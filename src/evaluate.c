@@ -360,6 +360,11 @@ static tree eval_fn_call(tree t, int depth)
      */
     tree function = __evaluate_1(tFNCALL_ID(t), depth + 1);
 
+    if (is_T_EXT_FUNC(function))
+        /* Evaluate this object to resolve the function address and
+         * create a LIVE_VAR for it. */
+        function = __evaluate_1(function, depth + 1);
+
     if (is_T_FN_DEF(function)) {
         tree arg_decls = tFNDEF_ARGS(function),
             arg_vals = tFNCALL_ARGS(t),
@@ -694,18 +699,24 @@ static void *__evaluator_alloca(size_t sz)
 static tree handle_extern_fn(tree return_type, tree fndecl)
 {
     void *func_addr;
-    tree live_var, id, func_ptr_type, previous_decl;
+    tree id, ext_func, previous_decl;
 
-    /* We handle an extern fn decl by creating a pointer to the
-     * function decl, so that eval_fn_call will call the address after
-     * evaluating the arguments. */
+    /* We handle an extern fn decl by firstly creating a EXT_FUNC
+     * object.  This denotes an external function that has been seen,
+     * but hasn't yet been resolved.
+     *
+     * Once this object is called we create a pointer to the function
+     * decl, so that eval_fn_call will call the address after
+     * evaluating the arguments (see `eval_ext_func'). */
+    id = tFNDECL_NAME(fndecl);
+
+    if (!is_T_IDENTIFIER(id))
+        eval_die(fndecl, "attempted to extern function that isn't an "
+                 "identifier\n");
 
     /* We allow extern functions to be declared more than once, see if
      * this has already been declared, if so, just return the
      * identifier. */
-
-    id = tFNDECL_NAME(fndecl);
-
     previous_decl = resolve_identifier(id, SCOPE_CURRENT_CTX);
 
     if (is_T_LIVE_VAR(previous_decl)) {
@@ -722,36 +733,17 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
         return id;
     }
 
+    if (is_T_EXT_FUNC(previous_decl))
+        return id;
+
+
     tFNDECL_RET_TYPE(fndecl) = return_type;
 
-    func_ptr_type = tree_make(D_T_PTR);
-    tDTPTR_EXP(func_ptr_type) = fndecl;
+    ext_func = tree_make(T_EXT_FUNC);
+    tEXT_FUNC_FNDECL(ext_func) = fndecl;
+    tEXT_FUNC_NAME(ext_func) = id;
 
-    if (!is_T_IDENTIFIER(id))
-        eval_die(fndecl, "attempted to extern function that isn't an "
-                 "identifier\n");
-
-    /* Intercept calls to alloca, atexit and at_quick_exit to provide
-     * our own implementation of these functions.. */
-    if (strcmp(tID_STR(id), "alloca") == 0)
-        func_addr = &__evaluator_alloca;
-    else if (strcmp(tID_STR(id), "atexit") == 0)
-        func_addr = &atexit;
-#if defined(BUILD_LINUX)
-    else if (strcmp(tID_STR(id), "at_quick_exit") == 0)
-        func_addr = &at_quick_exit;
-#endif
-    else
-        func_addr = dlsym(RTLD_DEFAULT, tID_STR(id));
-
-    if (!func_addr)
-        eval_die(fndecl, "Could not resolve external function %s\n",
-                 tID_STR(id));
-
-    live_var = make_live_var(func_ptr_type);
-    tLV_VAL(live_var)->D_T_PTR = func_addr;
-
-    map_identifier(id, live_var);
+    map_identifier(id, ext_func);
 
     return id;
 }
@@ -806,6 +798,38 @@ static tree handle_extern_decl(tree extern_type, tree decl)
     map_identifier(id, live_var);
 
     return id;
+}
+
+static tree eval_ext_func(tree t, int depth)
+{
+    void *func_addr;
+    tree live_var, func_ptr_type, id;
+
+    func_ptr_type = tree_make(D_T_PTR);
+    tDTPTR_EXP(func_ptr_type) = tEXT_FUNC_FNDECL(t);
+    id = tEXT_FUNC_NAME(t);
+
+    /* Intercept calls to alloca, atexit and at_quick_exit to provide
+     * our own implementation of these functions.. */
+    if (strcmp(tID_STR(id), "alloca") == 0)
+        func_addr = &__evaluator_alloca;
+    else if (strcmp(tID_STR(id), "atexit") == 0)
+        func_addr = &atexit;
+#if defined(BUILD_LINUX)
+    else if (strcmp(tID_STR(id), "at_quick_exit") == 0)
+        func_addr = &at_quick_exit;
+#endif
+    else
+        func_addr = dlsym(RTLD_DEFAULT, tID_STR(id));
+
+    if (!func_addr)
+        eval_die(t, "Could not resolve external function %s\n",
+                 tID_STR(id));
+
+    live_var = make_live_var(func_ptr_type);
+    tLV_VAL(live_var)->D_T_PTR = func_addr;
+
+    return __evaluate_1(live_var, depth + 1);
 }
 
 static tree handle_extern(tree extern_type, tree decls, int depth)
