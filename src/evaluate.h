@@ -13,6 +13,7 @@ static inline void resolve_ptr_type(tree *ptr, tree *base_type)
     }
 }
 
+const tree get_include_chain(void);
 void __attribute__((noreturn)) eval_die(tree t, const char *format, ...);
 tree find_global_identifiers(const char *prefix);
 int get_c_main_return_value(tree t);

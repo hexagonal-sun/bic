@@ -32,6 +32,11 @@ GC_STATIC_TREE(include_ctx);
 static tree include_chain = NULL;
 GC_STATIC_TREE(include_chain);
 
+const tree get_include_chain(void)
+{
+    return include_chain;
+}
+
 static const char *current_filename;
 
 static tree __evaluate_1(tree t, int depth);
