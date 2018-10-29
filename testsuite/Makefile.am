@@ -12,8 +12,16 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  permit_incomplete_struct_ptr logical_op_test		\
                  if_stmts eqneq union-struct casts shift
 
+expect_scripts = prompt.exp
+
+if FOUND_EXPECT
+TESTS = $(check_PROGRAMS) $(expect_scripts)
+else
 TESTS = $(check_PROGRAMS)
+endif
 
 TEST_RUNNER = $(srcdir)/test.sh
+TEST_EXTENSIONS = .exp
+EXP_LOG_COMPILER = expect
 LOG_COMPILER = $(TEST_RUNNER)
-EXTRA_DIST = $(TEST_RUNNER)
+EXTRA_DIST = $(TEST_RUNNER) $(expect_scripts) setup.exp

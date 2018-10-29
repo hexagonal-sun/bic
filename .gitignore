@@ -42,7 +42,6 @@ ylwrap
 *~
 *.log
 *.sum
-testsuite/prompt.exp
 testsuite/site.exp
 *.o
 *#

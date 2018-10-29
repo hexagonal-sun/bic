@@ -1,0 +1,2 @@
+spawn ../src/bic
+expect "BIC> "
