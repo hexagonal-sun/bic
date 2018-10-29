@@ -1,0 +1,19 @@
+source setup.exp
+send "#include <stdio.h>\n"
+bp
+send "FILE *f;\n"
+bp
+send "f = fopen(\"/tmp/out.txt\", \"w\");\n"
+bp
+send "fputs(\"Hello, World!\", f);\n"
+bp
+send "fclose(f);\n"
+bp
+
+set infile [open "/tmp/out.txt" r]
+gets $infile line
+close $infile
+
+if {$line ne "Hello, World!"} {
+    exit 1
+}
