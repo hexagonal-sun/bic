@@ -23,6 +23,10 @@ AC_PROG_CPP
 AC_PROG_MKDIR_P
 AM_PROG_AS
 
+AC_CHECK_PROG([expect],[expect],[yes],[no])
+AM_CONDITIONAL([FOUND_EXPECT], [test "x$expect" = xyes])
+AM_COND_IF([FOUND_EXPECT],,[AC_MSG_WARN([Expect not found, disabling REPL test cases.])])
+
 # Checks for libraries.
 AX_LIB_READLINE
 AC_CHECK_LIB(gmp, __gmpz_init, ,
