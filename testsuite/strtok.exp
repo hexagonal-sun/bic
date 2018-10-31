@@ -1,0 +1,20 @@
+source setup.exp
+proc expstrtok {strtokStr strtokReturn} {
+    send "strtok(${strtokStr}, \",\");\n"
+    expect {
+        $strtokReturn {bp}
+        timeout {exit 1}
+    }
+}
+
+send "#include <string.h>\n"
+bp
+send "char *foo;\n"
+bp
+send "foo = \"this is, a comma, seperated, string\";\n"
+bp
+expstrtok "foo" "this is"
+expstrtok "0" " a comma"
+expstrtok "0" " seperated"
+expstrtok "0" " string"
+expstrtok "0" "(nil)"
