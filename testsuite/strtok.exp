@@ -1,4 +1,3 @@
-source setup.exp
 proc expstrtok {strtokStr strtokReturn} {
     send "strtok(${strtokStr}, \",\");\n"
     expect {

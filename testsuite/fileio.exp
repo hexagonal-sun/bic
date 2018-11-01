@@ -1,4 +1,3 @@
-source setup.exp
 send "#include <stdio.h>\n"
 bp
 send "FILE *f;\n"
