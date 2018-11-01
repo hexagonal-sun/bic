@@ -1,0 +1,30 @@
+%{
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
+#include "lang.h"
+#define YY_NO_INPUT
+
+static int colnum = 1;
+static int linenum = 1;
+
+%}
+
+L                               [a-zA-Z_]
+D                               [0-9]
+W                               [\ \t]
+X                               [0-9A-Fa-f]
+
+%x str_lit
+
+%%
+defstruct     return DEFSTRUCT;
+deftype       return DEFTYPE;
+defctype      return DEFCTYPE;
+defdata       return DEFDATA;
+\"(\\.|[^"\\])*\" lexval = std::string(yytext+1, strlen(yytext) - 2); return STRING;
+{L}({L}|{D})* lexval = std::string(yytext); return IDENTIFIER;
+"("     return '(';
+")"     return ')';
+[ \t\r\n]                       /* skip whitespace */
+%%

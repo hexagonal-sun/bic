@@ -1,0 +1,143 @@
+(deftype T_INTEGER "Constant integer")
+(deftype T_FLOAT "Constant floating point")
+(deftype T_STRING "Constant string")
+(deftype T_STRUCT "Structure")
+(deftype T_UNION "Union")
+(deftype T_P_INC "Increment (postfix)")
+(deftype T_P_DEC "Decrement (postfix)")
+(deftype T_INC "Increment (unary)")
+(deftype T_DEC "Decrement (unary)")
+(deftype T_SIZEOF "Size of")
+(deftype T_IDENTIFIER "Identifier")
+(deftype T_POINTER "Pointer")
+(deftype T_MUL "Multiply")
+(deftype T_DIV "Divide")
+(deftype T_MOD "Modulus")
+(deftype T_ADD "Addition")
+(deftype T_SUB "Subtraction")
+(deftype T_LSHIFT "Left Shift")
+(deftype T_RSHIFT "Right Shift")
+(deftype T_LT "Less than")
+(deftype T_GT "Greater than")
+(deftype T_LTEQ "Less than or equal")
+(deftype T_GTEQ "Less than or equal")
+(deftype T_EQ "Equal")
+(deftype T_N_EQ "Not Equal")
+(deftype T_L_OR "Logical OR")
+(deftype T_L_AND "Logical AND")
+(deftype T_IF "If")
+(deftype T_ASSIGN "Assignment")
+(deftype T_CAST "Cast")
+(deftype T_TYPEDEF "Typedef")
+(deftype T_EXTERN "External")
+(deftype T_STATIC "Static")
+(deftype T_BITFIELD_EXPR "Bitfield expression")
+(deftype T_COMP_ACCESS "Compound Access")
+(deftype T_ARRAY_ACCESS "Array Access")
+(deftype T_ADDR "Address Operator")
+(deftype T_DEREF "Address Dereference")
+(deftype T_ARRAY "Array Declaration")
+(deftype T_ARRAY_TYPE "Array Type")
+(deftype T_DECL "Declaration")
+(deftype T_DECL_COMPOUND "Compound Declataion")
+(deftype T_DECL_FN "Function Declaration")
+(deftype T_FN_DEF "Function Definition")
+(deftype T_FN_CALL "Function Call")
+(deftype T_FN_ARG "Function Argument")
+(deftype T_LOOP_FOR "For loop")
+(deftype T_RETURN "Function return")
+(deftype T_ENUMERATOR "Enumerator")
+(deftype T_VARIADIC "Variadic Function Argument")
+(deftype T_LIVE_VAR "Live Variable")
+(deftype T_LIVE_COMPOUND "Live Compound")
+(deftype CHAIN_HEAD "Tree Chain Head")
+(deftype E_CTX "Evaluator Context")
+(deftype E_ALLOC "Evaluator allocation")
+(deftype E_INCOMP_TYPE "Incompletel type")
+(deftype E_MAP "Evaluator map")
+(deftype CPP_INCLUDE "C preprocessor include directive")
+(deftype D_T_VOID "Void type")
+(deftype T_EXT_FUNC "External function")
+
+(defctype D_T_CHAR "Signed Char type" "int8_t" "d")
+(defctype D_T_SHORT "Signed Short type" "int16_t" "hd")
+(defctype D_T_INT "Signed Integer type" "int32_t" "d")
+(defctype D_T_LONG "Signed Long type" "int64_t" "ld")
+(defctype D_T_LONGLONG "Signed Long Long type" "int64_t" "ld")
+(defctype D_T_UCHAR "Unsigned Char type" "uint8_t" "u")
+(defctype D_T_USHORT "Signed Short type" "int16_t" "hu")
+(defctype D_T_UINT "Unsigned Integer type" "uint32_t" "u")
+(defctype D_T_ULONG "Unsigned Long type" "uint64_t" "lu")
+(defctype D_T_ULONGLONG "Unsigned Long Long type" "uint64_t" "lu")
+(defctype D_T_FLOAT "Floating point type" "float" "f")
+(defctype D_T_DOUBLE "Double floating point type" "double" "f")
+(defctype D_T_LONGDOUBLE "Long double floating point type" "long double" "Lf")
+(defctype D_T_PTR "Pointer type" "void *" "p")
+
+(defstruct binary_exp
+  ("tree" left)
+  ("tree" right))
+
+(defstruct declaration
+  ("tree" type)
+  ("tree" decls)
+  ("size_t" offset))
+
+(defstruct identifier
+  ("char *" name))
+
+(defstruct compound_decl
+  ("tree" id)
+  ("tree" decls)
+  ("size_t" length)
+  ("int" expanded)
+  ("enum {sstruct, union}" type))
+
+(defstruct function_data
+  ("tree" id)
+  ("tree" return_type)
+  ("tree" arguments)
+  ("tree" stmts))
+
+(defstruct function_call
+  ("tree" identifier)
+  ("tree" arguments))
+
+(defstruct live_var
+  ("tree" type)
+  ("union value *" val)
+  ("int" is_array)
+  ("size_t" array_length))
+
+(defstruct external_func
+  ("tree" id)
+  ("tree" fndecl))
+
+(defstruct enum_type
+  ("tree" id)
+  ("tree" enums))
+
+(defstruct if_stmt
+  ("tree" condition)
+  ("tree" true_stmts)
+  ("tree" else_stmts))
+
+(defstruct for_loop
+  ("tree" initialization)
+  ("tree" condition)
+  ("tree" afterthrought)
+  ("tree" stmts))
+
+(defstruct eval_ctx
+  ("tree" id_map)
+  ("tree" parent_ctx)
+  ("tree" alloc_chain)
+  ("const char *" name)
+  ("int" is_static))
+
+(defdata
+  ("mpz_t" integer)
+  ("mpf_t" ffloat)
+  ("char *" string)
+  ("tree" exp)
+  ("void *" ptr))
