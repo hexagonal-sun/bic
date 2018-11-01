@@ -35,6 +35,12 @@ src/replparser.c
 src/replparser.y
 src/replparser.h
 src/replparser.o
+src/genctypes
+src/gentypes
+src/lang_lexer.cpp
+src/lang_lexer.h
+src/tree.def
+src/ctypes.def
 src/tree.o
 stamp-h1
 ylwrap
