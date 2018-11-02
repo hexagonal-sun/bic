@@ -43,48 +43,6 @@ static const inline char *tree_type_string(enum tree_type t)
     }
 }
 
-struct binary_exp {
-    tree left;
-    tree right;
-};
-
-struct declaration {
-    tree type;
-    tree decls;
-
-    /* Used for compound types such as arrays, structs and unions. */
-    size_t offset;
-};
-
-typedef struct identifier identifier;
-
-struct identifier {
-    char *name;
-};
-
-struct compound_decl {
-    tree id;
-    tree decls;
-    size_t length;
-    int expanded;
-    enum {
-        sstruct,
-        uunion
-    } type;
-};
-
-struct function_data {
-    tree id;
-    tree return_type;
-    tree arguments;
-    tree stmts;
-};
-
-struct function_call {
-    tree identifier;
-    tree arguments;
-};
-
 union value {
     #define DEFCTYPE(TNAME, DESC, STDINTSZ, FMT) \
         STDINTSZ TNAME;
@@ -92,108 +50,11 @@ union value {
     #undef DEFCTYPE
 };
 
-struct live_var {
-    tree type;
-    union value *val;
-    int is_array;
-    size_t array_length;
-};
-
-struct live_compound {
-    tree decl;
-    void *base;
-    tree members;
-};
-
-struct external_func {
-    tree id;
-    tree fndecl;
-};
-
 /* The underlying type that is used to represent a live enumeration
  * value. */
 #define ENUMTYPE D_T_UINT
 
-struct enum_type {
-    tree id;
-    tree enums;
-};
-
-struct if_stmt {
-    tree condition;
-    tree true_stmts;
-    tree else_stmts;
-};
-
-struct for_loop {
-    tree initialization;
-    tree condition;
-    tree afterthrought;
-    tree stmts;
-};
-
-typedef struct eval_ctx {
-    tree id_map;
-    tree parent_ctx;
-    tree alloc_chain;
-    const char *name;
-    int is_static;
-} eval_ctx;
-
-union tree_data {
-    /* T_INTEGER */
-    mpz_t integer;
-
-    /* T_FLOAT */
-    mpf_t ffloat;
-
-    /* T_STRING */
-    char *string;
-
-    /* T_P_INC, T_P_DEC, T_INC, T_DEC, T_FN_ARG, T_POINTER */
-    tree exp;
-
-    /* T_IDENTIFIER */
-    identifier id;
-
-    /* E_ALLOC */
-    void *ptr;
-
-    /* T_MULTIPLY */
-    struct binary_exp bin;
-
-    struct declaration decl;
-
-    /* T_DECL_COMPOUND */
-    struct compound_decl comp_decl;
-
-    /* T_FN_DEF, T_DECL_FN */
-    struct function_data function;
-
-    /* T_FN_CALL */
-    struct function_call fncall;
-
-    /* T_LIVE_VAR */
-    struct live_var var;
-
-    /* T_LIVE_COMPOUND */
-    struct live_compound comp;
-
-    /* T_EXT_FUNC */
-    struct external_func extfunc;
-
-    /* T_ENUMERATOR */
-    struct enum_type enumerator;
-
-    /* T_IF */
-    struct if_stmt ifstmt;
-
-    /* T_LOOP_FOR */
-    struct for_loop floop;
-
-    /* E_CTX */
-    struct eval_ctx ectx;
-};
+#include "tree-base.h"
 
 struct tree_locus {
     size_t line_no;

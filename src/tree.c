@@ -25,15 +25,15 @@ tree tree_make(enum tree_type type)
 tree get_identifier(char *name)
 {
     tree ret = tree_make(T_IDENTIFIER);
-    ret->data.id.name = name;
+    tID_STR(ret) = name;
     return ret;
 }
 
 tree tree_build_bin(enum tree_type type, tree left, tree right)
 {
     tree ret = tree_make(type);
-    ret->data.bin.left = left;
-    ret->data.bin.right = right;
+    ret->data.binary_exp.left = left;
+    ret->data.binary_exp.right = right;
     return ret;
 }
 

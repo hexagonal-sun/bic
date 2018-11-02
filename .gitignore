@@ -37,10 +37,12 @@ src/replparser.h
 src/replparser.o
 src/genctypes
 src/gentypes
+src/gentree
 src/lang_lexer.cpp
 src/lang_lexer.h
 src/tree.def
 src/ctypes.def
+src/tree-base.h
 src/tree.o
 stamp-h1
 ylwrap
