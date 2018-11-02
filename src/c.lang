@@ -135,6 +135,11 @@
   ("const char *" name)
   ("int" is_static))
 
+(defstruct live_compound
+  ("tree" decl)
+  ("void *" base)
+  ("tree" members))
+
 (defdata
   ("mpz_t" integer)
   ("mpf_t" ffloat)
