@@ -91,7 +91,7 @@
   ("tree" decls)
   ("size_t" length)
   ("int" expanded)
-  ("enum {sstruct, union}" type))
+  ("enum {sstruct, uunion}" type))
 
 (defstruct function_data
   ("tree" id)
