@@ -1,33 +1,13 @@
 #include "lang.h"
 
-static void outputTreeStructs(const struct lang &lang,
-                              FILE *f)
-{
-    for (auto const s : lang.treeStructs) {
-        fprintf(f, "struct %s {\n", s.name.c_str());
-
-        for (auto const member : s.members)
-            fprintf(f, "    %s %s;\n", member.type.c_str(),
-                    member.name.c_str());
-
-        fprintf(f, "};\n\n");
-
-        fprintf(f, "typedef struct %s %s;\n\n",
-                s.name.c_str(), s.name.c_str());
-    }
-}
-
 static void outputTreeDataUnion(const struct lang &lang,
                                 FILE *f)
 {
-    fputs("union tree_data {\n", f);
+    fputs("struct tree_data {\n", f);
 
     for (const auto data : lang.treeData)
         fprintf(f, "    %s %s;\n", data.type.c_str(),
                 data.name.c_str());
-
-    for (const auto s : lang.treeStructs)
-        fprintf(f, "    struct %s %s;\n", s.name.c_str(), s.name.c_str());
 
     fputs("};\n", f);
 }
@@ -71,7 +51,6 @@ int main(int argc, char *argv[])
           " */\n\n", output);
 
 
-    outputTreeStructs(lang, output);
     outputTreeDataUnion(lang, output);
 
     fclose(output);

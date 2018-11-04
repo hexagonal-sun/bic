@@ -1,40 +1,35 @@
 #include <vector>
+#include <unordered_map>
 #include <string>
 
 extern std::string lexval;
 
-struct dtype {
+struct tree_data {
+    std::string type;
     std::string name;
-    std::string friendly_name;
 };
 
-struct ctype {
+struct treeType {
     std::string name;
     std::string friendly_name;
+    std::unordered_map<std::string, const struct tree_data> props;
+};
+
+struct CType : public treeType {
     std::string ctype;
     std::string format_string;
 };
 
-struct struct_member {
-    std::string name;
-    std::string type;
-};
-
-struct sstruct {
-    std::vector<struct_member> members;
-    std::string name;
-};
-
 struct lang {
-    std::vector<struct dtype> treeTypes;
-    std::vector<struct ctype> treeCTypes;
-    std::vector<struct sstruct> treeStructs;
-    std::vector<struct struct_member> treeData;
+    std::vector<struct treeType> treeTypes;
+    std::vector<struct CType> treeCTypes;
+    std::vector<struct tree_data> treeData;
+    size_t trees_allocated;
+    lang() : trees_allocated (0) { };
 };
 
 enum token_modules
 {
-    DEFSTRUCT,
     DEFTYPE,
     DEFCTYPE,
     DEFDATA,

@@ -26,7 +26,6 @@ X                               [0-9A-Fa-f]
 %x str_lit
 
 %%
-defstruct     return DEFSTRUCT;
 deftype       return DEFTYPE;
 defctype      return DEFCTYPE;
 defdata       return DEFDATA;

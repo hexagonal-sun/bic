@@ -63,7 +63,7 @@ struct tree_locus {
 
 struct tree {
     enum tree_type type;
-    union tree_data data;
+    struct tree_data data;
     struct tree_locus locus;
     list chain;
 };

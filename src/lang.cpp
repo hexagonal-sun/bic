@@ -19,13 +19,13 @@ int yywrap(void)
     return 1;
 }
 
-static void getStructMembers(std::vector<struct struct_member> &members)
+static void handle_defdata(struct lang &lang)
 {
     while (1)
     {
         int token;
 
-        struct struct_member member;
+        struct tree_data member;
         token = yylex();
 
         if (token == ')')
@@ -48,32 +48,110 @@ static void getStructMembers(std::vector<struct struct_member> &members)
         if (token != ')')
             perror("Expected ')'");
 
-        members.push_back(member);
+        lang.treeData.push_back(member);
     }
 }
 
-static void handle_defdata(struct lang &lang)
+
+static void genTreeProp(std::string pName, struct treeType &newType,
+                        std::vector<struct tree_data> &dataPool,
+                        struct lang &lang)
 {
-    getStructMembers(lang.treeData);
+    for (auto i = dataPool.begin(); i != dataPool.end(); ++i)
+        if ((*i).type == "tree")
+        {
+            newType.props.insert({pName, *i});
+            dataPool.erase(i);
+            return;
+        }
+
+    struct tree_data newTreeData;
+    newTreeData.type = "tree";
+    newTreeData.name = "exp" + std::to_string(lang.trees_allocated++);
+
+    lang.treeData.push_back(newTreeData);
+    newType.props.insert({pName, newTreeData});
 }
 
-static void handle_defstruct(struct lang &lang)
+static void genDataProp(std::string propNamePrefix, struct treeType &newType,
+                        std::vector<struct tree_data> &dataPool,
+                        struct lang &lang)
 {
-    struct sstruct newStruct;
+    std::string propName;
+    std::string dataMemberName;
     int token = yylex();
 
+    if (token != STRING)
+        perror("Expected STRING");
+    propName = propNamePrefix + lexval;
+
+    token = yylex();
     if (token != IDENTIFIER)
         perror("Expected IDENTIFIER");
-    newStruct.name = lexval;
+    dataMemberName = lexval;
 
-    getStructMembers(newStruct.members);
+    token = yylex();
+    if (token != ')')
+        perror("Expected ')'");
 
-    lang.treeStructs.push_back(newStruct);
+    struct tree_data newTreeData;
+
+    for (auto i = dataPool.begin(); i != dataPool.end(); i++)
+    {
+        if ((*i).name == dataMemberName) {
+            newTreeData = *i;
+            newType.props.insert({propName, newTreeData});
+            return;
+        }
+    }
+
+    fprintf(stderr, "Error: could not data member name `%s' for `%s' "
+            "property of `%s' tree type.\n", dataMemberName.c_str(),
+            propName.c_str(), newType.name.c_str());
+
+    exit(1);
+}
+
+static void parsePropList(struct lang &lang,
+                          struct treeType &tree,
+                          int token)
+{
+    bool haveProperties = true;
+    std::vector<struct tree_data> treeDataPool = lang.treeData;
+    std::string propNamePrefix;
+
+    if (token != STRING)
+        perror("Expected STRING or ')'");
+    propNamePrefix = lexval + "_";
+
+    token = yylex();
+    if (token != '(')
+        perror("Expected '('");
+
+    while (haveProperties)
+    {
+        token = yylex();
+        switch (token)
+        {
+        case ')':
+            haveProperties = false;
+            break;
+        case '(':
+            genDataProp(propNamePrefix, tree, treeDataPool, lang);
+            break;
+        case STRING:
+            genTreeProp(propNamePrefix + lexval, tree,
+                        treeDataPool, lang);
+            break;
+        default:
+            perror("Expected '(' ')' or STRING");
+        }
+    }
 }
 
 static void handle_deftype(struct lang &lang)
 {
-    struct dtype newType;
+    struct treeType newType;
     int token = yylex();
 
     if (token != IDENTIFIER)
@@ -86,15 +164,21 @@ static void handle_deftype(struct lang &lang)
     newType.friendly_name = lexval;
 
     token = yylex();
+    if (token == ')')
+        goto out;
+
+    parsePropList(lang, newType, token);
+
+    token = yylex();
     if (token != ')')
         perror("Expected ')'");
-
+out:
     lang.treeTypes.push_back(newType);
 }
 
 static void handle_defctype(struct lang &lang)
 {
-    struct ctype newCType;
+    struct CType newCType;
     int token = yylex();
 
     if (token != IDENTIFIER)
@@ -117,9 +201,15 @@ static void handle_defctype(struct lang &lang)
     newCType.format_string = lexval;
 
     token = yylex();
+    if (token == ')')
+        goto out;
+
+    parsePropList(lang, newCType, token);
+
+    token = yylex();
     if (token != ')')
         perror("Expected ')'");
-
+out:
     lang.treeCTypes.push_back(newCType);
 }
 
@@ -141,9 +231,6 @@ static void lang_parse(struct lang &lang)
 
         switch (token)
         {
-        case DEFSTRUCT:
-            handle_defstruct(lang);
-            break;
         case DEFTYPE:
             handle_deftype(lang);
             break;

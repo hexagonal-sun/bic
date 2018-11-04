@@ -1,63 +1,205 @@
-(deftype T_INTEGER "Constant integer")
-(deftype T_FLOAT "Constant floating point")
-(deftype T_STRING "Constant string")
-(deftype T_STRUCT "Structure")
-(deftype T_UNION "Union")
-(deftype T_P_INC "Increment (postfix)")
-(deftype T_P_DEC "Decrement (postfix)")
-(deftype T_INC "Increment (unary)")
-(deftype T_DEC "Decrement (unary)")
-(deftype T_SIZEOF "Size of")
-(deftype T_IDENTIFIER "Identifier")
-(deftype T_POINTER "Pointer")
-(deftype T_MUL "Multiply")
-(deftype T_DIV "Divide")
-(deftype T_MOD "Modulus")
-(deftype T_ADD "Addition")
-(deftype T_SUB "Subtraction")
-(deftype T_LSHIFT "Left Shift")
-(deftype T_RSHIFT "Right Shift")
-(deftype T_LT "Less than")
-(deftype T_GT "Greater than")
-(deftype T_LTEQ "Less than or equal")
-(deftype T_GTEQ "Less than or equal")
-(deftype T_EQ "Equal")
-(deftype T_N_EQ "Not Equal")
-(deftype T_L_OR "Logical OR")
-(deftype T_L_AND "Logical AND")
-(deftype T_IF "If")
-(deftype T_ASSIGN "Assignment")
-(deftype T_CAST "Cast")
-(deftype T_TYPEDEF "Typedef")
-(deftype T_EXTERN "External")
-(deftype T_STATIC "Static")
-(deftype T_BITFIELD_EXPR "Bitfield expression")
-(deftype T_COMP_ACCESS "Compound Access")
-(deftype T_ARRAY_ACCESS "Array Access")
-(deftype T_ADDR "Address Operator")
-(deftype T_DEREF "Address Dereference")
-(deftype T_ARRAY "Array Declaration")
-(deftype T_ARRAY_TYPE "Array Type")
-(deftype T_DECL "Declaration")
-(deftype T_DECL_COMPOUND "Compound Declataion")
-(deftype T_DECL_FN "Function Declaration")
-(deftype T_FN_DEF "Function Definition")
-(deftype T_FN_CALL "Function Call")
-(deftype T_FN_ARG "Function Argument")
-(deftype T_LOOP_FOR "For loop")
-(deftype T_RETURN "Function return")
-(deftype T_ENUMERATOR "Enumerator")
+(defdata
+  ("mpz_t" integer)
+  ("mpf_t" ffloat)
+  ("char *" string)
+  ("char *" name)
+  ("void *" eval_alloc_ptr)
+  ("size_t" comp_decl_sz)
+  ("size_t" decl_offset)
+  ("int" comp_decl_expanded)
+  ("enum {sstruct, uunion}" comp_decl_type)
+  ("union value *" live_var_val)
+  ("int" live_var_is_array)
+  ("size_t" live_var_array_length)
+  ("void *" live_comp_base)
+  ("const char *" eval_ctx_name)
+  ("int" eval_ctx_is_static))
+
+(deftype T_INTEGER "Constant integer" "tINT"
+         (("VAL" integer)))
+
+(deftype T_FLOAT "Constant floating point" "tFLOAT"
+         (("VAL" ffloat)))
+
+(deftype T_STRING "Constant string" "tSTRING"
+         (("VAL" string)))
+
+(deftype T_STRUCT "Structure" "tSTRUCT"
+         ("EXP"))
+
+(deftype T_UNION "Union" "tUNION"
+         ("EXP"))
+
+(deftype T_P_INC "Increment (postfix)" "tPINC"
+         ("EXP"))
+
+(deftype T_P_DEC "Decrement (postfix)" "tPDEC"
+         ("EXP"))
+
+(deftype T_INC "Increment (unary)" "tINC"
+         ("EXP"))
+
+(deftype T_DEC "Decrement (unary)" "tDEC"
+         ("EXP"))
+
+(deftype T_SIZEOF "Size of" "tSZOF"
+         ("EXP"))
+
+(deftype T_IDENTIFIER "Identifier" "tID"
+         (("STR" name)))
+
+(deftype T_POINTER "Pointer" "tPTR"
+         ("EXP"))
+
+(deftype T_MUL "Multiply" "tMUL"
+         ("LHS" "RHS"))
+
+(deftype T_DIV "Divide" "tDIV"
+         ("LHS" "RHS"))
+
+(deftype T_MOD "Modulus" "tMOD"
+         ("LHS" "RHS"))
+
+(deftype T_ADD "Addition" "tADD"
+         ("LHS" "RHS"))
+
+(deftype T_SUB "Subtraction" "tSUB"
+         ("LHS" "RHS"))
+
+(deftype T_LSHIFT "Left Shift" "tLSHIFT"
+         ("LHS" "RHS"))
+
+(deftype T_RSHIFT "Right Shift" "tRSHIFT"
+         ("LHS" "RHS"))
+
+(deftype T_LT "Less than" "tLT"
+         ("LHS" "RHS"))
+
+(deftype T_GT "Greater than" "tGT"
+         ("LHS" "RHS"))
+
+(deftype T_LTEQ "Less than or equal" "tLTEQ"
+         ("LHS" "RHS"))
+
+(deftype T_GTEQ "Less than or equal" "tGTEQ"
+         ("LHS" "RHS"))
+
+(deftype T_EQ "Equal" "tEQ"
+         ("LHS" "RHS"))
+
+(deftype T_N_EQ "Not Equal" "tN_EQ"
+         ("LHS" "RHS"))
+
+(deftype T_L_OR "Logical OR" "tL_OR"
+         ("LHS" "RHS"))
+
+(deftype T_L_AND "Logical AND" "tL_AND"
+         ("LHS" "RHS"))
+
+(deftype T_IF "If" "tIF"
+         ("COND" "TRUE_STMTS" "ELSE_STMTS"))
+
+(deftype T_ASSIGN "Assignment" "tASSIGN"
+         ("LHS" "RHS"))
+
+(deftype T_CAST "Cast" "tCAST"
+         ("NEWTYPE" "EXP"))
+
+(deftype T_TYPEDEF "Typedef" "tTYPEDEF"
+         ("EXP"))
+
+(deftype T_EXTERN "External" "tEXTERN"
+         ("EXP"))
+
+(deftype T_STATIC "Static" "tSTATIC"
+         ("EXP"))
+
+(deftype T_BITFIELD_EXPR "Bitfield expression" "tBITFIELD_EXPR"
+         ("SZ" "DECL"))
+
+(deftype T_COMP_ACCESS "Compound Access" "tCOMP_ACCESS"
+         ("OBJ" "MEMBER"))
+
+(deftype T_ARRAY_ACCESS "Array Access" "tARR_ACCESS"
+         ("OBJ" "IDX"))
+
+(deftype T_ADDR "Address Operator" "tADDR"
+         ("EXP"))
+
+(deftype T_DEREF "Address Dereference" "tDEREF"
+         ("EXP"))
+
+(deftype T_ARRAY "Array Declaration" "tARRAY"
+         ("ID" "SZ"))
+
+(deftype T_ARRAY_TYPE "Array Type" "tARRAY_TYPE"
+         ("BASE_TYPE" "SZ"))
+
+(deftype T_DECL "Declaration" "tDECL"
+         ("TYPE" "DECLS"
+                 ("OFFSET" decl_offset)))
+
+(deftype T_DECL_COMPOUND "Compound Declataion" "tCOMP_DECL"
+         ("ID" "DECLS"
+               ("SZ" comp_decl_sz)
+               ("EXPANDED" comp_decl_expanded)
+               ("TYPE"  comp_decl_type)))
+
+(deftype T_DECL_FN "Function Declaration" "tFNDECL"
+         ("NAME" "RET_TYPE" "ARGS" "STMTS"))
+
+(deftype T_FN_DEF "Function Definition" "tFNDEF"
+         ("NAME" "RET_TYPE" "ARGS" "STMTS"))
+
+(deftype T_FN_CALL "Function Call" "tFNCALL"
+         ("ID" "ARGS"))
+
+(deftype T_FN_ARG "Function Argument" "tFNARG"
+         ("EXP"))
+
+(deftype T_LOOP_FOR "For loop" "tFLOOP"
+         ("INIT" "COND" "AFTER" "STMTS"))
+
+(deftype T_RETURN "Function return" "tRET"
+         ("EXP"))
+
+(deftype T_ENUMERATOR "Enumerator" "tENUM"
+         ("NAME" "ENUMS"))
+
 (deftype T_VARIADIC "Variadic Function Argument")
-(deftype T_LIVE_VAR "Live Variable")
-(deftype T_LIVE_COMPOUND "Live Compound")
+
+(deftype T_LIVE_VAR "Live Variable" "tLV"
+         ("TYPE"
+          ("VAL" live_var_val)
+          ("IS_ARRAY" live_var_is_array)
+          ("ARRAY_SZ" live_var_array_length)))
+
+(deftype T_LIVE_COMPOUND "Live Compound" "tLV_COMP"
+         ("DECL" "MEMBERS"
+                 ("BASE" live_comp_base)))
+
 (deftype CHAIN_HEAD "Tree Chain Head")
-(deftype E_CTX "Evaluator Context")
-(deftype E_ALLOC "Evaluator allocation")
+
+(deftype E_CTX "Evaluator Context" "tECTX"
+         ("ID_MAP" "PARENT_CTX" "ALLOC_CHAIN"
+                   ("NAME" eval_ctx_name)
+                   ("IS_STATIC" eval_ctx_is_static)))
+
+(deftype E_ALLOC "Evaluator allocation" "tALLOC"
+         (("PTR" eval_alloc_ptr)))
+
 (deftype E_INCOMP_TYPE "Incompletel type")
-(deftype E_MAP "Evaluator map")
-(deftype CPP_INCLUDE "C preprocessor include directive")
+
+(deftype E_MAP "Evaluator map" "tEMAP"
+         ("LEFT" "RIGHT"))
+
+(deftype CPP_INCLUDE "C preprocessor include directive" "tCPP_INCLUDE"
+         (("STR" string)))
+
 (deftype D_T_VOID "Void type")
-(deftype T_EXT_FUNC "External function")
+
+(deftype T_EXT_FUNC "External function" "tEXT_FUNC"
+         ("NAME" "FNDECL"))
 
 (defctype D_T_CHAR "Signed Char type" "int8_t" "d")
 (defctype D_T_SHORT "Signed Short type" "int16_t" "hd")
@@ -72,77 +214,5 @@
 (defctype D_T_FLOAT "Floating point type" "float" "f")
 (defctype D_T_DOUBLE "Double floating point type" "double" "f")
 (defctype D_T_LONGDOUBLE "Long double floating point type" "long double" "Lf")
-(defctype D_T_PTR "Pointer type" "void *" "p")
-
-(defstruct binary_exp
-  ("tree" left)
-  ("tree" right))
-
-(defstruct declaration
-  ("tree" type)
-  ("tree" decls)
-  ("size_t" offset))
-
-(defstruct identifier
-  ("char *" name))
-
-(defstruct compound_decl
-  ("tree" id)
-  ("tree" decls)
-  ("size_t" length)
-  ("int" expanded)
-  ("enum {sstruct, uunion}" type))
-
-(defstruct function_data
-  ("tree" id)
-  ("tree" return_type)
-  ("tree" arguments)
-  ("tree" stmts))
-
-(defstruct function_call
-  ("tree" identifier)
-  ("tree" arguments))
-
-(defstruct live_var
-  ("tree" type)
-  ("union value *" val)
-  ("int" is_array)
-  ("size_t" array_length))
-
-(defstruct external_func
-  ("tree" id)
-  ("tree" fndecl))
-
-(defstruct enum_type
-  ("tree" id)
-  ("tree" enums))
-
-(defstruct if_stmt
-  ("tree" condition)
-  ("tree" true_stmts)
-  ("tree" else_stmts))
-
-(defstruct for_loop
-  ("tree" initialization)
-  ("tree" condition)
-  ("tree" afterthrought)
-  ("tree" stmts))
-
-(defstruct eval_ctx
-  ("tree" id_map)
-  ("tree" parent_ctx)
-  ("tree" alloc_chain)
-  ("const char *" name)
-  ("int" is_static))
-
-(defstruct live_compound
-  ("tree" decl)
-  ("void *" base)
-  ("tree" members))
-
-(defdata
-  ("mpz_t" integer)
-  ("mpf_t" ffloat)
-  ("char *" string)
-  ("tree" exp)
-  ("void *" ptr))
+(defctype D_T_PTR "Pointer type" "void *" "p" "tDTPTR"
+          ("EXP"))
