@@ -302,7 +302,7 @@ primary_expression
 : INTEGER
 {
     tree number = tree_make(T_INTEGER);
-    mpz_init_set(tINT(number), $1);
+    mpz_init_set(tINT_VAL(number), $1);
     mpz_clear($1);
     set_locus(number, @1);
     $$ = number;

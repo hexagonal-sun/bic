@@ -92,7 +92,7 @@ ptrdiff_t do_call(void *function_address, tree args)
                 }
                 break;
             case T_INTEGER:
-                new_arg->val.i = (ptrdiff_t)mpz_get_si(tINT(arg));
+                new_arg->val.i = (ptrdiff_t)mpz_get_si(tINT_VAL(arg));
                 new_arg->dest = CLS_INTEGER;
                 push_arg(&int_args, new_arg);
                 break;

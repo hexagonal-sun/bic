@@ -74,7 +74,7 @@ static tree get_argument_chain(tree fndef, struct argregs *regs)
 #define CREATE_INT_ARG(type, mpz_func, ctype)                           \
             case type:                                                  \
                 new_arg = tree_make(T_INTEGER);                         \
-                mpz_func (tINT(new_arg),                                \
+                mpz_func (tINT_VAL(new_arg),                                \
                           (ctype) regs->iarg[integer_idx]);             \
                 integer_idx++;                                          \
                 break;

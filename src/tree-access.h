@@ -10,8 +10,8 @@
 #define TREE_CHECK(obj, type) (obj)
 #endif
 
-/* Access integer objects contents. */
-#define tINT(obj) (_DATA( TREE_CHECK((obj), T_INTEGER) ).integer)
+/* Access macros for T_INTEGER objects */
+#define tINT_VAL(obj) (_DATA( TREE_CHECK((obj), T_INTEGER)).integer)
 #define tSTRING_VAL(obj) (_DATA( TREE_CHECK((obj), T_STRING)).string)
 
 /* Access floating point object contents. */

@@ -64,7 +64,7 @@ static void __pp_1(tree t, int depth)
 {
     switch (t->type) {
     case T_INTEGER:
-        gmp_printf("%Zd", tINT(t));
+        gmp_printf("%Zd", tINT_VAL(t));
         break;
     case T_FLOAT:
         gmp_printf("%Ff", tFLOAT(t));

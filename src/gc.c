@@ -95,7 +95,7 @@ static void dealloc_object(gc_obj obj)
     switch (TYPE(t))
     {
     case T_INTEGER:
-        mpz_clear(tINT(t));
+        mpz_clear(tINT_VAL(t));
         break;
     case T_IDENTIFIER:
         free(tID_STR(t));
