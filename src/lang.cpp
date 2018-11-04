@@ -3,9 +3,16 @@
 #include "lang_lexer.h"
 #include "lang.h"
 
-#define perror(STR) {fprintf(stderr, "Parse error in %s: " STR "\n", __func__); exit(1);}
+#define perror(STR)                                                    \
+    {                                                                  \
+        fprintf(stderr, "%d:%d: Parse error in %s: " STR "\n",         \
+                token_loc.line, token_loc.col, __func__);              \
+        exit(1);                                                       \
+    }
 
 std::string lexval;
+
+extern struct locus token_loc;
 
 int yywrap(void)
 {
@@ -118,6 +125,9 @@ static void handle_defctype(struct lang &lang)
 
 static void lang_parse(struct lang &lang)
 {
+    token_loc.line = 1;
+    token_loc.col = 1;
+
     while (1) {
         int token = yylex();
 

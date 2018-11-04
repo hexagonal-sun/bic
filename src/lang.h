@@ -42,4 +42,10 @@ enum token_modules
     STRING
 };
 
+struct locus
+{
+    int line;
+    int col;
+};
+
 void lang_read(FILE *f, struct lang &lang);
