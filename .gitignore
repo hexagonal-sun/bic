@@ -36,6 +36,8 @@ src/replparser.y
 src/replparser.h
 src/replparser.o
 src/tree-access.h
+src/gc-internal.h
+src/gengc
 src/genaccess
 src/genctypes
 src/gentypes

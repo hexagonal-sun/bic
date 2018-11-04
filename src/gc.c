@@ -19,10 +19,7 @@ static void mark_tree(tree obj)
     mark_object((gc_obj)obj);
 }
 
-static void mark_object(gc_obj obj)
-{
-    return;
-}
+#include "gc-internal.h"
 
 static int compare_allocs(const void *a1, const void *a2)
 {
@@ -155,8 +152,6 @@ static void collect(void)
 static void maybe_collect()
 {
     static int collect_counter = 0;
-
-    return;
 
     if (gc_inhibited)
         return;
