@@ -105,10 +105,10 @@ static inline tree make_pointer_type(tree ptr, tree type)
     if (!ptr)
         return type;
 
-    while (ptr->data.exp)
-        ptr = ptr->data.exp;
+    while (tPTR_EXP(ptr))
+        ptr = tPTR_EXP(ptr);
 
-    ptr->data.exp = type;
+    tPTR_EXP(ptr) = type;
 
     return ret;
 }
