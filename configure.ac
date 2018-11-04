@@ -47,6 +47,7 @@ AC_TYPE_SIZE_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
+AX_CXX_COMPILE_STDCXX_11(, [mandatory])
 
 # Configuration options for the program
 BIC_PROMPT="BIC> "
