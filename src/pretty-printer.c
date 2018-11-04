@@ -19,7 +19,7 @@ static void pp_live_var(tree t, int depth)
     switch (type->type) {
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
         case TNAME:                                     \
-            printf("%" #FMT, t->data.live_var.val->TNAME);  \
+            printf("%" #FMT, tLV_VAL(t)->TNAME);     \
             break;
 #include "ctypes.def"
 #undef DEFCTYPE
