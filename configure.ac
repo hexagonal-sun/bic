@@ -40,6 +40,10 @@ AC_CHECK_HEADERS([inttypes.h libintl.h malloc.h stddef.h \
                   stdint.h stdlib.h string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.o
+AC_CHECK_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
 AC_TYPE_INT16_T
 AC_TYPE_INT32_T
 AC_TYPE_INT8_T
@@ -47,6 +51,7 @@ AC_TYPE_SIZE_T
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
+AC_CHECK_TYPES([ptrdiff_t])
 AX_CXX_COMPILE_STDCXX_11(, [mandatory])
 
 # Configuration options for the program
@@ -90,10 +95,11 @@ AS_IF([test "x$enable_debug" = "xyes"], [
 ])
 
 # Checks for library functions.
+AC_FUNC_FORK
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_FUNC_ALLOCA
-AC_CHECK_FUNCS([memset strdup])
+AC_CHECK_FUNCS([gethostname memset strdup strerror strstr])
 
 AC_CONFIG_FILES([Makefile
                  etc/Makefile
