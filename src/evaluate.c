@@ -994,7 +994,7 @@ static void assign_float(tree var, tree right)
         val = (double)mpz_get_si(tINT_VAL(right));
          break;
     case T_FLOAT:
-        val = (double)mpf_get_d(tFLOAT(right));
+        val = (double)mpf_get_d(tFLOAT_VAL(right));
         break;
     case T_LIVE_VAR:
         val = tLV_VAL(right)->D_T_DOUBLE;

@@ -67,7 +67,7 @@ static void __pp_1(tree t, int depth)
         gmp_printf("%Zd", tINT_VAL(t));
         break;
     case T_FLOAT:
-        gmp_printf("%Ff", tFLOAT(t));
+        gmp_printf("%Ff", tFLOAT_VAL(t));
         break;
     case T_STRING:
         printf("\"%s\"", tSTRING_VAL(t));

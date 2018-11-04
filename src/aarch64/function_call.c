@@ -98,7 +98,7 @@ ptrdiff_t do_call(void *function_address, tree args)
                 push_arg(&int_args, new_arg);
                 break;
             case T_FLOAT:
-                new_arg->val.d = mpf_get_d(tFLOAT(arg));
+                new_arg->val.d = mpf_get_d(tFLOAT_VAL(arg));
                 new_arg->dest = VECTOR;
                 push_arg(&vec_args, new_arg);
                 break;

@@ -310,7 +310,7 @@ primary_expression
 | FLOAT_CST
 {
     tree ffloat = tree_make(T_FLOAT);
-    mpf_init_set(tFLOAT(ffloat), $1);
+    mpf_init_set(tFLOAT_VAL(ffloat), $1);
     mpf_clear($1);
     set_locus(ffloat, @1);
     $$ = ffloat;
