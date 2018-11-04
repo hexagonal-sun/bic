@@ -51,14 +51,14 @@ enum identifier_search_scope
 /* Context management functions. */
 static void pop_ctx(void)
 {
-    if (!tPARENT_CTX(cur_ctx)) {
+    if (!tECTX_PARENT_CTX(cur_ctx)) {
         /* We attempted to pop off the top-level context.  This is a
          * serious error. */
         fprintf(stderr, "Error: attempted to pop top-level context\n");
         exit(EXIT_FAILURE);
     }
 
-    cur_ctx = tPARENT_CTX(cur_ctx);
+    cur_ctx = tECTX_PARENT_CTX(cur_ctx);
 }
 
 static void push_ctx(const char *name)
@@ -70,10 +70,10 @@ static void push_ctx(const char *name)
         exit(EXIT_FAILURE);
     }
 
-    tPARENT_CTX(new_ctx) = cur_ctx;
-    tCTX_NAME(new_ctx) = name;
-    tID_MAP(new_ctx) = tree_make(CHAIN_HEAD);
-    tALLOC_CHAIN(new_ctx) = tree_make(CHAIN_HEAD);
+    tECTX_PARENT_CTX(new_ctx) = cur_ctx;
+    tECTX_NAME(new_ctx) = name;
+    tECTX_ID_MAP(new_ctx) = tree_make(CHAIN_HEAD);
+    tECTX_ALLOC_CHAIN(new_ctx) = tree_make(CHAIN_HEAD);
 
     cur_ctx = new_ctx;
 }
@@ -84,7 +84,7 @@ static void track_alloc(void *ptr)
 
     tALLOC_PTR(alloc) = ptr;
 
-    tree_chain(alloc, tALLOC_CHAIN(cur_ctx));
+    tree_chain(alloc, tECTX_ALLOC_CHAIN(cur_ctx));
 }
 
 static void ctx_backtrace(void)
@@ -125,22 +125,22 @@ static tree resolve_identifier(tree id,
     tree search_ctx = cur_ctx;
 
     if (scope == SCOPE_CURRENT_CTX)
-        return resolve_id(id, tID_MAP(search_ctx));
+        return resolve_id(id, tECTX_ID_MAP(search_ctx));
 
     /* Search through the identifier mappings of the current context
      * stack to find the appropriate object. */
     while (search_ctx) {
-        tree search_result = resolve_id(id, tID_MAP(search_ctx));
+        tree search_result = resolve_id(id, tECTX_ID_MAP(search_ctx));
 
         if (search_result)
             return search_result;
 
-        search_ctx = tPARENT_CTX(search_ctx);
+        search_ctx = tECTX_PARENT_CTX(search_ctx);
     }
 
     /* Also search the include_ctx if it exists. */
     if (include_ctx) {
-        tree result = resolve_id(id, tID_MAP(include_ctx));
+        tree result = resolve_id(id, tECTX_ID_MAP(include_ctx));
 
         if (result)
             return result;
@@ -155,13 +155,13 @@ tree find_global_identifiers(const char *prefix)
         search_ctx = cur_ctx;
 
     while (search_ctx) {
-        match_identifiers_for_idmap(chain, tID_MAP(search_ctx), prefix);
+        match_identifiers_for_idmap(chain, tECTX_ID_MAP(search_ctx), prefix);
 
-        search_ctx = tPARENT_CTX(search_ctx);
+        search_ctx = tECTX_PARENT_CTX(search_ctx);
     }
 
     if (include_ctx)
-        match_identifiers_for_idmap(chain, tID_MAP(include_ctx), prefix);
+        match_identifiers_for_idmap(chain, tECTX_ID_MAP(include_ctx), prefix);
 
     return chain;
 }
@@ -201,7 +201,7 @@ static void map_identifier(tree id, tree t)
         eval_die(id, "Attempted to map already existing identifier %s.\n",
                  tID_STR(id));
 
-    __map_identifer(id, t, tID_MAP(cur_ctx));
+    __map_identifer(id, t, tECTX_ID_MAP(cur_ctx));
 }
 
 static tree eval_identifier(tree t, int depth)
@@ -912,11 +912,11 @@ static tree handle_static_decl(tree decl, int depth)
 
     TYPE(decl) = E_CTX;
 
-    tID_MAP(decl) = tID_MAP(cur_ctx);
-    tALLOC_CHAIN(decl) = tALLOC_CHAIN(cur_ctx);
-    tPARENT_CTX(decl) = NULL;
-    tCTX_NAME(decl) = "Static declaration";
-    tIS_STATIC(decl) = 1;
+    tECTX_ID_MAP(decl) = tECTX_ID_MAP(cur_ctx);
+    tECTX_ALLOC_CHAIN(decl) = tECTX_ALLOC_CHAIN(cur_ctx);
+    tECTX_PARENT_CTX(decl) = NULL;
+    tECTX_NAME(decl) = "Static declaration";
+    tECTX_IS_STATIC(decl) = 1;
 
     pop_ctx();
 
@@ -2196,7 +2196,7 @@ static tree eval_cpp_include(tree t, int depth)
     include_ctx = cur_ctx;
     pop_ctx();
 
-    tPARENT_CTX(include_ctx) = NULL;
+    tECTX_PARENT_CTX(include_ctx) = NULL;
 
     return NULL;
 }
@@ -2214,10 +2214,10 @@ static tree eval_evaluator_ctx(tree t, int depth)
      * cur_ctx since they are stored within the E_CTX object itself
      * and it's lifetime will outlive that of cur_ctx. */
 
-    if (!tIS_STATIC(t))
+    if (!tECTX_IS_STATIC(t))
         eval_die(t, "Non static E_CTX object evaluated.\n");
 
-    for_each_tree(mapping, tID_MAP(t)) {
+    for_each_tree(mapping, tECTX_ID_MAP(t)) {
         tree id;
 
         if (!is_E_MAP(mapping))

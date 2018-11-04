@@ -114,12 +114,6 @@
 #define tIF_TRUE_STMTS(obj) (_DATA( TREE_CHECK((obj), T_IF)).if_stmt.true_stmts)
 #define tIF_ELSE_STMTS(obj) (_DATA( TREE_CHECK((obj), T_IF)).if_stmt.else_stmts)
 
-/* Evaluation ctx (E_CTX) accessor macros. */
-#define tID_MAP(obj) (_DATA( TREE_CHECK((obj), E_CTX)).eval_ctx.id_map)
-#define tPARENT_CTX(obj) (_DATA( TREE_CHECK((obj), E_CTX)).eval_ctx.parent_ctx)
-#define tCTX_NAME(obj) (_DATA( TREE_CHECK((obj), E_CTX)).eval_ctx.name)
-#define tIS_STATIC(obj) (_DATA( TREE_CHECK((obj), E_CTX)).eval_ctx.is_static)
-#define tALLOC_CHAIN(obj) (_DATA( TREE_CHECK((obj), E_CTX)).eval_ctx.alloc_chain)
 
 /* E_ALLOC accessor macros. */
 #define tALLOC_PTR(obj) (_DATA( TREE_CHECK((obj), E_ALLOC)).ptr)
@@ -160,6 +154,12 @@
 #define tDECL_TYPE(obj) (_DATA( TREE_CHECK((obj), T_DECL)).declaration.type)
 #define tDECL_DECLS(obj) (_DATA( TREE_CHECK((obj), T_DECL)).declaration.decls)
 #define tDECL_OFFSET(obj) (_DATA( TREE_CHECK((obj), T_DECL)).declaration.offset)
+/* Access macros for E_CTX objects */
+#define tECTX_ALLOC_CHAIN(obj) (_DATA( TREE_CHECK((obj), E_CTX)).eval_ctx.alloc_chain)
+#define tECTX_IS_STATIC(obj) (_DATA( TREE_CHECK((obj), E_CTX)).eval_ctx.is_static)
+#define tECTX_ID_MAP(obj) (_DATA( TREE_CHECK((obj), E_CTX)).eval_ctx.id_map)
+#define tECTX_NAME(obj) (_DATA( TREE_CHECK((obj), E_CTX)).eval_ctx.name)
+#define tECTX_PARENT_CTX(obj) (_DATA( TREE_CHECK((obj), E_CTX)).eval_ctx.parent_ctx)
 
 /* T_LIVE_COMPOUND macros. */
 #define tLV_COMP_DECL(obj) (_DATA( TREE_CHECK((obj), T_LIVE_COMPOUND)).live_compound.decl)
