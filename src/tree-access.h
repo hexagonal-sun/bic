@@ -67,6 +67,9 @@
 
 #define tMUL_LHS(obj) (_DATA( TREE_CHECK((obj), T_MUL)).binary_exp.left)
 #define tMUL_RHS(obj) (_DATA( TREE_CHECK((obj), T_MUL)).binary_exp.right)
+/* Access macros for T_MOD objects */
+#define tMOD_RHS(obj) (_DATA( TREE_CHECK((obj), T_MOD)).binary_exp.left)
+#define tMOD_LHS(obj) (_DATA( TREE_CHECK((obj), T_MOD)).binary_exp.right)
 
 #define tDIV_LHS(obj) (_DATA( TREE_CHECK((obj), T_DIV)).binary_exp.left)
 #define tDIV_RHS(obj) (_DATA( TREE_CHECK((obj), T_DIV)).binary_exp.right)

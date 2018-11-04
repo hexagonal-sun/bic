@@ -391,7 +391,8 @@ static tree eval_fn_call(tree t, int depth)
 
             for_each_tree(arg_decl, arg_decls) {
                 tree eval_arg_val,
-                    decl_identifier;
+                    decl_identifier,
+                    assign;
 
                 arg_val = list_entry(arg_val->chain.next,
                                      typeof(*arg_val), chain);
@@ -420,8 +421,10 @@ static tree eval_fn_call(tree t, int depth)
                 eval_arg_val = __evaluate_1(arg_val, depth + 1);
                 decl_identifier = __evaluate_1(arg_decl, depth + 1);
 
-                __evaluate_1(tree_build_bin(T_ASSIGN, decl_identifier, eval_arg_val),
-                             depth + 1);
+                assign = tree_make(T_ASSIGN);
+                tASSIGN_LHS(assign) = decl_identifier;
+                tASSIGN_RHS(assign) = eval_arg_val;
+                __evaluate_1(assign, depth + 1);
             }
         }
 

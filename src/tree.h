@@ -134,7 +134,6 @@ static inline void tree_splice_chains(tree chain_dest, tree chain_src)
     }
 }
 
-tree tree_build_bin(enum tree_type, tree left, tree right);
 void tree_dump(tree tree);
 
 #define DEFTYPE(ETYPE, DESC)                    \

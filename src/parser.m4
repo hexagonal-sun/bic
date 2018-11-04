@@ -465,19 +465,25 @@ multiplicative_expression
 : cast_expression
 | multiplicative_expression '*' cast_expression
 {
-    tree mul = tree_build_bin(T_MUL, $1, $3);
+    tree mul = tree_make(T_MUL);
+    tMUL_LHS(mul) = $1;
+    tMUL_RHS(mul) = $3;
     set_locus(mul, @2);
     $$ = mul;
 }
 | multiplicative_expression '/' cast_expression
 {
-    tree div = tree_build_bin(T_DIV, $1, $3);
+    tree div = tree_make(T_DIV);
+    tDIV_LHS(div) = $1;
+    tDIV_RHS(div) = $3;
     set_locus(div, @2);
     $$ = div;
 }
 | multiplicative_expression '%' cast_expression
 {
-    tree mod = tree_build_bin(T_MOD, $1, $3);
+    tree mod = tree_make(T_MOD);
+    tMOD_LHS(mod) = $1;
+    tMOD_RHS(mod) = $3;
     set_locus(mod, @2);
     $$ = mod;
 }
@@ -487,13 +493,17 @@ additive_expression
 : multiplicative_expression
 | additive_expression '+' multiplicative_expression
 {
-    tree add = tree_build_bin(T_ADD, $1, $3);
+    tree add = tree_make(T_ADD);
+    tADD_LHS(add) = $1;
+    tADD_RHS(add) = $3;
     set_locus(add, @2);
     $$ = add;
 }
 | additive_expression '-'  multiplicative_expression
 {
-    tree sub = tree_build_bin(T_SUB, $1, $3);
+    tree sub = tree_make(T_SUB);
+    tSUB_LHS(sub) = $1;
+    tSUB_RHS(sub) = $3;
     set_locus(sub, @2);
     $$ = sub;
 }
@@ -503,13 +513,17 @@ shift_expression
 : additive_expression
 | shift_expression SHIFT_LEFT additive_expression
 {
-    tree lshift = tree_build_bin(T_LSHIFT, $1, $3);
+    tree lshift = tree_make(T_LSHIFT);
+    tLSHIFT_LHS(lshift) = $1;
+    tLSHIFT_RHS(lshift) = $3;
     set_locus(lshift, @2);
     $$ = lshift;
 }
 | shift_expression SHIFT_RIGHT additive_expression
 {
-    tree rshift = tree_build_bin(T_RSHIFT, $1, $3);
+    tree rshift = tree_make(T_RSHIFT);
+    tRSHIFT_LHS(rshift) = $1;
+    tRSHIFT_RHS(rshift) = $3;
     set_locus(rshift, @2);
     $$ = rshift;
 }
@@ -519,37 +533,48 @@ relational_expression
 : shift_expression
 | relational_expression '<' shift_expression
 {
-    tree lt = tree_build_bin(T_LT, $1, $3);
-    set_locus(lt, @2);
+    tree lt = tree_make(T_LT);
+    tLT_LHS(lt) = $1;
+    tLT_RHS(lt) = $3;
     $$ = lt;
 }
 | relational_expression '>' shift_expression
 {
-    tree gt = tree_build_bin(T_GT, $1, $3);
+    tree gt = tree_make(T_GT);
+    tGT_LHS(gt) = $1;
+    tGT_RHS(gt) = $3;
     set_locus(gt, @2);
     $$ = gt;
 }
 | relational_expression LESS_OR_EQUAL shift_expression
 {
-    tree ltoreq = tree_build_bin(T_LTEQ, $1, $3);
+    tree ltoreq = tree_make(T_LTEQ);
+    tLTEQ_LHS(ltoreq) = $1;
+    tLTEQ_RHS(ltoreq) = $3;
     set_locus(ltoreq, @2);
     $$ = ltoreq;
 }
 | relational_expression GREATER_OR_EQUAL shift_expression
 {
-    tree gtoreq = tree_build_bin(T_GTEQ, $1, $3);
+    tree gtoreq = tree_make(T_GTEQ);
+    tGTEQ_LHS(gtoreq) = $1;
+    tGTEQ_RHS(gtoreq) = $3;
     set_locus(gtoreq, @2);
     $$ = gtoreq;
 }
 | relational_expression EQUATE shift_expression
 {
-    tree equal = tree_build_bin(T_EQ, $1, $3);
+    tree equal = tree_make(T_EQ);
+    tEQ_LHS(equal) = $1;
+    tEQ_RHS(equal) = $3;
     set_locus(equal, @2);
     $$ = equal;
 }
 | relational_expression NOT_EQUATE shift_expression
 {
-    tree not_equal = tree_build_bin(T_N_EQ, $1, $3);
+    tree not_equal = tree_make(T_N_EQ);
+    tN_EQ_LHS(not_equal) = $1;
+    tN_EQ_RHS(not_equal) = $3;
     set_locus(not_equal, @2);
     $$ = not_equal;
 }
@@ -559,13 +584,17 @@ logical_expression
 : relational_expression
 | logical_expression BOOL_OP_OR relational_expression
 {
-    tree logicor = tree_build_bin(T_L_OR, $1, $3);
+    tree logicor = tree_make(T_L_OR);
+    tL_OR_LHS(logicor) = $1;
+    tL_OR_RHS(logicor) = $3;
     set_locus(logicor, @2);
     $$ = logicor;
 }
 | logical_expression BOOL_OP_AND relational_expression
 {
-    tree logicand = tree_build_bin(T_L_AND, $1, $3);
+    tree logicand = tree_make(T_L_AND);
+    tL_AND_LHS(logicand) = $1;
+    tL_AND_RHS(logicand) = $3;
     set_locus(logicand, @2);
     $$ = logicand;
 }
@@ -575,7 +604,9 @@ assignment_expression
 : logical_expression
 | unary_expression '=' logical_expression
 {
-    tree assign = tree_build_bin(T_ASSIGN, $1, $3);
+    tree assign = tree_make(T_ASSIGN);
+    tASSIGN_LHS(assign) = $1;
+    tASSIGN_RHS(assign) = $3;
     set_locus(assign, @2);
     $$ = assign;
 }
@@ -655,7 +686,9 @@ declarator
 : decl_possible_pointer
 | decl_possible_pointer '=' initialiser
 {
-    tree assign = tree_build_bin(T_ASSIGN, $1, $3);
+    tree assign = tree_make(T_ASSIGN);
+    tASSIGN_LHS(assign) = $1;
+    tASSIGN_RHS(assign) = $3;
     set_locus(assign, @2);
     $$ = assign;
 }
@@ -1078,7 +1111,9 @@ enumerator
 {
     tree id = get_identifier($1);
     set_locus(id, @1);
-    tree assign = tree_build_bin(T_ASSIGN, id, $3);
+    tree assign = tree_make(T_ASSIGN);
+    tASSIGN_LHS(assign) = id;
+    tASSIGN_RHS(assign) = $3;
     set_locus(assign, @2);
     $$ = assign;
 }

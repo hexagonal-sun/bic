@@ -29,14 +29,6 @@ tree get_identifier(char *name)
     return ret;
 }
 
-tree tree_build_bin(enum tree_type type, tree left, tree right)
-{
-    tree ret = tree_make(type);
-    ret->data.binary_exp.left = left;
-    ret->data.binary_exp.right = right;
-    return ret;
-}
-
 static void __tree_dump(tree head, int depth);
 
 static void tree_print_indent(int depth)
