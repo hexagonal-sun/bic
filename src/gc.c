@@ -101,7 +101,7 @@ static void dealloc_object(gc_obj obj)
         free(tID_STR(t));
         break;
     case T_STRING:
-        free(tSTRING(t));
+        free(tSTRING_VAL(t));
         break;
     case E_ALLOC:
         free(tALLOC_PTR(t));

@@ -324,7 +324,7 @@ primary_expression
 | CONST_STRING
 {
     tree str = tree_make(T_STRING);
-    tSTRING(str) = $1;
+    tSTRING_VAL(str) = $1;
     set_locus(str, @1);
     $$ = str;
 }

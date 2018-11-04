@@ -50,7 +50,7 @@ ptrdiff_t do_call(void *function_address, tree args)
 
             switch(arg->type) {
             case T_STRING:
-                new_arg->val.i = (ptrdiff_t)tSTRING(arg);
+                new_arg->val.i = (ptrdiff_t)tSTRING_VAL(arg);
                 new_arg->dest = INTEGRAL;
                 push_arg(&int_args, new_arg);
                 break;

@@ -1022,7 +1022,7 @@ static void assign_ptr(tree var, tree right)
     switch (TYPE(right))
     {
     case T_STRING:
-        ptr = tSTRING(right);
+        ptr = tSTRING_VAL(right);
         break;
     case T_LIVE_VAR:
         ptr = (void *)tLV_VAL(right)->D_T_PTR;

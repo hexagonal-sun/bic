@@ -12,12 +12,12 @@
 
 /* Access integer objects contents. */
 #define tINT(obj) (_DATA( TREE_CHECK((obj), T_INTEGER) ).integer)
+#define tSTRING_VAL(obj) (_DATA( TREE_CHECK((obj), T_STRING)).string)
 
 /* Access floating point object contents. */
 #define tFLOAT(obj) (_DATA( TREE_CHECK((obj), T_FLOAT) ).ffloat)
 
 /* Access string object contents. */
-#define tSTRING(obj) (_DATA( TREE_CHECK((obj), T_STRING) ).string)
 
 /* Below are all objects that have data stored in the 'exp' member of
  * the tree union. */
