@@ -7,7 +7,7 @@
   ("size_t" comp_decl_sz)
   ("size_t" decl_offset)
   ("int" comp_decl_expanded)
-  ("enum {sstruct, uunion}" comp_decl_type)
+  ("compound_type" comp_decl_type)
   ("union value *" live_var_val)
   ("int" live_var_is_array)
   ("size_t" live_var_array_length)

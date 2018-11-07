@@ -20,6 +20,8 @@ enum tree_type {
     #undef DEFCTYPE
 };
 
+typedef enum {sstruct, uunion} compound_type;
+
 #define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
     typedef STDINTSZ ETYPE##_t;
 #include "ctypes.def"
