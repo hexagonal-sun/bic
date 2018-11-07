@@ -37,8 +37,3 @@ static void tree_print_indent(int depth)
     for (i = 0; i < depth *2; i++)
         eprintf(" ");
 }
-
-void tree_dump(tree head)
-{
-    return;
-}
