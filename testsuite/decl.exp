@@ -1,0 +1,5 @@
+send "int a;\n"
+expect {
+    "a" {bp}
+    timeout {exit 1}
+}

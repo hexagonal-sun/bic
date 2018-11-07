@@ -12,7 +12,7 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  permit_incomplete_struct_ptr logical_op_test		\
                  if_stmts eqneq union-struct casts shift
 
-expect_scripts = fileio.exp strtok.exp
+expect_scripts = fileio.exp strtok.exp decl.exp
 
 if FOUND_EXPECT
 TESTS = $(check_PROGRAMS) $(expect_scripts)

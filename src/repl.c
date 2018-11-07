@@ -337,10 +337,19 @@ static char *run_cpp_on_line(char *line)
 
     fseek(output, 0, SEEK_END);
 
-    while (c != '\n') {
-        line_len++;
-        fseek(output, -2, SEEK_CUR);
+    do {
+        if (fseek(output, -2, SEEK_CUR) == -1) {
+            perror("fseek");
+            exit(1);
+        }
+
         c = fgetc(output);
+        line_len++;
+    } while (c != '\n' && ftell(output) - 1);
+
+    if (fseek(output, -1, SEEK_CUR) == -1) {
+        perror("fseek");
+        exit(1);
     }
 
     ret = calloc(line_len + 1, sizeof(*ret));
