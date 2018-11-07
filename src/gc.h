@@ -13,7 +13,11 @@
 # error "Unknown build OS"
 #endif
 
-struct gc_obj;
+struct gc_obj {
+    struct tree t;
+    uint8_t reachable;
+};
+
 typedef struct gc_obj *gc_obj;
 
 void enable_gc();

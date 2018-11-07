@@ -1,10 +1,6 @@
 #include "tree.h"
 #include "gc.h"
-
-struct gc_obj {
-    struct tree t;
-    uint8_t reachable;
-};
+#include "gc-internal.h"
 
 static int gc_inhibited = 0;
 static size_t alloc_array_sz = 10000;
@@ -12,14 +8,10 @@ static size_t alloc_ptr = 0;
 static gc_obj *allocs = NULL;
 static const int COLLECT_TREE_ALLOC = 2000;
 
-static void mark_object(gc_obj obj);
-
-static void mark_tree(tree obj)
+void mark_tree(tree obj)
 {
     mark_object((gc_obj)obj);
 }
-
-#include "gc-internal.h"
 
 static int compare_allocs(const void *a1, const void *a2)
 {
