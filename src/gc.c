@@ -28,8 +28,6 @@ static int compare_allocs(const void *a1, const void *a2)
 
 static int is_object(void *addr)
 {
-    size_t i;
-
     if (bsearch(&addr, allocs, alloc_ptr,
                 sizeof(*allocs), compare_allocs))
         return 1;

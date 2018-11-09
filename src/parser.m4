@@ -1165,7 +1165,7 @@ declaration
     if (is_T_TYPEDEF($1)) {
         tree i;
         for_each_tree(i, $2) {
-            tree newid, oldid = i;
+            tree oldid = i;
 
             while (is_T_POINTER(oldid))
                 oldid = tPTR_EXP(oldid);

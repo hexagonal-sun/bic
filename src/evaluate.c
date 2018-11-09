@@ -276,24 +276,6 @@ static tree make_int_from_live_var(tree var)
 #include "ctypes.def"
 #undef DEFCTYPE
 
-static tree cast_live_var_to_type(tree dest_type, tree live_var)
-{
-    tree ret, ival = make_int_from_live_var(live_var);
-
-    switch (TYPE(dest_type)) {
-#define DEFCTYPE(tname, desc, ctype, fmt)                       \
-        case tname:                                             \
-            ret = convert_int_to_##tname(ival);                 \
-            break;
-#include "ctypes.def"
-#undef DEFCTYPE
-        default:
-            eval_die(live_var, "attempted to cast to non C type");
-        }
-
-    return ret;
-}
-
 static tree make_fncall_result(tree type, ptrdiff_t result)
 {
     tree ret;
@@ -701,7 +683,6 @@ static void *__evaluator_alloca(size_t sz)
 
 static tree handle_extern_fn(tree return_type, tree fndecl)
 {
-    void *func_addr;
     tree id, ext_func, previous_decl;
 
     /* We handle an extern fn decl by firstly creating a EXT_FUNC
@@ -1966,8 +1947,6 @@ static tree eval_comp_access(tree t, int depth)
 
 static tree eval_struct(tree t, int depth)
 {
-    tree struct_name = tSTRUCT_EXP(t);
-
     if (resolve_identifier(tSTRUCT_EXP(t), SCOPE_GLOBAL))
         return __evaluate_1(tSTRUCT_EXP(t), depth);
     else

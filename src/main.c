@@ -140,7 +140,6 @@ extern gc_obj *top_of_stack;
 
 int main(int argc, char *argv[])
 {
-    int i;
     gc_obj top;
     top_of_stack = &top;
 

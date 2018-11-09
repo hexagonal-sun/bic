@@ -421,7 +421,7 @@ static tree repl_parse_line(char *line)
 
 void bic_repl()
 {
-    char *line, *preprocess_line;
+    char *line;
 
     setup_readline();
 
