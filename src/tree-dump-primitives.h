@@ -28,7 +28,7 @@ static inline void tree_dump_string(tree t, const char *s)
 
 static inline void tree_dump_szt(tree t, size_t s)
 {
-    fprintf(stderr, "%u", s);
+    fprintf(stderr, "%zu", s);
 }
 
 #define tree_dump_comp_decl_sz tree_dump_szt
