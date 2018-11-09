@@ -19,45 +19,51 @@ static void outputPreamble(FILE *f)
           "    switch(TYPE(head)) {\n", f);
 }
 
-static void outputDumpTypes(FILE *f, const struct lang &lang)
+static void outputTreeType(FILE *f, const struct treeType &type)
 {
-    for (const auto &type : lang.treeTypes)
-    {
-        bool isFirstProp = true;
-        bool hasPrintedTree = false;
+    bool isFirstProp = true;
+    bool hasPrintedTree = false;
 
-        fprintf(f, "    case %s:\n", type.name.c_str());
-        fprintf(f, "        fprintf(stderr, \"\\n\");\n");
-        fprintf(f, "        tree_print_indent(depth);\n");
-        fprintf(f, "        fprintf(stderr, \"<tree %s\");\n", type.name.c_str());
+    fprintf(f, "    case %s:\n", type.name.c_str());
+    fprintf(f, "        fprintf(stderr, \"\\n\");\n");
+    fprintf(f, "        tree_print_indent(depth);\n");
+    fprintf(f, "        fprintf(stderr, \"<tree %s\");\n", type.name.c_str());
 
-        for (const auto &prop : type.props) {
-            if (isFirstProp)
-                isFirstProp = false;
-            else {
-                fprintf(f, "        fprintf(stderr, \"\\n\");\n");
-                fprintf(f, "        tree_print_indent(depth);\n");
-                fprintf(f, "        fprintf(stderr, \"     \");\n");
-            }
-
-            fprintf(f, "        fprintf(stderr, \" %s: \");\n", prop.first.c_str());
-
-            if (prop.second.type == "tree") {
-                hasPrintedTree = true;
-                fprintf(f, "        __tree_dump(%s(head), depth + 1);\n", prop.first.c_str());
-            } else
-                fprintf(f, "        tree_dump_%s(head, %s(head));\n",
-                        prop.second.name.c_str(), prop.first.c_str());
-
-        }
-
-        if (hasPrintedTree) {
+    for (const auto &prop : type.props) {
+        if (isFirstProp)
+            isFirstProp = false;
+        else {
             fprintf(f, "        fprintf(stderr, \"\\n\");\n");
             fprintf(f, "        tree_print_indent(depth);\n");
+            fprintf(f, "        fprintf(stderr, \"     \");\n");
         }
-        fprintf(f, "        fprintf(stderr, \">\");\n");
-        fprintf(f, "        break;\n");
+
+        fprintf(f, "        fprintf(stderr, \" %s: \");\n", prop.first.c_str());
+
+        if (prop.second.type == "tree") {
+            hasPrintedTree = true;
+            fprintf(f, "        __tree_dump(%s(head), depth + 1);\n", prop.first.c_str());
+        } else
+            fprintf(f, "        tree_dump_%s(head, %s(head));\n",
+                    prop.second.name.c_str(), prop.first.c_str());
+
     }
+
+    if (hasPrintedTree) {
+        fprintf(f, "        fprintf(stderr, \"\\n\");\n");
+        fprintf(f, "        tree_print_indent(depth);\n");
+    }
+    fprintf(f, "        fprintf(stderr, \">\");\n");
+    fprintf(f, "        break;\n");
+}
+
+static void outputDumpTypes(FILE *f, const struct lang &lang)
+{
+    for (const auto &tt : lang.treeTypes)
+        outputTreeType(f, tt);
+
+    for (const auto &ct : lang.treeCTypes)
+        outputTreeType(f, ct);
 }
 
 static void outputEpilogue(FILE *f)
