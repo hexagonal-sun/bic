@@ -1147,6 +1147,24 @@ func_ptr_decl
 
     $$ = decl;
 }
+| type_specifier '(' pointer ')' argument_specifier
+{
+    tree function, decl, return_type = $1;
+
+    function = tree_make(T_DECL_FN);
+    tFNDECL_NAME(function) = NULL;
+    tFNDECL_RET_TYPE(function) = $1;
+    tFNDECL_ARGS(function) = $5;
+    tFNDECL_STMTS(function) = NULL;
+
+    decl = tree_make(T_DECL);
+    tDECL_TYPE(decl) = make_pointer_type($3, function);
+
+    set_locus(function, @1);
+    set_locus(decl, @4);
+
+    $$ = decl;
+}
 ;
 
 declaration
