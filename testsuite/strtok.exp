@@ -16,4 +16,11 @@ expstrtok "foo" "this is"
 expstrtok "0" " a comma"
 expstrtok "0" " seperated"
 expstrtok "0" " string"
-expstrtok "0" "(nil)"
+
+send "strtok(0, \",\");\n"
+
+expect {
+    "(nil)" {bp}
+    "0x0"    {bp}
+    timeout  {exit 1}
+}
