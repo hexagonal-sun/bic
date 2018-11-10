@@ -1,0 +1,17 @@
+send "'a';\n"
+expect {
+    "97" {bp}
+    timeout {exit 1}
+}
+
+send "'A';\n"
+expect {
+    "65" {bp}
+    timeout {exit 1}
+}
+
+send "'\\n';\n"
+expect {
+    "10" {bp}
+    timeout {exit 1}
+}

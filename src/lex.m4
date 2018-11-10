@@ -60,6 +60,32 @@ static void  __attribute__((noreturn))lex_err(char *fmt, ...)
     exit(EXIT_FAILURE);
 }
 
+static char lex_char(char *str)
+{
+    size_t char_str_len = strlen(str);
+
+    if (!(char_str_len == 3 || char_str_len == 4))
+       lex_err("character string %s does not contain three or four chars.\n",
+               str);
+
+    if (str[0] != '\'')
+        lex_err("first char in char string %s is not a `'`.\n", str);
+
+    if (str[1] != ''\\')
+        return str[1];
+
+    switch (str[2]) {
+    case 'n':
+        return '\n';
+    case '\\':
+        return '\\';
+    case 'r':
+        return '\r';
+    default:
+        lex_err("Unknown char escapse sequence `%c'\n", str[2]);
+    }
+}
+
 int TARGET()wrap(void) {
     return 1;
 }
@@ -128,6 +154,7 @@ ALL_TARGETS
 -?[0-9]+                          mpz_init_set_str(LEXLVAL.integer, LEXTEXT, 10); return INTEGER;
 -?[0-9]+\.[0-9]+                mpf_init_set_str(LEXLVAL.ffloat, LEXTEXT, 10); return FLOAT_CST;
 0x{X}+                          mpz_init_set_str(LEXLVAL.integer, LEXTEXT, 0); return INTEGER;
+L?'(\\.|[^\\'\n])+'	        mpz_init_set_si(LEXLVAL.integer, lex_char(LEXTEXT)); return INTEGER;
 \"                              { BEGIN str_lit; sl_begin(); }
 <str_lit>[^\\"\n]*              { sl_append_str(strdup(LEXTEXT)); }
 <str_lit>\\n                    { sl_append_char('\n'); }
