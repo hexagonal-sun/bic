@@ -50,7 +50,7 @@ static void sl_append_char(char c)
     free(s);
 }
 
-static void lex_err(char *fmt, ...)
+static void  __attribute__((noreturn))lex_err(char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
