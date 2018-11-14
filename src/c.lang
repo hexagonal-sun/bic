@@ -157,6 +157,9 @@
 (deftype T_FN_ARG "Function Argument" "tFNARG"
          ("EXP"))
 
+(deftype T_INFIX "Infix Operator" "tINFIX"
+         ("COND" "TRUE_STMT" "FALSE_STMT"))
+
 (deftype T_LOOP_FOR "For loop" "tFLOOP"
          ("INIT" "COND" "AFTER" "STMTS"))
 
