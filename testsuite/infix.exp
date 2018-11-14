@@ -1,0 +1,15 @@
+send "(1 < 2) ? 0 : 1;\n"
+expect {
+    "0" {bp}
+    timeout {exit 1}
+}
+
+send "int foo;\n"
+bp
+send "foo = 2424;\n"
+bp
+send "(4 > 8) ? 0 : foo;\n"
+expect {
+    "2424" {bp}
+    timeout {exit 1}
+}
