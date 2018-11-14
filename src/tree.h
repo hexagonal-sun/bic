@@ -183,6 +183,20 @@ static inline int is_CTYPE(tree t)
     }
 }
 
+#define tree_make_binmod(op, binopprefix, left, right)   \
+    ({                                                   \
+        tree mod = tree_make(op);                        \
+        tree assign = tree_make(T_ASSIGN);               \
+                                                         \
+        binopprefix##_LHS(mod) = (left);                 \
+        binopprefix##_RHS(mod) = (right);                \
+                                                         \
+        tASSIGN_LHS(assign) = (left);                    \
+        tASSIGN_RHS(assign) = (mod);                     \
+                                                         \
+        assign;                                          \
+    })
+
 static inline int is_LIVE(tree exp)
 {
     if (is_T_LIVE_VAR(exp) || is_T_LIVE_COMPOUND(exp))
