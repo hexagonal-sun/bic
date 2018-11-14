@@ -108,7 +108,7 @@ X                               [0-9A-Fa-f]
 "__extension__"                 /* Ignore gcc warning suppression
                                  * extension. */
 "volatile"                      /* Ignore volatile */
-("__")?"inline"                 /* Ignore inlining */
+("__")?"inline"("__")?          /* Ignore inlining */
 "auto"				return AUTO;
 "break"				return BREAK;
 "case"				return CASE;
