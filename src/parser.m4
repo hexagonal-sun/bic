@@ -603,12 +603,12 @@ logical_expression
 
 infix_expression
 : logical_expression
-| '(' assignment_expression ')' '?' primary_expression ':' primary_expression
+| logical_expression '?' primary_expression ':' primary_expression
 {
     tree infix = tree_make(T_INFIX);
-    tINFIX_COND(infix) = $2;
-    tINFIX_TRUE_STMT(infix) = $5;
-    tINFIX_FALSE_STMT(infix) = $7;
+    tINFIX_COND(infix) = $1;
+    tINFIX_TRUE_STMT(infix) = $3;
+    tINFIX_FALSE_STMT(infix) = $5;
     $$ = infix;
 }
 
