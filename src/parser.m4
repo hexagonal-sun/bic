@@ -85,6 +85,7 @@ ALL_TARGETS
 %type <tree> relational_expression
 %type <tree> logical_expression
 %type <tree> assignment_expression
+%type <tree> infix_expression
 %type <tree> decl
 %type <tree> decl_possible_pointer
 %type <tree> pointer
@@ -600,9 +601,20 @@ logical_expression
 }
 ;
 
-assignment_expression
+infix_expression
 : logical_expression
-| unary_expression '=' logical_expression
+| '(' assignment_expression ')' '?' primary_expression ':' primary_expression
+{
+    tree infix = tree_make(T_INFIX);
+    tINFIX_COND(infix) = $2;
+    tINFIX_TRUE_STMT(infix) = $5;
+    tINFIX_FALSE_STMT(infix) = $7;
+    $$ = infix;
+}
+
+assignment_expression
+: infix_expression
+| unary_expression '=' infix_expression
 {
     tree assign = tree_make(T_ASSIGN);
     tASSIGN_LHS(assign) = $1;
