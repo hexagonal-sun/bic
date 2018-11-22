@@ -1673,6 +1673,8 @@ static tree eval_loop_for(tree t, int depth)
         tree cond_result = __evaluate_1(tFLOOP_COND(t),
                                         depth + 1);
 
+        cond_result = convert_to_comparable_type(cond_result, depth + 1);
+
         if (!is_T_INTEGER(cond_result))
             eval_die(t, "Unknown condition result");
 
