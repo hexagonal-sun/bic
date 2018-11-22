@@ -1692,6 +1692,30 @@ static tree eval_loop_for(tree t, int depth)
     return NULL;
 }
 
+static tree eval_loop_while(tree t, int depth)
+{
+    do {
+
+        tree cond_result = __evaluate_1(tWLOOP_COND(t),
+                                        depth + 1);
+
+        cond_result = convert_to_comparable_type(cond_result, depth);
+
+        if (!is_T_INTEGER(cond_result))
+            eval_die(t, "Unknown condition result");
+
+        if (!mpz_get_si(tINT_VAL(cond_result)))
+            break;
+
+        push_ctx("While Loop");
+        __evaluate(tWLOOP_STMTS(t), depth + 1);
+        pop_ctx();
+
+    } while (1);
+
+    return NULL;
+}
+
 static tree eval_infix(tree t, int depth)
 {
     tree cond_result = convert_to_comparable_type(tINFIX_COND(t), depth);
@@ -2275,6 +2299,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_TYPEDEF:    result = eval_self(t, depth + 1);       break;
     case T_STATIC:     result = eval_self(t, depth + 1);       break;
     case T_LOOP_FOR:   result = eval_loop_for(t, depth + 1);   break;
+    case T_LOOP_WHILE: result = eval_loop_while(t, depth + 1); break;
     case T_INFIX:      result = eval_infix(t, depth + 1);      break;
     case T_IF:         result = eval_if(t, depth + 1);         break;
     case T_RETURN:     result = eval_return(t, depth + 1);     break;
