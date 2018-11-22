@@ -163,6 +163,9 @@
 (deftype T_LOOP_FOR "For loop" "tFLOOP"
          ("INIT" "COND" "AFTER" "STMTS"))
 
+(deftype T_LOOP_WHILE "While loop" "tWLOOP"
+         ("COND" "STMTS"))
+
 (deftype T_RETURN "Function return" "tRET"
          ("EXP"))
 
