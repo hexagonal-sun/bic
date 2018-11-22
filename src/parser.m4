@@ -272,6 +272,14 @@ iteration_statement
     set_locus(for_loop, @1);
     $$ = for_loop;
 }
+| WHILE '(' assignment_expression ')' statement
+{
+    tree while_loop = tree_make(T_LOOP_WHILE);
+    tWLOOP_COND(while_loop) = $3;
+    tWLOOP_STMTS(while_loop) = $5;
+    set_locus(while_loop, @1);
+    $$ = while_loop;
+}
 ;
 
 selection_statement
