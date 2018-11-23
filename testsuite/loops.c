@@ -13,4 +13,6 @@ int main()
     while (foo) {
         printf("%d\n", foo--);
     }
+
+    return 0;
 }
