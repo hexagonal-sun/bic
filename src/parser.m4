@@ -22,6 +22,36 @@ static void set_locus(tree t, YYLTYPE locus)
     t->locus.column_no = locus.first_column;
 }
 
+static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
+                           tree ptr, tree id, tree args)
+{
+    tree function, decl;
+
+    if (is_T_TYPEDEF(ret_type)) {
+       add_typename(strdup(tID_STR(id)));
+       ret_type = tTYPEDEF_EXP(ret_type);
+   }
+
+    ret_type = make_pointer_type(ret_type_ptr, ret_type);
+
+    function = tree_make(T_DECL_FN);
+    tFNDECL_NAME(function) = NULL;
+    tFNDECL_RET_TYPE(function) = ret_type;
+    tFNDECL_ARGS(function) = args;
+    tFNDECL_STMTS(function) = NULL;
+
+    decl = tree_make(T_DECL);
+
+    if (id) {
+        tDECL_TYPE(decl) = function;
+        tDECL_DECLS(decl) = make_pointer_type(ptr, id);
+    } else
+        tDECL_TYPE(decl) = function;
+
+    return decl;
+}
+
+
 %}
 
 %union
@@ -1167,45 +1197,34 @@ enumerator
 ALL_TARGETS
 
 func_ptr_decl
-: type_specifier '(' pointer IDENTIFIER ')' argument_specifier
+: type_specifier pointer '(' pointer IDENTIFIER ')' argument_specifier
 {
-    tree function, decl, id = get_identifier($4),
-         return_type = $1;
+    tree decl = build_func_ptr($1, $2, $4, get_identifier($5), $7);
 
-    if (is_T_TYPEDEF(return_type)) {
-       add_typename(strdup(tID_STR(id)));
-       return_type = tTYPEDEF_EXP(return_type);
-   }
+    set_locus(decl, @5);
 
-    function = tree_make(T_DECL_FN);
-    tFNDECL_NAME(function) = NULL;
-    tFNDECL_RET_TYPE(function) = $1;
-    tFNDECL_ARGS(function) = $6;
-    tFNDECL_STMTS(function) = NULL;
+    $$ = decl;
+}
+| type_specifier '(' pointer IDENTIFIER ')' argument_specifier
+{
+    tree decl = build_func_ptr($1, NULL, $3, get_identifier($4), $6);
 
-    decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = function;
-    tDECL_DECLS(decl) = make_pointer_type($3, id);
+    set_locus(decl, @5);
 
-    set_locus(function, @1);
+    $$ = decl;
+}
+| type_specifier pointer '(' pointer ')' argument_specifier
+{
+    tree decl = build_func_ptr($1, $2, $4, NULL, $6);
+
     set_locus(decl, @4);
 
     $$ = decl;
 }
 | type_specifier '(' pointer ')' argument_specifier
 {
-    tree function, decl, return_type = $1;
+    tree decl = build_func_ptr($1, NULL, $3, NULL, $5);
 
-    function = tree_make(T_DECL_FN);
-    tFNDECL_NAME(function) = NULL;
-    tFNDECL_RET_TYPE(function) = $1;
-    tFNDECL_ARGS(function) = $5;
-    tFNDECL_STMTS(function) = NULL;
-
-    decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = make_pointer_type($3, function);
-
-    set_locus(function, @1);
     set_locus(decl, @4);
 
     $$ = decl;
