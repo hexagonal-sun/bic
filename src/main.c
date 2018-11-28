@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "util.h"
 #include "gc.h"
+#include "preprocess.h"
 
 extern FILE* cfilein;
 extern int cfileparse();
