@@ -42,6 +42,9 @@
 (deftype T_DEC "Decrement (unary)" "tDEC"
          ("EXP"))
 
+(deftype T_NEGATE "Negate" "tNEGATE"
+         ("EXP"))
+
 (deftype T_SIZEOF "Size of" "tSZOF"
          ("EXP"))
 
