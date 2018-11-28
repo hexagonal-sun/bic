@@ -101,7 +101,7 @@ static int parse_args(int argc, char *argv[])
 {
     int opt;
 
-    while ((opt = getopt(argc, argv, "l:")) != -1) {
+    while ((opt = getopt(argc, argv, "l:I:")) != -1) {
         switch (opt) {
         case 'l':
             if (!open_library(optarg)) {
@@ -110,6 +110,10 @@ static int parse_args(int argc, char *argv[])
 
                 exit(EXIT_FAILURE);
             }
+            break;
+
+        case 'I':
+            preprocessor_add_include_dir(optarg);
             break;
         default: /* '?' */
             usage(argv[0]);
