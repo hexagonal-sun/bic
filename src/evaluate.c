@@ -263,6 +263,31 @@ static tree make_int_from_live_var(tree var)
     return ret;
 }
 
+static tree convert_to_comparable_type(tree t, int depth)
+{
+    tree evaluated = __evaluate_1(t, depth + 1),
+        ret;
+
+    switch (TYPE(evaluated)) {
+    case T_INTEGER:
+        ret = evaluated;
+        break;
+    case T_LIVE_VAR:
+        switch (TYPE(tLV_TYPE(evaluated))) {
+        case D_T_CHAR ... D_T_ULONGLONG:
+            ret = make_int_from_live_var(evaluated);
+            break;
+        default:
+            eval_die(t, "Could not convert live var type to comparable type\n");
+        }
+        break;
+    default:
+        eval_die(t, "Could not convert type to comparable type\n");
+    }
+
+    return ret;
+}
+
 #define DEFCTYPE(tname, desc, ctype, fmt)                               \
     static inline tree convert_int_to_##tname(tree intval)              \
     {                                                                   \
@@ -1129,6 +1154,22 @@ static tree eval_dec(tree t, int depth)
     return ret;
 }
 
+static tree eval_negate(tree t, int depth)
+{
+    tree ret = tree_make(T_INTEGER);
+    tree intval;
+    tree exp = __evaluate_1(tNEGATE_EXP(t), depth + 1);
+
+    intval = convert_to_comparable_type(exp, depth);
+
+    if (!mpz_cmp_ui(tINT_VAL(intval), 0))
+        mpz_init_set_ui(tINT_VAL(ret), 1);
+    else
+        mpz_init_set_ui(tINT_VAL(ret), 0);
+
+    return ret;
+}
+
 static tree eval_add(tree t, int depth)
 {
     tree left = __evaluate_1(tADD_LHS(t), depth + 1);
@@ -1264,30 +1305,6 @@ static tree eval_div(tree t, int depth)
     return ret;
 }
 
-static tree convert_to_comparable_type(tree t, int depth)
-{
-    tree evaluated = __evaluate_1(t, depth + 1),
-        ret;
-
-    switch (TYPE(evaluated)) {
-    case T_INTEGER:
-        ret = evaluated;
-        break;
-    case T_LIVE_VAR:
-        switch (TYPE(tLV_TYPE(evaluated))) {
-        case D_T_CHAR ... D_T_ULONGLONG:
-            ret = make_int_from_live_var(evaluated);
-            break;
-        default:
-            eval_die(t, "Could not convert live var type to comparable type\n");
-        }
-        break;
-    default:
-        eval_die(t, "Could not convert type to comparable type\n");
-    }
-
-    return ret;
-}
 
 static tree eval_lt(tree t, int depth)
 {
@@ -2280,6 +2297,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_DEC:        result = eval_dec(t, depth + 1);        break;
     case T_ADD:        result = eval_add(t, depth + 1);        break;
     case T_SUB:        result = eval_sub(t, depth + 1);        break;
+    case T_NEGATE:     result = eval_negate(t, depth + 1);     break;
     case T_LSHIFT:     result = eval_lshift(t, depth + 1);     break;
     case T_RSHIFT:     result = eval_rshift(t, depth + 1);     break;
     case T_MUL:        result = eval_mul(t, depth + 1);        break;

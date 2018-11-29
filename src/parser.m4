@@ -467,6 +467,13 @@ unary_expression
     set_locus(dec, @1);
     $$ = dec;
 }
+| '!' unary_expression
+{
+    tree negate = tree_make(T_NEGATE);
+    tNEGATE_EXP(negate) = $2;
+    set_locus(negate, @1);
+    $$ = negate;
+}
 | '&' unary_expression
 {
     tree addr = tree_make(T_ADDR);
