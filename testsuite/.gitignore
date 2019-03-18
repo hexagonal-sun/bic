@@ -43,5 +43,6 @@ eqneq
 union-struct
 casts
 shift
+ior
 
 *.trs
