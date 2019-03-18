@@ -112,6 +112,7 @@ ALL_TARGETS
 %type <tree> multiplicative_expression
 %type <tree> additive_expression
 %type <tree> shift_expression
+%type <tree> inclusive_expression
 %type <tree> relational_expression
 %type <tree> logical_expression
 %type <tree> assignment_expression
@@ -628,9 +629,21 @@ relational_expression
 }
 ;
 
-logical_expression
+inclusive_expression
 : relational_expression
-| logical_expression BOOL_OP_OR relational_expression
+| inclusive_expression '|' relational_expression
+{
+    tree inclusive_or = tree_make(T_I_OR);
+    tI_OR_LHS(inclusive_or) = $1;
+    tI_OR_RHS(inclusive_or) = $3;
+    set_locus(inclusive_or, @2);
+    $$ = inclusive_or;
+}
+;
+
+logical_expression
+: inclusive_expression
+| logical_expression BOOL_OP_OR inclusive_expression
 {
     tree logicor = tree_make(T_L_OR);
     tL_OR_LHS(logicor) = $1;
@@ -638,7 +651,7 @@ logical_expression
     set_locus(logicor, @2);
     $$ = logicor;
 }
-| logical_expression BOOL_OP_AND relational_expression
+| logical_expression BOOL_OP_AND inclusive_expression
 {
     tree logicand = tree_make(T_L_AND);
     tL_AND_LHS(logicand) = $1;
