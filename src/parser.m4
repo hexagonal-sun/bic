@@ -5,6 +5,7 @@ divert(0)dnl
 `#'include <stdio.h>
 `#'include <string.h>
 `#'include <stdlib.h>
+`#'include <stdbool.h>
 `#'include "tree.h"
 `#'include "typename.h"
 `#'include "util.h"
@@ -26,10 +27,12 @@ static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
                            tree ptr, tree id, tree args)
 {
     tree function, decl;
+    bool is_decl = false;
 
     if (is_T_TYPEDEF(ret_type)) {
-       add_typename(strdup(tID_STR(id)));
-       ret_type = tTYPEDEF_EXP(ret_type);
+        add_typename(strdup(tID_STR(id)));
+        ret_type = tTYPEDEF_EXP(ret_type);
+        is_decl = true;
    }
 
     ret_type = make_pointer_type(ret_type_ptr, ret_type);
@@ -39,6 +42,13 @@ static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
     tFNDECL_RET_TYPE(function) = ret_type;
     tFNDECL_ARGS(function) = args;
     tFNDECL_STMTS(function) = NULL;
+
+    if (is_decl)
+    {
+        tree td = tree_make(T_TYPEDEF);
+        tTYPEDEF_EXP(td) = function;
+        function = td;
+    }
 
     decl = tree_make(T_DECL);
 
