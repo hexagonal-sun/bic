@@ -126,6 +126,7 @@ X                               [0-9A-Fa-f]
 "goto"				return GOTO;
 "if"				return IF;
 "int"				return INT;
+"_Bool"			return BOOL;
 "long"				return LONG;
 "register"			return REGISTER;
 "return"			return RETURN;

@@ -73,7 +73,7 @@ static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
 %token SWITCH TYPEDEF UNION UNSIGNED VOID WHILE
 %token EQUATE NOT_EQUATE LESS_OR_EQUAL GREATER_OR_EQUAL
 %token SHIFT_LEFT SHIFT_RIGHT BOOL_OP_AND BOOL_OP_OR INC
-%token DEC ELLIPSIS PTR_ACCESS
+%token DEC ELLIPSIS PTR_ACCESS BOOL
 
 %token <string> IDENTIFIER
 REPL_ONLY
@@ -986,6 +986,12 @@ direct_type_specifier
 | LONG DOUBLE
 {
     tree type = tree_make(D_T_LONGDOUBLE);
+    set_locus(type, @1);
+    $$ = type;
+}
+| BOOL
+{
+    tree type = tree_make(D_T_INT);
     set_locus(type, @1);
     $$ = type;
 }
