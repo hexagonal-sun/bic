@@ -1259,6 +1259,28 @@ static tree eval_rshift(tree t, int depth)
     return ret;
 }
 
+static tree eval_ior(tree t, int depth)
+{
+    tree left = __evaluate_1(tI_OR_LHS(t), depth + 1);
+    tree right = __evaluate_1(tI_OR_RHS(t), depth + 1);
+
+    tree ret = tree_make(T_INTEGER);
+    mpz_init(tINT_VAL(ret));
+
+    if (is_T_LIVE_VAR(left))
+        left = make_int_from_live_var(left);
+
+    if (is_T_LIVE_VAR(right))
+        right = make_int_from_live_var(right);
+
+    if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
+        eval_die(t, "Could not perform inclusive or on non-integer type\n");
+
+    mpz_ior(tINT_VAL(ret), tINT_VAL(left), tINT_VAL(right));
+
+    return ret;
+}
+
 static tree eval_mul(tree t, int depth)
 {
     tree left = __evaluate_1(tMUL_LHS(t), depth + 1);
@@ -2298,6 +2320,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_ADD:        result = eval_add(t, depth + 1);        break;
     case T_SUB:        result = eval_sub(t, depth + 1);        break;
     case T_NEGATE:     result = eval_negate(t, depth + 1);     break;
+    case T_I_OR:       result = eval_ior(t, depth + 1);        break;
     case T_LSHIFT:     result = eval_lshift(t, depth + 1);     break;
     case T_RSHIFT:     result = eval_rshift(t, depth + 1);     break;
     case T_MUL:        result = eval_mul(t, depth + 1);        break;
