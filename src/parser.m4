@@ -85,6 +85,8 @@ static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
 %token SHIFT_LEFT SHIFT_RIGHT BOOL_OP_AND BOOL_OP_OR INC
 %token DEC ELLIPSIS PTR_ACCESS BOOL
 
+%nonassoc ELSE
+
 %token <string> IDENTIFIER
 REPL_ONLY
 %token <string> C_PRE_INC
@@ -324,7 +326,16 @@ iteration_statement
 ;
 
 selection_statement
-: IF '(' assignment_expression ')' statement ELSE statement
+: IF '(' assignment_expression ')' statement
+{
+    tree ifstmt = tree_make(T_IF);
+    tIF_COND(ifstmt) = $3;
+    tIF_TRUE_STMTS(ifstmt) = $5;
+    tIF_ELSE_STMTS(ifstmt) = NULL;
+    set_locus(ifstmt, @1);
+    $$ = ifstmt;
+}
+| IF '(' assignment_expression ')' statement ELSE statement
 {
     tree ifstmt = tree_make(T_IF);
     tIF_COND(ifstmt) = $3;

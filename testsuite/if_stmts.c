@@ -12,6 +12,10 @@ void fun(int a)
 
 void fun1(unsigned int a)
 {
+
+    if (a)
+        printf("A is zero!");
+
     if (a <= 0)
         printf("Zero branch\n");
     else if (a > 1)
