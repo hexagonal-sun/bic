@@ -46,5 +46,8 @@ shift
 ior
 array_ptr
 struct_array_alignment
+function_ptr_typedef
+loops
+negate
 
 *.trs
