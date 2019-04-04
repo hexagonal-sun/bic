@@ -1846,8 +1846,20 @@ static size_t get_alignment_for_type(tree t, int depth)
     switch (TYPE(t))
     {
     case T_LIVE_VAR:
-        alignment = get_size_of_type(tLV_TYPE(t), depth);
+    {
+
+        if (tLV_IS_ARRAY(t))
+        {
+            /* For an array, the alignment requirement is that of the
+             * array's base type. */
+            tree array_type = tDTPTR_EXP(tLV_TYPE(t));
+
+            alignment = get_size_of_type(array_type, depth);
+        }
+        else
+            alignment = get_size_of_type(tLV_TYPE(t), depth);
         break;
+    }
     case T_LIVE_COMPOUND:
     {
         tree first_member;

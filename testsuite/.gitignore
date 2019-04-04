@@ -45,5 +45,6 @@ casts
 shift
 ior
 array_ptr
+struct_array_alignment
 
 *.trs
