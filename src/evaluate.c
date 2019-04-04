@@ -243,7 +243,7 @@ static tree make_int_from_live_var(tree var)
     switch (TYPE(type)) {
 #define SETINT(type)                                                    \
         case type:                                                      \
-            mpz_init_set_si(tINT_VAL(ret), tLV_VAL(var)->type);             \
+            mpz_init_set_si(tINT_VAL(ret), (int64_t)tLV_VAL(var)->type);\
             break;
         SETINT(D_T_CHAR);
         SETINT(D_T_SHORT);
@@ -255,6 +255,7 @@ static tree make_int_from_live_var(tree var)
         SETINT(D_T_UINT);
         SETINT(D_T_ULONG);
         SETINT(D_T_ULONGLONG);
+        SETINT(D_T_PTR);
 #undef SETINT
     default:
         eval_die(var, "Could not create integer type from live var.");
@@ -275,6 +276,7 @@ static tree convert_to_comparable_type(tree t, int depth)
     case T_LIVE_VAR:
         switch (TYPE(tLV_TYPE(evaluated))) {
         case D_T_CHAR ... D_T_ULONGLONG:
+        case D_T_PTR:
             ret = make_int_from_live_var(evaluated);
             break;
         default:
@@ -2166,7 +2168,10 @@ static tree eval_addr(tree t, int depth)
 
     if (is_T_LIVE_VAR(exp)) {
         live_type = tLV_TYPE(exp);
-        addr = tLV_VAL(exp);
+        if (tLV_IS_ARRAY(exp))
+            addr = tLV_VAL(exp)->D_T_PTR;
+        else
+            addr = tLV_VAL(exp);
     }
     else if (is_T_LIVE_COMPOUND(exp)) {
         live_type = tLV_COMP_DECL(exp);

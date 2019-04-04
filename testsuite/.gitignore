@@ -44,5 +44,6 @@ union-struct
 casts
 shift
 ior
+array_ptr
 
 *.trs
