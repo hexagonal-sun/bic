@@ -13,4 +13,6 @@ int main()
 
     printf("%d\n", b == c);
     printf("%d\n", c == d);
+
+    return 0;
 }

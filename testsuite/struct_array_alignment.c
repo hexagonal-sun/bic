@@ -14,4 +14,6 @@ int main()
     base = &b;
     member = &b.m1;
     printf("%d\n", member - base);
+
+    return 0;
 }
