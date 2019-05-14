@@ -17,7 +17,7 @@ static void outputPremble(FILE *f)
 }
 
 static void outputProps(FILE *f,
-                        std::unordered_map<std::string, const struct tree_data> props,
+                        typeMap_t props,
                         std::string typeName)
 {
     if (props.size() == 0)
@@ -28,7 +28,7 @@ static void outputProps(FILE *f,
     for (const auto prop : props)
         fprintf(f, "#define %s(obj) (_DATA( TREE_CHECK((obj), %s)).%s)\n",
                 prop.first.c_str(), typeName.c_str(),
-                prop.second.name.c_str());
+                prop.second.memberName.c_str());
 
     fprintf(f,"\n");
 }

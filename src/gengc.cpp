@@ -3,7 +3,7 @@
 static std::vector<std::string> propertylessTypes;
 
 static void outputGCMarkProps(FILE *f,
-                              std::unordered_map<std::string, const struct tree_data> props,
+                              typeMap_t props,
                               std::string typeName)
 {
     if (typeName == "CHAIN_HEAD")
@@ -17,7 +17,7 @@ static void outputGCMarkProps(FILE *f,
     fprintf(f, "    case %s:\n", typeName.c_str());
 
     for (const auto prop : props)
-        if (prop.second.type == "tree")
+        if (prop.second.baseType.isTree)
             fprintf(f, "        mark_tree(%s(t));\n", prop.first.c_str());
 
     fputs("        break;\n", f);

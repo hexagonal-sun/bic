@@ -4,35 +4,57 @@
 
 extern std::string lexval;
 
-struct tree_data {
+// This represents a base type that is declared in the language file.
+struct BaseType {
     std::string type;
     std::string name;
+    bool isTree;
 };
 
-struct treeType {
+// This represents an 'instantiated' base type.
+struct InstantiatedType
+{
+    std::string memberName;
+    struct BaseType baseType;
+};
+
+typedef std::unordered_map<std::string, const struct InstantiatedType> typeMap_t;
+
+struct TreeType {
     std::string name;
     std::string friendly_name;
-    std::unordered_map<std::string, const struct tree_data> props;
+    typeMap_t props;
 };
 
-struct CType : public treeType {
+struct CType : public TreeType {
     std::string ctype;
     std::string format_string;
 };
 
+struct TypePool {
+    explicit TypePool(struct BaseType bt) :
+        baseType_(bt) {};
+    void emitDeclarations(FILE *f) const;
+    struct InstantiatedType alloc(void);
+private:
+    struct BaseType baseType_;
+    std::vector<struct InstantiatedType> pool_;
+};
+
 struct lang {
-    std::vector<struct treeType> treeTypes;
+    std::vector<struct TreeType> treeTypes;
     std::vector<struct CType> treeCTypes;
-    std::vector<struct tree_data> treeData;
+    std::unordered_map<std::string, struct TypePool> baseTypePools;
+    struct TypePool treePool;
     size_t trees_allocated;
-    lang() : trees_allocated (0) { };
+    lang() : trees_allocated (0), treePool({"tree", "t", true}) {};
 };
 
 enum token_modules
 {
     DEFTYPE,
     DEFCTYPE,
-    DEFDATA,
+    DEFBASETYPES,
     IDENTIFIER,
     STRING
 };

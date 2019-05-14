@@ -5,9 +5,10 @@ static void outputTreeDataUnion(const struct lang &lang,
 {
     fputs("struct tree_data {\n", f);
 
-    for (const auto data : lang.treeData)
-        fprintf(f, "    %s %s;\n", data.type.c_str(),
-                data.name.c_str());
+    for (const auto typePool : lang.baseTypePools)
+        typePool.second.emitDeclarations(f);
+
+    lang.treePool.emitDeclarations(f);
 
     fputs("};\n", f);
 }

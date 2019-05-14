@@ -19,7 +19,7 @@ static void outputPreamble(FILE *f)
           "    switch(TYPE(head)) {\n", f);
 }
 
-static void outputTreeType(FILE *f, const struct treeType &type)
+static void outputTreeType(FILE *f, const struct TreeType &type)
 {
     bool isFirstProp = true;
     bool hasPrintedTree = false;
@@ -40,12 +40,12 @@ static void outputTreeType(FILE *f, const struct treeType &type)
 
         fprintf(f, "        fprintf(stderr, \" %s: \");\n", prop.first.c_str());
 
-        if (prop.second.type == "tree") {
+        if (prop.second.baseType.isTree) {
             hasPrintedTree = true;
             fprintf(f, "        __tree_dump(%s(head), depth + 1);\n", prop.first.c_str());
         } else
             fprintf(f, "        tree_dump_%s(head, %s(head));\n",
-                    prop.second.name.c_str(), prop.first.c_str());
+                    prop.second.baseType.name.c_str(), prop.first.c_str());
 
     }
 

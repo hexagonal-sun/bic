@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include "lang_lexer.h"
 #include "lang.h"
@@ -19,13 +20,32 @@ int yywrap(void)
     return 1;
 }
 
-static void handle_defdata(struct lang &lang)
+void TypePool::emitDeclarations(FILE *f) const
+{
+    for (const auto instantypatedType : pool_)
+        fprintf(f, "    %s %s;\n", instantypatedType.baseType.type.c_str(),
+                instantypatedType.memberName.c_str());
+}
+
+struct InstantiatedType TypePool::alloc(void)
+{
+    struct InstantiatedType ret;
+
+    ret.baseType = baseType_;
+    ret.memberName = baseType_.name + std::to_string(pool_.size());
+
+    pool_.push_back(ret);
+
+    return ret;
+}
+
+static void handle_defbasetype(struct lang &lang)
 {
     while (1)
     {
         int token;
 
-        struct tree_data member;
+        struct BaseType baseType;
         token = yylex();
 
         if (token == ')')
@@ -35,89 +55,49 @@ static void handle_defdata(struct lang &lang)
             perror("Expected '('");
 
         token = yylex();
-        if (token != STRING)
-            perror("Expected STRING");
-        member.type = lexval;
-
-        token = yylex();
         if (token != IDENTIFIER)
             perror("Expected IDENTIFIER");
-        member.name = lexval;
+        baseType.name = lexval;
+
+        token = yylex();
+        if (token != STRING)
+            perror("Expected STRING");
+        baseType.type = lexval;
 
         token = yylex();
         if (token != ')')
             perror("Expected ')'");
 
-        lang.treeData.push_back(member);
+        lang.baseTypePools.insert({baseType.name, TypePool(baseType)});
     }
 }
 
-
-static void genTreeProp(std::string pName, struct treeType &newType,
-                        std::vector<struct tree_data> &dataPool,
-                        struct lang &lang)
+static struct BaseType getDataBaseType()
 {
-    for (auto i = dataPool.begin(); i != dataPool.end(); ++i)
-        if ((*i).type == "tree")
-        {
-            newType.props.insert({pName, *i});
-            dataPool.erase(i);
-            return;
-        }
-
-    struct tree_data newTreeData;
-    newTreeData.type = "tree";
-    newTreeData.name = "exp" + std::to_string(lang.trees_allocated++);
-
-    lang.treeData.push_back(newTreeData);
-    newType.props.insert({pName, newTreeData});
-}
-
-static void genDataProp(std::string propNamePrefix, struct treeType &newType,
-                        std::vector<struct tree_data> &dataPool,
-                        struct lang &lang)
-{
-    std::string propName;
-    std::string dataMemberName;
     int token = yylex();
+    struct BaseType ret;
 
     if (token != STRING)
         perror("Expected STRING");
-    propName = propNamePrefix + lexval;
+    ret.name = lexval;
 
     token = yylex();
     if (token != IDENTIFIER)
         perror("Expected IDENTIFIER");
-    dataMemberName = lexval;
+    ret.type = lexval;
 
     token = yylex();
     if (token != ')')
         perror("Expected ')'");
 
-    struct tree_data newTreeData;
-
-    for (auto i = dataPool.begin(); i != dataPool.end(); i++)
-    {
-        if ((*i).name == dataMemberName) {
-            newTreeData = *i;
-            newType.props.insert({propName, newTreeData});
-            return;
-        }
-    }
-
-    fprintf(stderr, "Error: could not data member name `%s' for `%s' "
-            "property of `%s' tree type.\n", dataMemberName.c_str(),
-            propName.c_str(), newType.name.c_str());
-
-    exit(1);
+    return ret;
 }
 
 static void parsePropList(struct lang &lang,
-                          struct treeType &tree,
+                          struct TreeType &tree,
                           int token)
 {
     bool haveProperties = true;
-    std::vector<struct tree_data> treeDataPool = lang.treeData;
     std::string propNamePrefix;
 
     if (token != STRING)
@@ -137,11 +117,18 @@ static void parsePropList(struct lang &lang,
             haveProperties = false;
             break;
         case '(':
-            genDataProp(propNamePrefix, tree, treeDataPool, lang);
+        {
+            auto baseType = getDataBaseType();
+            auto &pool = lang.baseTypePools.at(baseType.type);
+            tree.props.insert({propNamePrefix + baseType.name, pool.alloc()});
             break;
+        }
         case STRING:
-            genTreeProp(propNamePrefix + lexval, tree,
-                        treeDataPool, lang);
+        {
+            auto &pool = lang.treePool;
+            tree.props.insert({propNamePrefix + lexval, pool.alloc()});
+            break;
+        }
             break;
         default:
             perror("Expected '(' ')' or STRING");
@@ -151,7 +138,7 @@ static void parsePropList(struct lang &lang,
 
 static void handle_deftype(struct lang &lang)
 {
-    struct treeType newType;
+    struct TreeType newType;
     int token = yylex();
 
     if (token != IDENTIFIER)
@@ -237,8 +224,8 @@ static void lang_parse(struct lang &lang)
         case DEFCTYPE:
             handle_defctype(lang);
             break;
-        case DEFDATA:
-            handle_defdata(lang);
+        case DEFBASETYPES:
+            handle_defbasetype(lang);
             break;
         default:
             perror("Unexpected toplevel construct");

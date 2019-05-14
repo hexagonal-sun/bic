@@ -1,19 +1,12 @@
-(defdata
-  ("mpz_t" integer)
-  ("mpf_t" ffloat)
-  ("char *" string)
-  ("char *" name)
-  ("void *" eval_alloc_ptr)
-  ("size_t" comp_decl_sz)
-  ("size_t" decl_offset)
-  ("int" comp_decl_expanded)
-  ("compound_type" comp_decl_type)
-  ("union value *" live_var_val)
-  ("int" live_var_is_array)
-  ("size_t" live_var_array_length)
-  ("void *" live_comp_base)
-  ("const char *" eval_ctx_name)
-  ("int" eval_ctx_is_static))
+(defbasetypes
+  (integer "mpz_t")
+  (ffloat "mpf_t")
+  (string "char *")
+  (ptr "void *")
+  (sz "size_t")
+  (flag "bool")
+  (comp_decl_type "compound_type")
+  (live_var_val "union value *"))
 
 (deftype T_INTEGER "Constant integer" "tINT"
          (("VAL" integer)))
@@ -49,7 +42,7 @@
          ("EXP"))
 
 (deftype T_IDENTIFIER "Identifier" "tID"
-         (("STR" name)))
+         (("STR" string)))
 
 (deftype T_POINTER "Pointer" "tPTR"
          ("EXP"))
@@ -143,12 +136,12 @@
 
 (deftype T_DECL "Declaration" "tDECL"
          ("TYPE" "DECLS"
-                 ("OFFSET" decl_offset)))
+                 ("OFFSET" sz)))
 
 (deftype T_DECL_COMPOUND "Compound Declataion" "tCOMP_DECL"
          ("ID" "DECLS"
-               ("SZ" comp_decl_sz)
-               ("EXPANDED" comp_decl_expanded)
+               ("SZ" sz)
+               ("EXPANDED" flag)
                ("TYPE"  comp_decl_type)))
 
 (deftype T_DECL_FN "Function Declaration" "tFNDECL"
@@ -183,22 +176,22 @@
 (deftype T_LIVE_VAR "Live Variable" "tLV"
          ("TYPE"
           ("VAL" live_var_val)
-          ("IS_ARRAY" live_var_is_array)
-          ("ARRAY_SZ" live_var_array_length)))
+          ("IS_ARRAY" flag)
+          ("ARRAY_SZ" sz)))
 
 (deftype T_LIVE_COMPOUND "Live Compound" "tLV_COMP"
          ("DECL" "MEMBERS"
-                 ("BASE" live_comp_base)))
+                 ("BASE" ptr)))
 
 (deftype CHAIN_HEAD "Tree Chain Head")
 
 (deftype E_CTX "Evaluator Context" "tECTX"
          ("ID_MAP" "PARENT_CTX" "ALLOC_CHAIN"
-                   ("NAME" eval_ctx_name)
-                   ("IS_STATIC" eval_ctx_is_static)))
+                   ("NAME" string)
+                   ("IS_STATIC" flag)))
 
 (deftype E_ALLOC "Evaluator allocation" "tALLOC"
-         (("PTR" eval_alloc_ptr)))
+         (("PTR" ptr)))
 
 (deftype E_INCOMP_TYPE "Incompletel type")
 
