@@ -31,14 +31,26 @@ struct CType : public TreeType {
     std::string format_string;
 };
 
+struct TypeAllocator;
+
 struct TypePool {
     explicit TypePool(struct BaseType bt) :
         baseType_(bt) {};
     void emitDeclarations(FILE *f) const;
-    struct InstantiatedType alloc(void);
+    struct TypeAllocator getAllocator(void);
 private:
+    friend struct TypeAllocator;
+    struct InstantiatedType alloc(void);
     struct BaseType baseType_;
     std::vector<struct InstantiatedType> pool_;
+};
+
+struct TypeAllocator {
+    TypeAllocator(struct TypePool &pool);
+    struct InstantiatedType alloc(void);
+private:
+    struct TypePool &typePool_;
+    std::vector<struct InstantiatedType> currentPool_;
 };
 
 struct lang {

@@ -39,6 +39,27 @@ struct InstantiatedType TypePool::alloc(void)
     return ret;
 }
 
+struct TypeAllocator TypePool::getAllocator(void)
+{
+    return TypeAllocator(*this);
+}
+
+TypeAllocator::TypeAllocator(struct TypePool &typePool)
+    : typePool_(typePool), currentPool_(typePool_.pool_)
+{
+}
+
+struct InstantiatedType TypeAllocator::alloc(void)
+{
+    if (currentPool_.empty())
+        return typePool_.alloc();
+
+    auto element = currentPool_.front();
+    currentPool_.erase(currentPool_.begin());
+
+    return element;
+}
+
 static void handle_defbasetype(struct lang &lang)
 {
     while (1)
@@ -99,6 +120,11 @@ static void parsePropList(struct lang &lang,
 {
     bool haveProperties = true;
     std::string propNamePrefix;
+    std::unordered_map<std::string, struct TypeAllocator> typeAllocators;
+    struct TypeAllocator treeAllocator = lang.treePool.getAllocator();
+
+    for (auto& i : lang.baseTypePools)
+        typeAllocators.insert({i.first, i.second.getAllocator()});
 
     if (token != STRING)
         perror("Expected STRING or ')'");
@@ -119,16 +145,12 @@ static void parsePropList(struct lang &lang,
         case '(':
         {
             auto baseType = getDataBaseType();
-            auto &pool = lang.baseTypePools.at(baseType.type);
-            tree.props.insert({propNamePrefix + baseType.name, pool.alloc()});
+            auto &allocator = typeAllocators.at(baseType.type);
+            tree.props.insert({propNamePrefix + baseType.name, allocator.alloc()});
             break;
         }
         case STRING:
-        {
-            auto &pool = lang.treePool;
-            tree.props.insert({propNamePrefix + lexval, pool.alloc()});
-            break;
-        }
+            tree.props.insert({propNamePrefix + lexval, treeAllocator.alloc()});
             break;
         default:
             perror("Expected '(' ')' or STRING");
