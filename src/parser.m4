@@ -660,6 +660,14 @@ inclusive_expression
     set_locus(inclusive_or, @2);
     $$ = inclusive_or;
 }
+| inclusive_expression '&' relational_expression
+{
+    tree inclusive_and = tree_make(T_I_AND);
+    tI_AND_LHS(inclusive_and) = $1;
+    tI_AND_RHS(inclusive_and) = $3;
+    set_locus(inclusive_and, @2);
+    $$ = inclusive_and;
+}
 ;
 
 logical_expression

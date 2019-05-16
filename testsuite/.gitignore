@@ -49,5 +49,6 @@ struct_array_alignment
 function_ptr_typedef
 loops
 negate
+iand
 
 *.trs
