@@ -85,6 +85,8 @@ static void handle_defbasetype(struct lang &lang)
             perror("Expected STRING");
         baseType.type = lexval;
 
+        baseType.isTree = false;
+
         token = yylex();
         if (token != ')')
             perror("Expected ')'");
