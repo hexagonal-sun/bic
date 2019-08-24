@@ -14,7 +14,9 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  ior function_ptr_typedef array_ptr			\
                  struct_array_alignment iand
 
-expect_scripts = fileio.exp strtok.exp decl.exp chars.exp infix.exp
+expect_scripts = fileio.exp strtok.exp decl.exp chars.exp infix.exp \
+                 repl-interrupt.exp
+
 
 if FOUND_EXPECT
 TESTS = $(check_PROGRAMS) $(expect_scripts)
@@ -27,4 +29,4 @@ TEST_EXTENSIONS = .exp
 EXP_LOG_COMPILER = $(srcdir)/expectHarness.sh "$(srcdir)"
 LOG_COMPILER = $(TEST_RUNNER)
 EXTRA_DIST = $(TEST_RUNNER) $(expect_scripts) expectHarness.sh \
-              utils.exp setup.exp
+              utils.exp setup.exp repl-interrupt.c

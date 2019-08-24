@@ -2067,6 +2067,12 @@ static tree eval_struct(tree t, int depth)
         return tree_make(E_INCOMP_TYPE);
 }
 
+static tree eval_repl(tree t, int depth)
+{
+    bic_repl();
+
+    return NULL;
+}
 static tree eval_union(tree t, int depth)
 {
     return __evaluate_1(tUNION_EXP(t), depth);
@@ -2389,6 +2395,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
     case T_COMP_ACCESS:result = eval_comp_access(t, depth + 1);break;
     case T_STRUCT:     result = eval_struct(t, depth + 1);     break;
+    case T_REPL:       result = eval_repl(t, depth + 1);       break;
     case T_UNION:      result = eval_union(t, depth + 1);      break;
     case T_ARRAY_ACCESS:result = eval_array_access(t, depth + 1); break;
     case T_ADDR:       result = eval_addr(t, depth + 1);       break;

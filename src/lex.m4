@@ -113,6 +113,7 @@ X                               [0-9A-Fa-f]
 "break"				return BREAK;
 "case"				return CASE;
 "char"				return CHAR;
+"<REPL>"      return REPL;
 "const"
 "continue"			return CONTINUE;
 "default"			return DEFAULT;

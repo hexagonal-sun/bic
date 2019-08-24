@@ -83,7 +83,7 @@ static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
 %token SWITCH TYPEDEF UNION UNSIGNED VOID WHILE
 %token EQUATE NOT_EQUATE LESS_OR_EQUAL GREATER_OR_EQUAL
 %token SHIFT_LEFT SHIFT_RIGHT BOOL_OP_AND BOOL_OP_OR INC
-%token DEC ELLIPSIS PTR_ACCESS BOOL
+%token DEC ELLIPSIS PTR_ACCESS BOOL REPL
 
 %nonassoc ELSE
 
@@ -103,6 +103,7 @@ CFILE_ONLY
 %type <tree> compound_statement
 %type <tree> function_definition
 %type <tree> jump_statement
+%type <tree> repl_statement
 REPL_ONLY
 %type <tree> declaration_statement
 ALL_TARGETS
@@ -259,6 +260,7 @@ statement
 CFILE_ONLY
     | compound_statement
     | jump_statement
+    | repl_statement
 REPL_ONLY
     | declaration_statement
     | C_PRE_INC
@@ -357,6 +359,15 @@ CFILE_ONLY
         tree ret = tree_make(T_RETURN);
         tRET_EXP(ret) = $2;
         $$ = ret;
+    }
+    ;
+ALL_TARGETS
+
+CFILE_ONLY
+    repl_statement
+    : REPL ';'
+    {
+      $$ = tree_make(T_REPL);
     }
     ;
 ALL_TARGETS
