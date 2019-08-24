@@ -1,3 +1,6 @@
+set srcdir [lindex $argv 0];
+source "${srcdir}/utils.exp"
+source "${srcdir}/setup.exp"
 send "(1 < 2) ? 0 : 1;\n"
 expect {
     "0" {bp}

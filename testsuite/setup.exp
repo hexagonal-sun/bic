@@ -1,9 +1,2 @@
-proc bp {} {
-    expect {
-        "BIC> " { return }
-        timeout { exit 1 }
-    }
-}
-
 spawn ../src/bic
 bp;

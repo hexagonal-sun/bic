@@ -24,6 +24,7 @@ endif
 
 TEST_RUNNER = $(srcdir)/test.sh
 TEST_EXTENSIONS = .exp
-EXP_LOG_COMPILER = expect -c "source $(srcdir)/setup.exp"
+EXP_LOG_COMPILER = $(srcdir)/expectHarness.sh "$(srcdir)"
 LOG_COMPILER = $(TEST_RUNNER)
-EXTRA_DIST = $(TEST_RUNNER) $(expect_scripts) setup.exp
+EXTRA_DIST = $(TEST_RUNNER) $(expect_scripts) expectHarness.sh \
+              utils.exp setup.exp
