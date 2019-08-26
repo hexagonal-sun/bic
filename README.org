@@ -1,0 +1,216 @@
+* ~bic~: A Basic Interpreter for C
+  This a project that allows developers to explore and test C-APIs using a read
+  eval print loop, also known as a REPL.
+
+** Dependencies
+   BIC's run-time dependencies are as follows:
+   - [[https://tiswww.case.edu/php/chet/readline/rltop.html][GNU Readline]]
+   - [[https://gmplib.org/][GNU MP]]
+     
+   To build BIC, you'll need:
+   - [[https://www.gnu.org/software/flex/][GNU Flex]]
+   - [[https://www.gnu.org/software/bison/][GNU Bison]]
+   - [[https://www.gnu.org/software/automake/][GNU Automake]]
+   - [[https://www.gnu.org/software/m4/][GNU M4]]
+   
+   Please ensure you have these installed before building bic. The following
+   command should install these on a Debian/Ubuntu system:
+
+   #+begin_example
+apt-get install build-essential libreadline-dev autoconf-archive libgmp-dev expect
+   #+end_example
+
+** Installation
+   You can compile and install bic with the following commands:
+
+#+begin_example
+autoreconf -i
+./configure --enable-debug
+make
+./src/bic
+#+end_example
+
+** Usage
+   When invoking bic with no arguments the user is presented with a REPL prompt:
+
+   #+begin_example
+BIC>
+   #+end_example
+
+   Here you can type C statements and =#include= various system headers to
+   provide access to different APIs on the system. One thing to note is that
+   statements can be entered directly into the REPL; there is no need to define
+   a function for them to be evaluated. Say we wish to execute the following C
+   program:
+
+   #+begin_src C
+#include <stdio.h>
+
+int main()
+{
+    FILE *f = fpoen("out.txt", "w");
+    fputs("Hello, world!\n", f);
+    return 0;
+}
+   #+end_src
+   
+   We can do this on the REPL with BIC with the following commands:
+
+   #+begin_example
+BIC> #include <stdio.h>
+BIC> FILE *f;
+f
+BIC> f = fopen("test.txt", "w");
+BIC> fputs("Hello, World!\n", f);
+1
+BIC> 
+   #+end_example
+
+   This will cause bic to call out to the C-library =fopen()= and =fputs()=
+   functions to create a file and write a string into it as shown in the example
+   C code. If you now exit bic, you should see a file ~test.txt~ in the current
+   working directory with the string ~Hello, World\n~ contained within it.
+
+   Notice that after evaluating an expression bic will print the result of
+   evaluation. This can be useful for testing out simple expressions:
+
+   #+begin_example
+BIC> 2 * 8 + fileno(f);
+19
+   #+end_example
+   
+   You can also use bic to dive into the guts of compound data types and get an
+   idea of how they're implemented. For example, we can deference the =FILE *=
+   pointer =f= to see all members of it as well as their current values:
+
+   #+begin_example
+    BIC> *f;
+    {
+        ._flags = -72536956
+        ._IO_read_ptr = 0x559057498620 ("Hello, World!
+    ")
+        ._IO_read_end = 0x559057498620 ("Hello, World!
+    ")
+        ._IO_read_base = 0x559057498620 ("Hello, World!
+    ")
+        ._IO_write_base = 0x559057498620 ("Hello, World!
+    ")
+        ._IO_write_ptr = 0x55905749862e ("")
+        ._IO_write_end = 0x559057499620 ("��IW�U")
+        ._IO_buf_base = 0x559057498620 ("Hello, World!
+    ")
+        ._IO_buf_end = 0x559057499620 ("��IW�U")
+        ._IO_save_base = (nil)
+        ._IO_backup_base = (nil)
+        ._IO_save_end = (nil)
+        ._markers = (nil)
+        ._chain = 0x7fdb786624a0
+        ._fileno = 3
+        ._flags2 = 0
+        ._old_offset = 0
+        ._cur_column = 0
+        ._vtable_offset = 0
+        ._shortbuf = 0x559057497043 ("")
+        ._lock = 0x5590574970a0
+        ._offset = -1
+        .__pad1 = (nil)
+        .__pad2 = 0x5590574970b0
+        .__pad3 = (nil)
+        .__pad4 = 0x5590574972c0
+        .__pad5 = 94078428082880
+        ._mode = -1
+        ._unused2 = 0x559057497094 ("")
+    }
+   #+end_example
+
+   If you pass bic a source file as a command line argument it will evaluate it,
+   by calling a =main()= function. A task that remains to be implemented is
+   constructing the =argc= and =argv= variables to be passed into the main
+   function.
+   
+** Implementation Overview
+   
+*** Tree Objects
+    At the heart of bic's implementation is the =tree= object. These are generic
+    objects that can be used to represent an entire program as well as the
+    current evaluator state. It is implemented in ~tree.h~ and ~tree.c~. Each
+    tree type is defined in ~c.lang~. The ~c.lang~ file is a lisp-like
+    specification of:
+    
+    - Object name, for example =T_ADD=.
+    - A human readable name, such as ~"Addition"~.
+    - A property name prefix, such as ~tADD~.
+    - A list of properties for this type, such as ~"LHS"~ and ~"RHS"~.
+      
+    The code to create an object with the above set of attributes would be:
+
+    #+begin_src lisp
+(deftype T_ADD "Addition" "tADD"
+         ("LHS" "RHS"))
+    #+end_src
+    
+    Once defined, we can use this object in our C code in the following way:
+
+    #+begin_src C
+tree make_increment(tree number)
+{
+    tree add = tree_make(T_ADD);
+    
+    tADD_LHS(add) = number;
+    tADD_RHS(add) = tree_make_const_int(1);
+    
+    return add;
+}
+    #+end_src
+    
+    Notice that a set of accessor macros, =tADD_LHS()= and =tADD_RHS()=, have
+    been generated for us to access the different property slots. When
+    ~--enable-debug~ is set during compilation each one of these macros expands
+    to a check to ensure that when setting the =tADD_LHS= property of an object
+    that the object is indeed an instance of a =T_ADD=.
+    
+    The ~c.lang~ file is read by numerous source-to-source compilers that
+    generate code snippets. These utilities include:
+
+    - ~gentype~: Generates a list of tree object types.
+    - ~gentree~: Generates a structure that contains all the property data for
+      tree objects.
+    - ~genctypes~: Generates a list of C-Type tree objects - these represent the
+      fundamental data types in C.
+    - ~genaccess~: Generate accessor macros for tree object properties.
+    - ~gengc~: Generate a mark function for each tree object, this allows the
+      garbage collector to traverse object trees.
+    - ~gendump~: Generate code to dump out tree objects recursively.
+
+*** Evaluator
+
+    The output of the lexer & parser is a =tree= object hierarchy which is then
+    passed into the evaluator (~evaluator.c~). The evaluator will then
+    recursively evaluate each tree element, updating internal evaluator state,
+    thereby executing a program.
+
+    Calls to functions external to the evaluator are handled in a
+    platform-dependent way. Currently x86_64 and aarch64 are the only supported
+    platforms and the code to handle this is in the ~x86_64~ and ~aarch64~
+    folders respectively. This works by taking a function call =tree= object
+    (represented by a =T_FN_CALL=) from the evaluator with all arguments
+    evaluated and marshalling them into a simple linked-list. This is then
+    traversed in assembly to move the value into the correct register according
+    to the x86_64 or aarch64 calling-conventions and then branching to the
+    function address.
+    
+*** Parser & Lexer
+    The parser and lexer are implemented in ~parser.m4~ and ~lex.m4~
+    respectively. After passing through M4 the output is two bison parsers and
+    two flex lexers.
+
+    The reason for two parsers is that the grammar for a C REPL is very
+    different than that of a C file. For example, we want the user to be able to
+    type in statements to be evaluated on the REPL without the need for wrapping
+    them in a function. Unfortunately writing a statement that is outside a
+    function body isn't valid C. As such, we don't want the user to be able to
+    write bare statements in a C file. To achieve this we have two different set
+    of grammar rules which produces two parsers. Most of the grammar rules do
+    overlap and therefore we use a single M4 file to take care of the
+    differences.
+
