@@ -8,13 +8,13 @@
    BIC's run-time dependencies are as follows:
    - [[https://tiswww.case.edu/php/chet/readline/rltop.html][GNU Readline]]
    - [[https://gmplib.org/][GNU MP]]
-     
+
    To build BIC, you'll need:
    - [[https://www.gnu.org/software/flex/][GNU Flex]]
    - [[https://www.gnu.org/software/bison/][GNU Bison]]
    - [[https://www.gnu.org/software/automake/][GNU Automake]]
    - [[https://www.gnu.org/software/m4/][GNU M4]]
-   
+
    Please ensure you have these installed before building bic. The following
    command should install these on a Debian/Ubuntu system:
 
@@ -55,7 +55,7 @@ int main()
     return 0;
 }
    #+end_src
-   
+
    We can do this on the REPL with BIC with the following commands:
 
    #+begin_example
@@ -65,7 +65,7 @@ f
 BIC> f = fopen("test.txt", "w");
 BIC> fputs("Hello, World!\n", f);
 1
-BIC> 
+BIC>
    #+end_example
 
    This will cause bic to call out to the C-library =fopen()= and =fputs()=
@@ -80,7 +80,7 @@ BIC>
 BIC> 2 * 8 + fileno(f);
 19
    #+end_example
-   
+
    You can also use bic to dive into the guts of compound data types and get an
    idea of how they're implemented. For example, we can deference the =FILE *=
    pointer =f= to see all members of it as well as their current values:
@@ -129,48 +129,48 @@ BIC> 2 * 8 + fileno(f);
    by calling a =main()= function. A task that remains to be implemented is
    constructing the =argc= and =argv= variables to be passed into the main
    function.
-   
+
 ** Implementation Overview
-   
+
 *** Tree Objects
     At the heart of bic's implementation is the =tree= object. These are generic
     objects that can be used to represent an entire program as well as the
     current evaluator state. It is implemented in ~tree.h~ and ~tree.c~. Each
     tree type is defined in ~c.lang~. The ~c.lang~ file is a lisp-like
     specification of:
-    
+
     - Object name, for example =T_ADD=.
     - A human readable name, such as ~"Addition"~.
     - A property name prefix, such as ~tADD~.
     - A list of properties for this type, such as ~"LHS"~ and ~"RHS"~.
-      
+
     The code to create an object with the above set of attributes would be:
 
     #+begin_src lisp
 (deftype T_ADD "Addition" "tADD"
          ("LHS" "RHS"))
     #+end_src
-    
+
     Once defined, we can use this object in our C code in the following way:
 
     #+begin_src C
 tree make_increment(tree number)
 {
     tree add = tree_make(T_ADD);
-    
+
     tADD_LHS(add) = number;
     tADD_RHS(add) = tree_make_const_int(1);
-    
+
     return add;
 }
     #+end_src
-    
+
     Notice that a set of accessor macros, =tADD_LHS()= and =tADD_RHS()=, have
     been generated for us to access the different property slots. When
     ~--enable-debug~ is set during compilation each one of these macros expands
     to a check to ensure that when setting the =tADD_LHS= property of an object
     that the object is indeed an instance of a =T_ADD=.
-    
+
     The ~c.lang~ file is read by numerous source-to-source compilers that
     generate code snippets. These utilities include:
 
@@ -200,7 +200,7 @@ tree make_increment(tree number)
     traversed in assembly to move the value into the correct register according
     to the x86_64 or aarch64 calling-conventions and then branching to the
     function address.
-    
+
 *** Parser & Lexer
     The parser and lexer are implemented in ~parser.m4~ and ~lex.m4~
     respectively. After passing through M4 the output is two bison parsers and
@@ -215,4 +215,3 @@ tree make_increment(tree number)
     of grammar rules which produces two parsers. Most of the grammar rules do
     overlap and therefore we use a single M4 file to take care of the
     differences.
-
