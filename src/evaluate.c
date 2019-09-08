@@ -1799,10 +1799,12 @@ static tree eval_if(tree t, int depth)
     if (!is_T_INTEGER(cond_result))
         eval_die(t, "Unknown condition result");
 
+    push_ctx("If statement");
     if (mpz_get_si(tINT_VAL(cond_result)))
         __evaluate(tIF_TRUE_STMTS(t), depth + 1);
     else
         __evaluate(tIF_ELSE_STMTS(t), depth + 1);
+    pop_ctx();
 
     return NULL;
 }
