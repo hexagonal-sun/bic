@@ -2,6 +2,8 @@
   This a project that allows developers to explore and test C-APIs using a read
   eval print loop, also known as a REPL.
 
+  [[file:doc/img/hello-world.gif]]
+
 ** Dependencies
    BIC's run-time dependencies are as follows:
    - [[https://tiswww.case.edu/php/chet/readline/rltop.html][GNU Readline]]
