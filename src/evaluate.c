@@ -71,7 +71,7 @@ static void push_ctx(const char *name)
     }
 
     tECTX_PARENT_CTX(new_ctx) = cur_ctx;
-    tECTX_NAME(new_ctx) = name;
+    tECTX_NAME(new_ctx) = get_identifier(name);
     tECTX_ID_MAP(new_ctx) = tree_make(CHAIN_HEAD);
     tECTX_ALLOC_CHAIN(new_ctx) = tree_make(CHAIN_HEAD);
 
@@ -923,7 +923,7 @@ static tree handle_static_decl(tree decl, int depth)
     tECTX_ID_MAP(decl) = tECTX_ID_MAP(cur_ctx);
     tECTX_ALLOC_CHAIN(decl) = tECTX_ALLOC_CHAIN(cur_ctx);
     tECTX_PARENT_CTX(decl) = NULL;
-    tECTX_NAME(decl) = "Static declaration";
+    tECTX_NAME(decl) = get_identifier("Static declaration");
     tECTX_IS_STATIC(decl) = 1;
 
     pop_ctx();

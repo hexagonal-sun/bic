@@ -191,8 +191,7 @@
 (deftype CHAIN_HEAD "Tree Chain Head")
 
 (deftype E_CTX "Evaluator Context" "tECTX"
-         ("ID_MAP" "PARENT_CTX" "ALLOC_CHAIN"
-                   ("NAME" string)
+         ("ID_MAP" "PARENT_CTX" "ALLOC_CHAIN" "NAME"
                    ("IS_STATIC" flag)))
 
 (deftype E_ALLOC "Evaluator allocation" "tALLOC"
