@@ -147,8 +147,8 @@ REPL_ONLY
 "`#'include"[ \t]*"<"({L}|{D}|\.|\/)+">" {LEXLVAL.string = strdup(LEXTEXT);
                                      return C_PRE_INC; }
 ALL_TARGETS
-{L}({L}|{D})*                   {LEXLVAL.string = strdup(LEXTEXT);
-                                 if (is_typename(LEXTEXT))
+{L}({L}|{D})*                   {LEXLVAL.tree = get_identifier(LEXTEXT);
+                                 if (is_typename(LEXLVAL.tree))
                                      return TYPE_NAME;
                                  else
                                      return IDENTIFIER; }

@@ -10,9 +10,9 @@ tree tree_make(enum tree_type type)
     return ret;
 }
 
-tree get_identifier(char *name)
+tree get_identifier(const char *name)
 {
     tree ret = tree_make(T_IDENTIFIER);
-    tID_STR(ret) = name;
+    tID_STR(ret) = strdup(name);
     return ret;
 }

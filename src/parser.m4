@@ -30,7 +30,7 @@ static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
     bool is_decl = false;
 
     if (is_T_TYPEDEF(ret_type)) {
-        add_typename(strdup(tID_STR(id)));
+        add_typename(id);
         ret_type = tTYPEDEF_EXP(ret_type);
         is_decl = true;
    }
@@ -87,11 +87,11 @@ static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
 
 %nonassoc ELSE
 
-%token <string> IDENTIFIER
+%token <tree> IDENTIFIER
 REPL_ONLY
 %token <string> C_PRE_INC
 ALL_TARGETS
-%token <string> TYPE_NAME
+%token <tree> TYPE_NAME
 %token <string> CONST_BITS
 %token <string> CONST_STRING
 %token <integer> INTEGER;
@@ -182,7 +182,7 @@ CFILE_ONLY
     : type_specifier IDENTIFIER argument_specifier compound_statement
     {
         tree function_def = tree_make(T_FN_DEF);
-        tFNDEF_NAME(function_def) = get_identifier($2);
+        tFNDEF_NAME(function_def) = $2;
         tFNDEF_RET_TYPE(function_def) = $1;
         tFNDEF_ARGS(function_def) = $3;
         tFNDEF_STMTS(function_def) = $4;
@@ -391,7 +391,7 @@ primary_expression
 }
 | IDENTIFIER
 {
-    tree identifier = get_identifier($1);
+    tree identifier = $1;
     set_locus(identifier, @1);
     $$ = identifier;
 }
@@ -452,7 +452,7 @@ postfix_expression
 {
     tree access = tree_make(T_COMP_ACCESS);
     tCOMP_ACCESS_OBJ(access) = $1;
-    tCOMP_ACCESS_MEMBER(access) = get_identifier($3);
+    tCOMP_ACCESS_MEMBER(access) = $3;
     set_locus(access, @2);
     set_locus(tCOMP_ACCESS_MEMBER(access), @3);
     $$ = access;
@@ -464,7 +464,7 @@ postfix_expression
 
     tDEREF_EXP(deref) = $1;
     tCOMP_ACCESS_OBJ(access) = deref;
-    tCOMP_ACCESS_MEMBER(access) = get_identifier($3);
+    tCOMP_ACCESS_MEMBER(access) = $3;
 
     set_locus(deref, @2);
     set_locus(access, @2);
@@ -750,14 +750,14 @@ binary_modify_expression
 decl
 : IDENTIFIER
 {
-    tree id = get_identifier($1);
+    tree id = $1;
     set_locus(id, @1);
     $$ = id;
 }
 | IDENTIFIER argument_specifier
 {
     tree fn_decl = tree_make(T_DECL_FN);
-    tFNDECL_NAME(fn_decl) = get_identifier($1);
+    tFNDECL_NAME(fn_decl) = $1;
     tFNDECL_ARGS(fn_decl) = $2;
     set_locus(fn_decl, @1);
     set_locus(tFNDECL_NAME(fn_decl), @1);
@@ -766,7 +766,7 @@ decl
 | '(' IDENTIFIER ')' argument_specifier
 {
     tree fn_decl = tree_make(T_DECL_FN);
-    tFNDECL_NAME(fn_decl) = get_identifier($2);
+    tFNDECL_NAME(fn_decl) = $2;
     tFNDECL_ARGS(fn_decl) = $4;
     set_locus(fn_decl, @2);
     set_locus(tFNDECL_NAME(fn_decl), @2);
@@ -1056,7 +1056,7 @@ direct_type_specifier
 }
 | TYPE_NAME
 {
-    tree id = get_identifier($1);
+    tree id = $1;
     set_locus(id, @1);
     $$ = id;
 }
@@ -1101,8 +1101,7 @@ type_specifier
 struct_specifier
 : STRUCT IDENTIFIER '{' declaration_list '}'
 {
-    char *struct_name = concat_strings("struct ", $2);
-    free($2);
+    char *struct_name = concat_strings("struct ", tID_STR($2));
     tree decl = tree_make(T_DECL_COMPOUND);
     tCOMP_DECL_ID(decl) = get_identifier(struct_name);
     tCOMP_DECL_DECLS(decl) = $4;
@@ -1122,8 +1121,7 @@ struct_specifier
 }
 | STRUCT IDENTIFIER
 {
-    char *struct_name = concat_strings("struct ", $2);
-    free($2);
+    char *struct_name = concat_strings("struct ", tID_STR($2));
     tree ret = tree_make(T_STRUCT);
     tSTRUCT_EXP(ret) = get_identifier(struct_name);
     set_locus(ret, @1);
@@ -1132,8 +1130,7 @@ struct_specifier
 }
 | STRUCT TYPE_NAME
 {
-    char *struct_name = concat_strings("struct ", $2);
-    free($2);
+    char *struct_name = concat_strings("struct ", tID_STR($2));
     tree ret = tree_make(T_STRUCT);
     tSTRUCT_EXP(ret) = get_identifier(struct_name);
     set_locus(ret, @1);
@@ -1145,8 +1142,7 @@ struct_specifier
 union_specifier
 : UNION IDENTIFIER '{' declaration_list '}'
 {
-    char *union_name = concat_strings("union ", $2);
-    free($2);
+    char *union_name = concat_strings("union ", tID_STR($2));
     tree decl = tree_make(T_DECL_COMPOUND);
     tCOMP_DECL_ID(decl) = get_identifier(union_name);
     tCOMP_DECL_DECLS(decl) = $4;
@@ -1166,8 +1162,7 @@ union_specifier
 }
 | UNION IDENTIFIER
 {
-    char *union_name = concat_strings("union ", $2);
-    free($2);
+    char *union_name = concat_strings("union ", tID_STR($2));
     tree ret = tree_make(T_UNION);
     tUNION_EXP(ret) = get_identifier(union_name);
     set_locus(ret, @1);
@@ -1177,8 +1172,7 @@ union_specifier
 }
 | UNION TYPE_NAME
 {
-    char *union_name = concat_strings("union ", $2);
-    free($2);
+    char *union_name = concat_strings("union ", tID_STR($2));
     tree ret = tree_make(T_UNION);
     tUNION_EXP(ret) = get_identifier(union_name);
     set_locus(ret, @1);
@@ -1203,8 +1197,7 @@ enum_specifier
 }
 | ENUM IDENTIFIER '{' enumerator_list possible_comma '}'
 {
-    char *enum_name = concat_strings("enum ", $2);
-    free($2);
+    char *enum_name = concat_strings("enum ", tID_STR($2));
     tree enumerator = tree_make(T_ENUMERATOR);
     tENUM_NAME(enumerator) = get_identifier(enum_name);
     tENUM_ENUMS(enumerator) = $4;
@@ -1214,16 +1207,14 @@ enum_specifier
 }
 | ENUM IDENTIFIER
 {
-    char *enum_name = concat_strings("enum ", $2);
-    free($2);
+    char *enum_name = concat_strings("enum ", tID_STR($2));
     tree id = get_identifier(enum_name);
     set_locus(id, @2);
     $$ = id;
 }
 | ENUM TYPE_NAME
 {
-    char *enum_name = concat_strings("enum ", $2);
-    free($2);
+    char *enum_name = concat_strings("enum ", tID_STR($2));
     tree id = get_identifier(enum_name);
     set_locus(id, @2);
     $$ = id;
@@ -1244,13 +1235,13 @@ enumerator_list
 enumerator
 : IDENTIFIER
 {
-    tree id = get_identifier($1);
+    tree id = $1;
     set_locus(id, @1);
     $$ = id;
 }
 | IDENTIFIER '=' logical_expression
 {
-    tree id = get_identifier($1);
+    tree id = $1;
     set_locus(id, @1);
     tree assign = tree_make(T_ASSIGN);
     tASSIGN_LHS(assign) = id;
@@ -1265,7 +1256,7 @@ ALL_TARGETS
 func_ptr_decl
 : type_specifier pointer '(' pointer IDENTIFIER ')' argument_specifier
 {
-    tree decl = build_func_ptr($1, $2, $4, get_identifier($5), $7);
+    tree decl = build_func_ptr($1, $2, $4, $5, $7);
 
     set_locus(decl, @5);
 
@@ -1273,7 +1264,7 @@ func_ptr_decl
 }
 | type_specifier '(' pointer IDENTIFIER ')' argument_specifier
 {
-    tree decl = build_func_ptr($1, NULL, $3, get_identifier($4), $6);
+    tree decl = build_func_ptr($1, NULL, $3, $4, $6);
 
     set_locus(decl, @5);
 
@@ -1329,7 +1320,7 @@ declaration
                 YYERROR;
             }
 
-            add_typename(strdup(tID_STR(oldid)));
+            add_typename(oldid);
         }
     }
 }

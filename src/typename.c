@@ -10,9 +10,10 @@ GC_STATIC_TREE(include_type_names);
 
 static int in_include_file = 0;
 
-void add_typename(char *s)
+void add_typename(tree typename)
 {
-    tree_chain(get_identifier(s),
+    tree new_typename = get_identifier(tID_STR(typename));
+    tree_chain(new_typename,
                in_include_file ? include_type_names : type_names);
 }
 
@@ -38,20 +39,20 @@ void typename_init(void)
     reset_include_typenames();
 
     /* Add all builtin types here so the parser knows about them. */
-    add_typename(strdup("__builtin_va_list"));
+    add_typename(get_identifier("__builtin_va_list"));
 }
 
-int is_typename(char *identifier)
+int is_typename(tree typename)
 {
     tree i;
 
     for_each_tree(i, type_names) {
-        if (strcmp(identifier, tID_STR(i)) == 0)
+        if (strcmp(tID_STR(typename), tID_STR(i)) == 0)
             return 1;
     }
 
     for_each_tree(i, include_type_names) {
-        if (strcmp(identifier, tID_STR(i)) == 0)
+        if (strcmp(tID_STR(typename), tID_STR(i)) == 0)
             return 1;
     }
 
