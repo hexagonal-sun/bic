@@ -14,6 +14,7 @@
    - [[https://www.gnu.org/software/bison/][GNU Bison]]
    - [[https://www.gnu.org/software/automake/][GNU Automake]]
    - [[https://www.gnu.org/software/m4/][GNU M4]]
+   - [[https://www.gnu.org/software/autoconf-archive/][GNU Autoconf Archive]]
 
    Please ensure you have these installed before building bic. The following
    command should install these on a Debian/Ubuntu system:
