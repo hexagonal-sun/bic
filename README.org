@@ -1,4 +1,4 @@
-* ~bic~: A Basic Interpreter for C
+* ~bic~: A C interpreter and API explorer
   This a project that allows developers to explore and test C-APIs using a read
   eval print loop, also known as a REPL.
 
@@ -29,24 +29,25 @@ apt-get install build-essential libreadline-dev autoconf-archive libgmp-dev expe
 autoreconf -i
 ./configure --enable-debug
 make
-./src/bic
+make install
 #+end_example
 
 ** Usage
-   When invoking bic with no arguments the user is presented with a REPL prompt:
+*** REPL
+    When invoking bic with no arguments the user is presented with a REPL prompt:
 
-   #+begin_example
+    #+begin_example
 BIC>
-   #+end_example
+    #+end_example
 
-   Here you can type C statements and =#include= various system headers to
-   provide access to different APIs on the system. One thing to note is that
-   statements can be entered directly into the REPL; there is no need to define
-   a function for them to be evaluated. Say we wish to execute the following C
-   program:
+    Here you can type C statements and =#include= various system headers to
+    provide access to different APIs on the system. One thing to note is that
+    statements can be entered directly into the REPL; there is no need to define
+    a function for them to be evaluated. Say we wish to execute the following C
+    program:
 
-   #+begin_src C
-#include <stdio.h>
+    #+begin_src C
+ #include <stdio.h>
 
 int main()
 {
@@ -54,11 +55,11 @@ int main()
     fputs("Hello, world!\n", f);
     return 0;
 }
-   #+end_src
+    #+end_src
 
-   We can do this on the REPL with BIC with the following commands:
+    We can do this on the REPL with BIC using the following commands:
 
-   #+begin_example
+    #+begin_example
 BIC> #include <stdio.h>
 BIC> FILE *f;
 f
@@ -66,69 +67,66 @@ BIC> f = fopen("test.txt", "w");
 BIC> fputs("Hello, World!\n", f);
 1
 BIC>
-   #+end_example
+    #+end_example
 
-   This will cause bic to call out to the C-library =fopen()= and =fputs()=
-   functions to create a file and write a string into it as shown in the example
-   C code. If you now exit bic, you should see a file ~test.txt~ in the current
-   working directory with the string ~Hello, World\n~ contained within it.
+    This will cause bic to call out to the C-library =fopen()= and =fputs()=
+    functions to create a file and write the hello world string into it. If you
+    now exit bic, you should see a file ~test.txt~ in the current working
+    directory with the string ~Hello, World\n~ contained within it.
 
-   Notice that after evaluating an expression bic will print the result of
-   evaluation. This can be useful for testing out simple expressions:
+    Notice that after evaluating an expression bic will print the result of
+    evaluation. This can be useful for testing out simple expressions:
 
-   #+begin_example
+    #+begin_example
 BIC> 2 * 8 + fileno(f);
 19
-   #+end_example
+    #+end_example
+*** Evaluating Files
+    If you pass bic a source file as a command line argument it will evaluate
+    it, by calling a =main()= function. For example, suppose we have the file
+    ~test.c~ that contains the following:
 
-   You can also use bic to dive into the guts of compound data types and get an
-   idea of how they're implemented. For example, we can deference the =FILE *=
-   pointer =f= to see all members of it as well as their current values:
+    #+begin_src c
+int printf(const char *s, ...);
 
-   #+begin_example
-    BIC> *f;
-    {
-        ._flags = -72536956
-        ._IO_read_ptr = 0x559057498620 ("Hello, World!
-    ")
-        ._IO_read_end = 0x559057498620 ("Hello, World!
-    ")
-        ._IO_read_base = 0x559057498620 ("Hello, World!
-    ")
-        ._IO_write_base = 0x559057498620 ("Hello, World!
-    ")
-        ._IO_write_ptr = 0x55905749862e ("")
-        ._IO_write_end = 0x559057499620 ("��IW�U")
-        ._IO_buf_base = 0x559057498620 ("Hello, World!
-    ")
-        ._IO_buf_end = 0x559057499620 ("��IW�U")
-        ._IO_save_base = (nil)
-        ._IO_backup_base = (nil)
-        ._IO_save_end = (nil)
-        ._markers = (nil)
-        ._chain = 0x7fdb786624a0
-        ._fileno = 3
-        ._flags2 = 0
-        ._old_offset = 0
-        ._cur_column = 0
-        ._vtable_offset = 0
-        ._shortbuf = 0x559057497043 ("")
-        ._lock = 0x5590574970a0
-        ._offset = -1
-        .__pad1 = (nil)
-        .__pad2 = 0x5590574970b0
-        .__pad3 = (nil)
-        .__pad4 = 0x5590574972c0
-        .__pad5 = 94078428082880
-        ._mode = -1
-        ._unused2 = 0x559057497094 ("")
-    }
-   #+end_example
+int factorial(int n)
+{
+  if (!n)
+  {
+    return 1;
+  }
 
-   If you pass bic a source file as a command line argument it will evaluate it,
-   by calling a =main()= function. A task that remains to be implemented is
-   constructing the =argc= and =argv= variables to be passed into the main
-   function.
+  return n * factorial(n - 1);
+}
+
+int main()
+{
+  printf("Factorial of 4 is: %d\n", factorial(4));
+
+  return 0;
+}
+    #+end_src
+
+    We can then invoke bic with ~test.c~ as a parameter to evaluate it:
+
+    [[file:doc/img/eval-file.gif]]
+
+    You can also use a special expression: =<REPL>;= in your source code to make
+    bic drop you into the repl at a particular point in the file evaluation:
+
+    [[file:doc/img/repl-interrupt.gif]]
+
+*** Exploring external libraries with the REPL
+
+    You can use bic to explore the APIs of other libraries other than libc. Let's
+    suppose we wish to explore the [[https://github.com/aquynh/capstone][Capstone]] library, we pass in a ~-l~ option to
+    make bic load that library when it starts.  For example:
+
+    [[file:doc/img/capstone.gif]]
+
+    Notice that when bic prints a compound data type (a =struct= or a =union=),
+    it shows all member names and their corresponding values.
+
 
 ** Implementation Overview
 
