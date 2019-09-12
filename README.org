@@ -52,7 +52,7 @@ BIC>
 
 int main()
 {
-    FILE *f = fpoen("out.txt", "w");
+    FILE *f = fopen("out.txt", "w");
     fputs("Hello, world!\n", f);
     return 0;
 }
