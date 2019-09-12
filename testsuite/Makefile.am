@@ -12,7 +12,7 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  permit_incomplete_struct_ptr logical_op_test		\
                  if_stmts eqneq union-struct casts shift loops negate	\
                  ior function_ptr_typedef array_ptr			\
-                 struct_array_alignment iand
+                 struct_array_alignment iand factorial
 
 expect_scripts = fileio.exp strtok.exp decl.exp chars.exp infix.exp \
                  repl-interrupt.exp

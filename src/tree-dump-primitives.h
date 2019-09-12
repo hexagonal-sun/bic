@@ -24,6 +24,11 @@ static inline void tree_dump_string(tree t, const char *s)
     fprintf(stderr, "\"%s\"", s);
 }
 
+static inline void tree_dump_jmp_buf(tree t, jmp_buf b)
+{
+    return;
+}
+
 static inline void tree_dump_sz(tree t, size_t s)
 {
     fprintf(stderr, "%zu", s);

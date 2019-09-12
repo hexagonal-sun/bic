@@ -377,9 +377,12 @@ static tree eval_fn_call(tree t, int depth)
     if (is_T_FN_DEF(function)) {
         tree arg_decls = tFNDEF_ARGS(function),
             arg_vals = tFNCALL_ARGS(t),
-            arg_decl, arg_val, return_val;
+            arg_decl, arg_val, return_val, fn_ctx;
 
         push_ctx(tID_STR(tFNDEF_NAME(function)));
+        tECTX_IS_FN_CALL(cur_ctx) = true;
+
+        fn_ctx = cur_ctx;
 
         if (arg_decls) {
             size_t no_decls = 0, no_vals = 0;
@@ -437,7 +440,22 @@ static tree eval_fn_call(tree t, int depth)
             }
         }
 
-        return_val = __evaluate(tFNDEF_STMTS(function), depth + 1);
+        if (!setjmp(tECTX_JMP_BUF(cur_ctx))) {
+            __evaluate(tFNDEF_STMTS(function), depth + 1);
+
+            /* If we reach here, then the function that we called was either
+             * void so a `return` statment was never executed, or it should have
+             * returned a value but didn't. In either case, return NULL. */
+            return_val = NULL;
+        } else {
+            /* After doing a longjmp, we need to pop off all redundant evaluator
+             * contexts util we arrive at the context pushed for this function.
+             * Unfortunetly longjmp doesn't do this for us. */
+            while (cur_ctx != fn_ctx)
+                pop_ctx();
+
+            return_val = tECTX_RETVAL(cur_ctx);
+        }
 
         pop_ctx();
 
@@ -2430,8 +2448,15 @@ static tree __evaluate(tree head, int depth)
     for_each_tree(i, head) {
         result = __evaluate_1(i, depth);
 
-        if (is_T_RETURN(result))
-            return tRET_EXP(result);
+        if (is_T_RETURN(result)) {
+            tree fn_ctx = cur_ctx;
+
+            while (!tECTX_IS_FN_CALL(fn_ctx))
+                fn_ctx = tECTX_PARENT_CTX(fn_ctx);
+
+            tECTX_RETVAL(fn_ctx) = tRET_EXP(result);
+            longjmp(tECTX_JMP_BUF(fn_ctx), 1);
+        }
     }
 
     return result;
