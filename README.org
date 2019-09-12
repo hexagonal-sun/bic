@@ -20,7 +20,7 @@
    command should install these on a Debian/Ubuntu system:
 
    #+begin_example
-apt-get install build-essential libreadline-dev autoconf-archive libgmp-dev expect flex
+apt-get install build-essential libreadline-dev autoconf-archive libgmp-dev expect flex bison automake m4 libtool pkg-config
    #+end_example
 
 ** Installation
