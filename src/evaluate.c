@@ -686,6 +686,11 @@ static tree handle_decl(tree decl, tree base_type, int depth)
     case T_ASSIGN:
     {
         tree ret = handle_decl(tASSIGN_LHS(decl), base_type, depth);
+
+        /* handle_decl will have stripped off any pointers from the decl name.
+         * Therefore ret now becomes the LHS of the assignment. */
+        tASSIGN_LHS(decl) = ret;
+
         __evaluate_1(decl, depth + 1);
         return ret;
     }

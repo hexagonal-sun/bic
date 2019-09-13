@@ -51,5 +51,6 @@ loops
 negate
 iand
 factorial
+char-decl-and-assignment
 
 *.trs
