@@ -369,6 +369,10 @@ CFILE_ONLY
         tRET_EXP(ret) = $2;
         $$ = ret;
     }
+    | BREAK ';'
+    {
+        $$ = tree_make(T_BREAK);
+    }
     ;
 ALL_TARGETS
 

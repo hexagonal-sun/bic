@@ -172,6 +172,8 @@
 (deftype T_RETURN "Function return" "tRET"
          ("EXP"))
 
+(deftype T_BREAK "Break statement")
+
 (deftype T_REPL "Switch to REPL")
 
 (deftype T_ENUMERATOR "Enumerator" "tENUM"

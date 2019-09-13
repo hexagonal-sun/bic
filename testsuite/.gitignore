@@ -54,5 +54,6 @@ factorial
 char-decl-and-assignment
 for-loop-init-decl
 sizeof-deref
+break
 
 *.trs

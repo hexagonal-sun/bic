@@ -1768,8 +1768,11 @@ static tree eval_loop_for(tree t, int depth)
             break;
 
         push_ctx("For Loop");
-        __evaluate(tFLOOP_STMTS(t), depth + 1);
+        tree ret = __evaluate(tFLOOP_STMTS(t), depth + 1);
         pop_ctx();
+
+        if (is_T_BREAK(ret))
+            return NULL;
 
         __evaluate_1(tFLOOP_AFTER(t), depth + 1);
 
@@ -1794,8 +1797,11 @@ static tree eval_loop_while(tree t, int depth)
             break;
 
         push_ctx("While Loop");
-        __evaluate(tWLOOP_STMTS(t), depth + 1);
+        tree ret = __evaluate(tWLOOP_STMTS(t), depth + 1);
         pop_ctx();
+
+        if (is_T_BREAK(ret))
+            return NULL;
 
     } while (1);
 
@@ -2415,6 +2421,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_INFIX:      result = eval_infix(t, depth + 1);      break;
     case T_IF:         result = eval_if(t, depth + 1);         break;
     case T_RETURN:     result = eval_return(t, depth + 1);     break;
+    case T_BREAK:      result = t;                             break;
     case T_DECL_COMPOUND:result = eval_decl_compound(t, depth + 1);break;
     case T_ENUMERATOR: result = eval_enumerator(t, depth + 1); break;
     case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
@@ -2462,6 +2469,9 @@ static tree __evaluate(tree head, int depth)
             tECTX_RETVAL(fn_ctx) = tRET_EXP(result);
             longjmp(tECTX_JMP_BUF(fn_ctx), 1);
         }
+
+        if (is_T_BREAK(result))
+            return result;
     }
 
     return result;
