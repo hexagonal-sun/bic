@@ -17,7 +17,7 @@ static void pp_live_var(tree t, int depth)
     tree type = tLV_TYPE(t);
 
     switch (type->type) {
-#define DEFCTYPE(TNAME, DESC, CTYPE, FMT)               \
+#define DEFCTYPE(TNAME, DESC, CTYPE, FMT, FFMEM)        \
         case TNAME:                                     \
             printf("%" #FMT, tLV_VAL(t)->TNAME);     \
             break;

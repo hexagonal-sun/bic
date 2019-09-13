@@ -29,6 +29,7 @@ struct TreeType {
 struct CType : public TreeType {
     std::string ctype;
     std::string format_string;
+    std::string ff_union_member_name;
 };
 
 struct TypeAllocator;

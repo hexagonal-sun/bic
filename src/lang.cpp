@@ -212,6 +212,11 @@ static void handle_defctype(struct lang &lang)
     newCType.format_string = lexval;
 
     token = yylex();
+    if (token != STRING)
+        perror("Expected STRING");
+    newCType.ff_union_member_name = lexval;
+
+    token = yylex();
     if (token == ')')
         goto out;
 

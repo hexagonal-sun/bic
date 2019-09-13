@@ -37,10 +37,10 @@ static void push_to_main_arg_head(struct arg *head)
 
 /* Here we simplify the interface for accessing arguments so that
  * it is reasonable to be done in assembly. */
-ptrdiff_t do_call(void *function_address, tree args)
+union function_return do_call(void *function_address, tree args, tree ret_type)
 {
     tree fn_arg;
-    ptrdiff_t ret;
+    union function_return ret;
 
     if (args)
         for_each_tree(fn_arg, args) {
@@ -113,7 +113,20 @@ ptrdiff_t do_call(void *function_address, tree args)
     push_to_main_arg_head(vec_args);
     push_to_main_arg_head(int_args);
 
-    ret = __do_call(function_address, arg_head);
+    switch (TYPE(ret_type))
+    {
+    case D_T_DOUBLE:
+    case D_T_FLOAT:
+    {
+        /* HACK ALERT */
+        typedef double (*fntype)(void *, struct arg *);
+        fntype fnptr = (fntype)&__do_call;
+        ret.dval = fnptr(function_address, arg_head);
+        break;
+    }
+    default:
+        ret.ival = __do_call(function_address, arg_head);
+    }
 
     int_args = NULL;
     vec_args = NULL;

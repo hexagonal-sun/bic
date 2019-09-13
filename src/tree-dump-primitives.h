@@ -37,7 +37,7 @@ static inline void tree_dump_sz(tree t, size_t s)
 static inline void tree_dump_live_var_val(tree t, union value *v)
 {
     switch (TYPE(t)) {
-#define DEFCTYPE(TNAME, DESC, CTYPE, FMT)                \
+#define DEFCTYPE(TNAME, DESC, CTYPE, FMT, FFMEM)         \
         case TNAME:                                      \
             fprintf(stderr, "%" #FMT, v->TNAME);         \
             break;

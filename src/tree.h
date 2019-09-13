@@ -17,14 +17,14 @@ enum tree_type {
     #define DEFTYPE(TNAME, DESC) TNAME ,
     #include "tree.def"
     #undef DEFTYPE
-    #define DEFCTYPE(TNAME, DESC, STDINTSZ, FMT) TNAME ,
+#define DEFCTYPE(TNAME, DESC, STDINTSZ, FMT, FFMEM) TNAME ,
     #include "ctypes.def"
     #undef DEFCTYPE
 };
 
 typedef enum {sstruct, uunion} compound_type;
 
-#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT, FFMEM)   \
     typedef STDINTSZ ETYPE##_t;
 #include "ctypes.def"
 #undef DEFCTYPE
@@ -37,7 +37,7 @@ static const inline char *tree_type_string(enum tree_type t)
                 return #ETYPE;
         #include "tree.def"
         #undef DEFTYPE
-        #define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT)    \
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT, FFMEM)     \
             case ETYPE:                                 \
                 return #ETYPE;
         #include "ctypes.def"
@@ -48,7 +48,7 @@ static const inline char *tree_type_string(enum tree_type t)
 }
 
 union value {
-    #define DEFCTYPE(TNAME, DESC, STDINTSZ, FMT) \
+#define DEFCTYPE(TNAME, DESC, STDINTSZ, FMT, FFMEM)   \
         STDINTSZ TNAME;
     #include "ctypes.def"
     #undef DEFCTYPE
@@ -154,7 +154,7 @@ void tree_dump(tree tree);
 #include "tree.def"
 #undef DEFTYPE
 
-#define DEFCTYPE(ETYPE, DESC, FMT, CTYPE)       \
+#define DEFCTYPE(ETYPE, DESC, FMT, CTYPE, FFMEM)      \
     static inline int is_##ETYPE (tree t)       \
     {                                           \
         if (!t)                                 \
@@ -175,7 +175,7 @@ static inline int is_CTYPE(tree t)
 
     switch (t->type)
     {
-#define DEFCTYPE(ETYPE, DESC, FMT, CTYPE)       \
+#define DEFCTYPE(ETYPE, DESC, FMT, CTYPE, FFMEM)  \
         case ETYPE:
 #include "ctypes.def"
 #undef DEFCTYPE

@@ -11,9 +11,10 @@ static void outputTreeDefCtype(const struct lang &lang)
           " */\n\n", f);
 
     for (auto const ctype : lang.treeCTypes)
-        fprintf(f, "DEFCTYPE(%s, \"%s\", %s, %s)\n", ctype.name.c_str(),
+        fprintf(f, "DEFCTYPE(%s, \"%s\", %s, %s, %s)\n", ctype.name.c_str(),
                 ctype.friendly_name.c_str(),
-                ctype.ctype.c_str(), ctype.format_string.c_str());
+                ctype.ctype.c_str(), ctype.format_string.c_str(),
+                ctype.ff_union_member_name.c_str());
 
     fclose(f);
 }
