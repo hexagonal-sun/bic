@@ -1076,7 +1076,7 @@ direct_type_specifier
 
 sizeof_specifier
 : direct_type_specifier
-| primary_expression
+| unary_expression
 | direct_type_specifier pointer
 {
     $$ = make_pointer_type($2, $1);
