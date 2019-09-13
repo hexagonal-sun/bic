@@ -1374,6 +1374,11 @@ static tree eval_div(tree t, int depth)
     return ret;
 }
 
+static tree eval_comma(tree t, int depth)
+{
+    __evaluate_1(tCOMMA_LHS(t), depth + 1);
+    return __evaluate_1(tCOMMA_RHS(t), depth + 1);
+}
 
 static tree eval_lt(tree t, int depth)
 {
@@ -2402,6 +2407,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_RSHIFT:     result = eval_rshift(t, depth + 1);     break;
     case T_MUL:        result = eval_mul(t, depth + 1);        break;
     case T_DIV:        result = eval_div(t, depth + 1);        break;
+    case T_COMMA:      result = eval_comma(t, depth + 1);      break;
     case T_LT:         result = eval_lt(t, depth + 1);         break;
     case T_GT:         result = eval_gt(t, depth + 1);         break;
     case T_LTEQ:       result = eval_lteq(t, depth + 1);       break;

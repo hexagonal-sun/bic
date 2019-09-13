@@ -99,6 +99,9 @@
 (deftype T_L_AND "Logical AND" "tL_AND"
          ("LHS" "RHS"))
 
+(deftype T_COMMA "Comma operator" "tCOMMA"
+         ("LHS" "RHS"))
+
 (deftype T_IF "If" "tIF"
          ("COND" "TRUE_STMTS" "ELSE_STMTS"))
 

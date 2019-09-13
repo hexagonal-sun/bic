@@ -55,5 +55,6 @@ char-decl-and-assignment
 for-loop-init-decl
 sizeof-deref
 break
+comma
 
 *.trs

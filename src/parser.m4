@@ -128,6 +128,7 @@ ALL_TARGETS
 %type <tree> relational_expression
 %type <tree> logical_expression
 %type <tree> assignment_expression
+%type <tree> expression
 %type <tree> binary_modify_expression
 %type <tree> infix_expression
 %type <tree> decl
@@ -299,9 +300,20 @@ declaration_statement
 : declaration ';'
 ;
 
+expression
+: assignment_expression
+| expression ',' assignment_expression
+{
+    tree comma = tree_make(T_COMMA);
+    tCOMMA_LHS(comma) = $1;
+    tCOMMA_RHS(comma) = $3;
+    set_locus(comma, @2);
+    $$ = comma;
+}
+;
 
 expression_statement
-: assignment_expression ';'
+: expression ';'
 | binary_modify_expression ';'
 ;
 
@@ -415,7 +427,7 @@ primary_expression
     set_locus(str, @1);
     $$ = str;
 }
-| '(' assignment_expression ')'
+| '(' expression ')'
 {
     $$ = $2;
 }
