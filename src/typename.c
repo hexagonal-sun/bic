@@ -40,6 +40,7 @@ void typename_init(void)
 
     /* Add all builtin types here so the parser knows about them. */
     add_typename(get_identifier("__builtin_va_list"));
+    add_typename(get_identifier("_Float128"));
 }
 
 int is_typename(tree typename)
