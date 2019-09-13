@@ -10,7 +10,7 @@
    - [[https://gmplib.org/][GNU MP]]
 
    To build BIC, you'll need:
-   - [[https://www.gnu.org/software/flex/][GNU Flex]]
+   - [[https://github.com/westes/flex][Flex]]
    - [[https://www.gnu.org/software/bison/][GNU Bison]]
    - [[https://www.gnu.org/software/automake/][GNU Automake]]
    - [[https://www.gnu.org/software/m4/][GNU M4]]
