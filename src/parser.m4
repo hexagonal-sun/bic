@@ -104,9 +104,8 @@ CFILE_ONLY
 %type <tree> function_definition
 %type <tree> jump_statement
 %type <tree> repl_statement
-REPL_ONLY
-%type <tree> declaration_statement
 ALL_TARGETS
+%type <tree> declaration_statement
 %type <tree> func_ptr_decl
 %type <tree> argument_specifier
 %type <tree> direct_argument_list
@@ -294,11 +293,11 @@ CFILE_ONLY
         $$ = $2;
     }
     ;
-REPL_ONLY
-    declaration_statement
-    : declaration ';'
-    ;
 ALL_TARGETS
+
+declaration_statement
+: declaration ';'
+;
 
 
 expression_statement
@@ -316,6 +315,16 @@ iteration_statement
     tFLOOP_STMTS(for_loop) = $7;
     set_locus(for_loop, @1);
     $$ = for_loop;
+}
+| FOR '(' declaration_statement expression_statement assignment_expression ')' statement
+{
+tree for_loop = tree_make(T_LOOP_FOR);
+tFLOOP_INIT(for_loop) = $3;
+tFLOOP_COND(for_loop) = $4;
+tFLOOP_AFTER(for_loop) = $5;
+tFLOOP_STMTS(for_loop) = $7;
+set_locus(for_loop, @1);
+$$ = for_loop;
 }
 | WHILE '(' assignment_expression ')' statement
 {

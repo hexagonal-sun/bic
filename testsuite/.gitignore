@@ -52,5 +52,6 @@ negate
 iand
 factorial
 char-decl-and-assignment
+for-loop-init-decl
 
 *.trs
