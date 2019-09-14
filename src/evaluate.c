@@ -1375,6 +1375,28 @@ static tree eval_div(tree t, int depth)
     return ret;
 }
 
+static tree eval_mod(tree t, int depth)
+{
+    tree left = __evaluate_1(tMOD_LHS(t), depth + 1);
+    tree right = __evaluate_1(tMOD_RHS(t), depth + 1);
+
+    tree ret = tree_make(T_INTEGER);
+    mpz_init(tINT_VAL(ret));
+
+    if (is_T_LIVE_VAR(left))
+        left = make_int_from_live_var(left);
+
+    if (is_T_LIVE_VAR(right))
+        right = make_int_from_live_var(right);
+
+    if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
+        eval_die(t, "Could not modulus to non integer type\n");
+
+    mpz_mod(tINT_VAL(ret), tINT_VAL(left), tINT_VAL(right));
+
+    return ret;
+}
+
 static tree eval_comma(tree t, int depth)
 {
     __evaluate_1(tCOMMA_LHS(t), depth + 1);
@@ -2408,6 +2430,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_RSHIFT:     result = eval_rshift(t, depth + 1);     break;
     case T_MUL:        result = eval_mul(t, depth + 1);        break;
     case T_DIV:        result = eval_div(t, depth + 1);        break;
+    case T_MOD:        result = eval_mod(t, depth + 1);        break;
     case T_COMMA:      result = eval_comma(t, depth + 1);      break;
     case T_LT:         result = eval_lt(t, depth + 1);         break;
     case T_GT:         result = eval_gt(t, depth + 1);         break;

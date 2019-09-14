@@ -56,5 +56,6 @@ for-loop-init-decl
 sizeof-deref
 break
 comma
+modulo
 
 *.trs
