@@ -11,6 +11,10 @@
 #include "gc.h"
 #include "preprocess.h"
 
+#if defined(BUILD_LINUX)
+ #include <gnu/lib-names.h>
+#endif
+
 extern FILE* cfilein;
 extern int cfileparse();
 
@@ -76,6 +80,11 @@ static int open_library(char *libname)
 {
     char *tmp, *full_library_name;
     int ret;
+
+#if defined(BUILD_LINUX)
+    if (!strcmp(libname, "m"))
+        libname = LIBM_SO;
+#endif
 
     /* First, attempt to open just the library, if it has been fully
      * specified. */
