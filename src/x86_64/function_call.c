@@ -37,7 +37,8 @@ static void push_to_main_arg_head(struct arg *head)
 
 /* Here we simplify the interface for accessing arguments so that
  * it is reasonable to be done in assembly. */
-union function_return do_call(void *function_address, tree args, tree ret_type)
+union function_return do_call(void *function_address, tree args, tree ret_type,
+                              bool is_variadic)
 {
     tree fn_arg;
     union function_return ret;

@@ -31,4 +31,5 @@ union function_return
     double dval;
 };
 
-union function_return do_call(void *function_address, tree args, tree ret_type);
+union function_return do_call(void *function_address, tree args, tree ret_type,
+                              bool is_variadic);

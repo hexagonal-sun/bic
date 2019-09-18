@@ -465,17 +465,27 @@ static tree eval_fn_call(tree t, int depth)
     if (is_T_DECL_FN(function)) {
         tree fn_arg_chain = NULL, args = tFNCALL_ARGS(t);
         char *function_name = tID_STR(tFNDECL_NAME(function));
+        tree i;
         union function_return res;
         void *function_address = dlsym(RTLD_DEFAULT, function_name);
+        bool is_variadic = false;
 
         if (function_address == NULL)
             eval_die(t, "Could not resolve external symbol: %s\n", function_name);
+
+
+        for_each_tree(i, tFNDECL_ARGS(function))
+            if (is_T_VARIADIC(i)){
+                is_variadic = true;
+                break;
+            }
 
         /* Evaluate all arguments before passing into the marshalling
          * function. */
         fn_arg_chain = eval_fn_args(args, depth);
 
-        res = do_call(function_address, fn_arg_chain, tFNDECL_RET_TYPE(function));
+        res = do_call(function_address, fn_arg_chain, tFNDECL_RET_TYPE(function),
+                      is_variadic);
 
         return make_fncall_result(tFNDECL_RET_TYPE(function), res);
     }
@@ -483,7 +493,8 @@ static tree eval_fn_call(tree t, int depth)
     if (is_T_LIVE_VAR(function)) {
         tree fn_arg_chain, args = tFNCALL_ARGS(t),
             live_var_type = tLV_TYPE(function),
-            function_type;
+            function_type, i;
+        bool is_variadic = false;
         union function_return res;
 
         if (!is_D_T_PTR(live_var_type))
@@ -494,12 +505,18 @@ static tree eval_fn_call(tree t, int depth)
         if (!is_T_DECL_FN(function_type))
             eval_die(t, "could not call non-function pointer type\n");
 
+        for_each_tree(i, tFNDECL_ARGS(function))
+            if (is_T_VARIADIC(i)){
+                is_variadic = true;
+                break;
+            }
+
         /* Evaluate all arguments before passing into the marshalling
          * function. */
         fn_arg_chain = eval_fn_args(args, depth);
 
         res = do_call(tLV_VAL(function)->D_T_PTR, fn_arg_chain,
-                      tFNDECL_RET_TYPE(function_type));
+                      tFNDECL_RET_TYPE(function_type), is_variadic);
 
         return make_fncall_result(tFNDECL_RET_TYPE(function_type), res);
 
