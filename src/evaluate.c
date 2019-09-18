@@ -241,9 +241,9 @@ static tree make_int_from_live_var(tree var)
     tree type = tLV_TYPE(var);
 
     switch (TYPE(type)) {
-#define SETINT(type)                                                    \
-        case type:                                                      \
-            mpz_init_set_si(tINT_VAL(ret), (int64_t)tLV_VAL(var)->type);\
+#define SETINT(type)                                                       \
+        case type:                                                         \
+            mpz_init_set_si(tINT_VAL(ret), (ptrdiff_t)tLV_VAL(var)->type); \
             break;
         SETINT(D_T_CHAR);
         SETINT(D_T_SHORT);

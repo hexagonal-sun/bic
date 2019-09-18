@@ -63,3 +63,4 @@ libtool
 ltmain.sh
 test-driver
 *.deps
+*.a
