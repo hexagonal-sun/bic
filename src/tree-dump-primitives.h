@@ -36,17 +36,17 @@ static inline void tree_dump_sz(tree t, size_t s)
 
 static inline void tree_dump_live_var_val(tree t, union value *v)
 {
-    switch (TYPE(t)) {
+    tree lv_type = tLV_TYPE(t);
+
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT, FFMEM)         \
-        case TNAME:                                      \
-            fprintf(stderr, "%" #FMT, v->TNAME);         \
-            break;
+    if (is_##TNAME(lv_type)) {                           \
+        fprintf(stderr, "%" #FMT, v->TNAME);             \
+        return;                                          \
+    }
 #include "ctypes.def"
 #undef DEFCTYPE
-    default:
-        fprintf(stderr, "<Unprintable>");
-        break;
-    }
+
+    fprintf(stderr, "<Unprintable>");
 }
 
 static inline void tree_dump_ffloat(tree t, mpf_t val)
