@@ -505,7 +505,7 @@ static tree eval_fn_call(tree t, int depth)
         if (!is_T_DECL_FN(function_type))
             eval_die(t, "could not call non-function pointer type\n");
 
-        for_each_tree(i, tFNDECL_ARGS(function))
+        for_each_tree(i, tFNDECL_ARGS(function_type))
             if (is_T_VARIADIC(i)){
                 is_variadic = true;
                 break;
