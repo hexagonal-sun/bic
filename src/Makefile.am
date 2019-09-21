@@ -14,7 +14,8 @@ evaluate.h ctypes.def tree-access.h typename.h typename.c repllex.l	\
 repllex.h replparser.y repl.c repl.h pretty-printer.c			\
 pretty-printer.h lex.m4 parser-lex-funcs.m4 parser.m4 util.c util.h	\
 gc.c gc.h preprocess.c preprocess.h tree-base.h gc-internal.h		\
-gc-internal.c tree-dump.c tree-dump.h tree-dump-primitives.h
+gc-internal.c tree-dump.c tree-dump.h tree-dump-primtives.h \
+inspect.c inspect.h
 
 EXTRA_DIST = c.lang
 DISTCLEANFILES = tree.def ctypes.def tree-base.h tree-access.h	\

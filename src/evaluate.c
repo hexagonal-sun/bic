@@ -17,6 +17,7 @@
 #include "repl.h"
 #include "gc.h"
 #include "preprocess.h"
+#include "inspect.h"
 
 static tree cur_ctx = NULL;
 GC_STATIC_TREE(cur_ctx);
@@ -882,6 +883,15 @@ static tree eval_ext_func(tree t, int depth)
     tLV_VAL(live_var)->D_T_PTR = func_addr;
 
     return __evaluate_1(live_var, depth + 1);
+}
+
+static tree eval_inspect(tree t, int depth)
+{
+    tree object = resolve_identifier(tINSPECT_EXP(t), SCOPE_GLOBAL);
+
+    inspect(tINSPECT_EXP(t), object);
+
+    return NULL;
 }
 
 static tree handle_extern(tree extern_type, tree decls, int depth)
@@ -2484,6 +2494,7 @@ static tree __evaluate_1(tree t, int depth)
     case CPP_INCLUDE:  result = eval_cpp_include(t, depth + 1); break;
     case E_CTX:        result = eval_evaluator_ctx(t, depth + 1); break;
     case T_EXT_FUNC:   result = eval_ext_func(t, depth + 1);   break;
+    case T_INSPECT:    result = eval_inspect(t, depth + 1);     break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT, FFMEM)                      \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
