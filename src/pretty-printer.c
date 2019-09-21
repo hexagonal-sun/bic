@@ -84,7 +84,6 @@ static void __pp_1(tree t, int depth)
     default:
         break;
     }
-    printf("\n");
 }
 
 static void __pp(tree head, int depth)

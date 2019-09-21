@@ -436,8 +436,10 @@ void bic_repl()
 
             result = evaluate(parsed_line, "<stdin>");
 
-            if (result)
+            if (result) {
                 pretty_print(result);
+                printf("\n");
+            }
         }
 
         free(line);
