@@ -104,6 +104,8 @@ CFILE_ONLY
 %type <tree> function_definition
 %type <tree> jump_statement
 %type <tree> repl_statement
+REPL_ONLY
+%type <tree> inspection_statement
 ALL_TARGETS
 %type <tree> declaration_statement
 %type <tree> func_ptr_decl
@@ -253,6 +255,16 @@ argument_decl
 | func_ptr_decl
 ;
 
+REPL_ONLY
+    inspection_statement
+    : '?' IDENTIFIER
+    {
+        tree inspect = tree_make(T_INSPECT);
+        tINSPECT_EXP(inspect) = $2;
+        $$ = inspect;
+    }
+ALL_TARGETS
+
 statement
 : expression_statement
 | iteration_statement
@@ -263,6 +275,7 @@ CFILE_ONLY
     | repl_statement
 REPL_ONLY
     | declaration_statement
+    | inspection_statement
     | C_PRE_INC
     {
         tree ret = tree_make(CPP_INCLUDE);

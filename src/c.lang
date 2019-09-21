@@ -48,6 +48,9 @@
 (deftype T_POINTER "Pointer" "tPTR"
          ("EXP"))
 
+(deftype T_INSPECT "Inspect Identifier" "tINSPECT"
+         ("EXP"))
+
 (deftype T_MUL "Multiply" "tMUL"
          ("LHS" "RHS"))
 
