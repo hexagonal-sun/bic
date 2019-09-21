@@ -76,6 +76,24 @@ struct tree {
 #define TYPE(obj) (obj)->type
 #define _DATA(obj) (obj)->data
 
+static const inline char *tree_description_string(tree t)
+{
+    switch (TYPE(t)) {
+#define DEFTYPE(ETYPE, DESC)                    \
+        case ETYPE:                             \
+            return DESC;
+#include "tree.def"
+#undef DEFTYPE
+#define DEFCTYPE(ETYPE, DESC, STDINTSZ, FMT, FFMEM) \
+        case ETYPE:                                 \
+            return DESC;
+#include "ctypes.def"
+#undef DEFCTYPE
+    default:
+        return "unknown";
+    }
+}
+
 static inline tree tree_check(tree obj, enum tree_type type,
                               const char *file,
                               int line,
