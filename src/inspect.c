@@ -2,6 +2,16 @@
 #include "evaluate.h"
 #include "pretty-printer.h"
 
+static void print_object_value(tree inspect_id,
+                               tree resolved_object)
+{
+    printf("value of %s is ", tID_STR(inspect_id));
+
+    pretty_print(resolved_object);
+
+    printf("\n");
+}
+
 static void print_sizeof_object(tree inspect_id,
                                 tree resolved_object)
 {
@@ -52,5 +62,6 @@ static void print_object_type(tree inspect_id, tree resolved_object)
 void inspect(tree inspect_id, tree resolved_object)
 {
     print_object_type(inspect_id, resolved_object);
+    print_object_value(inspect_id, resolved_object);
     print_sizeof_object(inspect_id, resolved_object);
 }
