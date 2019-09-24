@@ -33,6 +33,18 @@ make
 make install
 #+end_example
 
+*** Docker
+    You can use docker to build and run bic with the following command:
+
+#+begin_example
+docker build -t bic https://github.com/hexagonal-sun/bic.git#master
+#+end_example
+
+    Once the image is build you can then run bic with:
+#+begin_example
+docker run -i bic
+#+end_example
+
 ** Usage
 *** REPL
     When invoking bic with no arguments the user is presented with a REPL prompt:
