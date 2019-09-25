@@ -19,8 +19,8 @@ extern tree TARGET()_parse_head;
 
 static void set_locus(tree t, YYLTYPE locus)
 {
-    t->locus.line_no = locus.first_line;
-    t->locus.column_no = locus.first_column;
+    tLOCUS(t).line_no = locus.first_line;
+    tLOCUS(t).column_no = locus.first_column;
 }
 
 static tree build_func_ptr(tree ret_type, tree ret_type_ptr,

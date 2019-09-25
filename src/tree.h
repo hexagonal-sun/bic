@@ -65,6 +65,8 @@ struct tree_locus {
     size_t column_no;
 };
 
+#define tLOCUS(obj) ((obj)->locus)
+
 struct tree {
     enum tree_type type;
     struct tree_data data;
