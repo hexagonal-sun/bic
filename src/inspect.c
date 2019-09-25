@@ -59,9 +59,17 @@ static void print_object_type(tree inspect_id, tree resolved_object)
     printf("%s.\n", object_name);
 }
 
+static void print_object_locus(tree inspect_id, tree resolved_object)
+{
+    printf("%s was declared at: %s:%d\n", tID_STR(inspect_id),
+           tID_STR(resolved_object->locus.file),
+           resolved_object->locus.line_no);
+}
+
 void inspect(tree inspect_id, tree resolved_object)
 {
     print_object_type(inspect_id, resolved_object);
     print_object_value(inspect_id, resolved_object);
     print_sizeof_object(inspect_id, resolved_object);
+    print_object_locus(inspect_id, resolved_object);
 }
