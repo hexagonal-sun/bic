@@ -17,6 +17,7 @@
 
 extern FILE* cfilein;
 extern int cfileparse();
+extern void cfile_parser_set_file(const char *fname);
 
 tree cfile_parse_head;
 GC_STATIC_TREE(cfile_parse_head);
@@ -43,6 +44,7 @@ static int parse_file(const char *fname)
     cfilein = f;
 
     inhibit_gc();
+    cfile_parser_set_file(fname);
     parse_result = cfileparse();
     enable_gc();
 

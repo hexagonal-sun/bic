@@ -25,6 +25,37 @@ static int linenum = 1;
 
 
 static char *sl_buf = NULL;
+extern void cfile_parser_set_file(const char *fname);
+
+static void handle_line_marker(char *s)
+{
+    /* Lex the '#' */
+    s = strtok(s, " ");
+
+    if (!s)
+        return;
+
+    /* Now the line number. */
+    s = strtok(NULL, " ");
+
+    if (!s)
+        return;
+
+    linenum = atoi(s) - 1;
+
+    /* Now the file name.
+     *
+     * Note that the filename is sourrounded by quotes. Remove that here.*/
+    s = strtok(NULL, " ");
+
+    if (!s)
+        return;
+
+    s += 1;
+    s[strlen(s) - 1] = 0;
+
+    cfile_parser_set_file(s);
+}
 
 static void sl_begin(void)
 {
@@ -146,6 +177,8 @@ X                               [0-9A-Fa-f]
 REPL_ONLY
 "`#'include"[ \t]*"<"({L}|{D}|\.|\/)+">" {LEXLVAL.string = strdup(LEXTEXT);
                                      return C_PRE_INC; }
+CFILE_ONLY
+"`#'"[ \t]*[0-9]+[ \t]*\"({L}|{D}|\-|\.|\/|<|>)+\"[ 1-4]*    {handle_line_marker(LEXTEXT);}
 ALL_TARGETS
 {L}({L}|{D})*                   {LEXLVAL.tree = get_identifier(LEXTEXT);
                                  if (is_typename(LEXLVAL.tree))
