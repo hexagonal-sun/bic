@@ -535,13 +535,18 @@ static tree eval_fn_def(tree t, int depth)
 
 static void make_and_map_live_var(tree id, tree type)
 {
+    tree live_var;
+
     assert(TYPE(id) == T_IDENTIFIER);
 
     if (is_E_INCOMP_TYPE(type))
         eval_die(id, "Can not create incomplete type %s\n",
                  tID_STR(id));
 
-    map_identifier(id, make_live_var(type));
+    live_var = make_live_var(type);
+    tLOCUS(live_var) = tLOCUS(id);
+
+    map_identifier(id, live_var);
 }
 
 static size_t get_array_size(tree array_decl, tree base_type, int depth)
@@ -847,6 +852,7 @@ static tree handle_extern_decl(tree extern_type, tree decl)
     live_var = tree_make(T_LIVE_VAR);
     tLV_TYPE(live_var) = extern_type;
     tLV_VAL(live_var) = sym_addr;
+    tLOCUS(live_var) = tLOCUS(id);
 
     map_identifier(id, live_var);
 
@@ -2361,7 +2367,7 @@ static tree eval_cpp_include(tree t, int depth)
     tCPP_INCLUDE_STR(cpp_include) = strdup(tCPP_INCLUDE_STR(t));
     tree_chain(cpp_include, include_chain);
 
-    out_file_stream = run_cpp(include_chain, "-E -P", NULL);
+    out_file_stream = run_cpp(include_chain, "-E", NULL);
 
     cfilein = out_file_stream;
 
