@@ -63,6 +63,7 @@ union value {
 struct tree_locus {
     size_t line_no;
     size_t column_no;
+    tree file;
 };
 
 #define tLOCUS(obj) ((obj)->locus)
