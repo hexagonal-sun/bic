@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <dlfcn.h>
 #include "config.h"
 #include "tree.h"
@@ -34,7 +35,18 @@ void cfileerror(const char *str)
 static int parse_file(const char *fname)
 {
     int parse_result;
-    FILE *f = fopen(fname, "r");
+    FILE *f;
+    char *command;
+
+    asprintf(&command, "cpp -E \"%s\"", fname);
+
+    if (!command) {
+        fprintf(stderr, "Error: could not allocate preprocessor command.\n");
+        return 1;
+    }
+
+    f = popen(command, "r");
+    free(command);
 
     if (!f) {
         perror("Error: Could not open file");
