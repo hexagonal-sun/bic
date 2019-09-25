@@ -1,7 +1,6 @@
-void free(void *ptr);
-void *malloc(int len);
-int printf(char *s, ...);
-int gethostname(char *name, unsigned int namelen);
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 int main()
 {

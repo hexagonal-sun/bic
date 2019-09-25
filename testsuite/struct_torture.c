@@ -1,6 +1,5 @@
-void free(void *ptr);
-void *malloc(int length);
-int printf(char *s, ...);
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct {
     int a, b;

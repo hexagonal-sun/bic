@@ -1,7 +1,7 @@
 typedef unsigned int footype;
 typedef int * intptr;
 
-int printf(char *fmt, ...);
+#include <stdio.h>
 
 int foobar(footype a)
 {

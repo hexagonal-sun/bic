@@ -1,4 +1,4 @@
-int main()
+#include <stdio.h>
 {
   int i = 0;
 

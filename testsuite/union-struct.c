@@ -1,4 +1,4 @@
-int printf(char *fmt, ...);
+#include <stdio.h>
 
 struct
   {

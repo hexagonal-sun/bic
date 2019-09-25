@@ -1,4 +1,4 @@
-int printf(const char *, ...);
+#include <stdio.h>
 
 typedef void* ( *foobar)(int a);
 

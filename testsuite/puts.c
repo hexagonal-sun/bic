@@ -1,4 +1,4 @@
-int puts(char *s);
+#include <stdio.h>
 
 int main()
 {

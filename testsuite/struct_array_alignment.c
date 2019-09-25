@@ -1,4 +1,4 @@
-void printf(const char *s, ...);
+#include <stdio.h>
 
 typedef struct a
 {

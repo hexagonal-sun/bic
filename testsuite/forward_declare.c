@@ -1,6 +1,5 @@
-int printf(char *s, ...);
-void *malloc(int len);
-void free(void *ptr);
+#include <stdio.h>
+#include <stdlib.h>
 
 struct foobar;
 

@@ -1,4 +1,5 @@
-int printf(const char *s, ...);
+#include <stdio.h>
+
 int main() {
     while (1) {
         break;

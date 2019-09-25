@@ -1,6 +1,5 @@
-void free(void *ptr);
-void *malloc(int len);
-int printf(char *s, ...);
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef int footype;
 

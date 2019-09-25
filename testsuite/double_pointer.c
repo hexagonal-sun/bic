@@ -1,4 +1,4 @@
-int printf(char *s, ...);
+#include <stdio.h>
 
 int foobar;
 
