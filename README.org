@@ -1,4 +1,7 @@
 * ~bic~: A C interpreter and API explorer
+
+  [[https://travis-ci.org/hexagonal-sun/bic][https://travis-ci.org/hexagonal-sun/bic.svg?branch=master]]
+
   This a project that allows developers to explore and test C-APIs using a read
   eval print loop, also known as a REPL.
 
