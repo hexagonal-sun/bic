@@ -6,7 +6,7 @@ RUN apt-get -y update && apt-get install build-essential libreadline-dev autocon
 # build
 COPY . /usr/src/bic
 WORKDIR /usr/src/bic
-RUN autoreconf -i && ./configure && make && make install
+RUN autoreconf -i && ./configure && make && make check && make install
 
 # run
 CMD ["bic"]
