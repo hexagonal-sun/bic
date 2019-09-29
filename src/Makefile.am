@@ -34,39 +34,39 @@ gengc_SOURCES = $(lang_src) gengc.cpp
 gendump_SOURCES = $(lang_src) gendump.cpp
 
 tree.def: gentypes c.lang
-	./$^
+	$(AM_V_GEN)./$^
 
 ctypes.def: genctypes c.lang
-	./$^
+	$(AM_V_GEN)./$^
 
 tree-base.h: gentree c.lang
-	./$^
+	$(AM_V_GEN)./$^
 
 tree-access.h: genaccess c.lang
-	./$^
+	$(AM_V_GEN)./$^
 
 gc-internal.c: gengc c.lang
-	./$^
+	$(AM_V_GEN)./$^
 
 tree-dump.c: gendump c.lang
-	./$^
+	$(AM_V_GEN)./$^
 
 %.h: %.l
-	$(LEX) --header-file=$@ -o /dev/null $<
+	$(AM_V_GEN)$(LEX) --header-file=$@ -o /dev/null $<
 
 %.h: %.lpp
-	$(LEX) --header-file=$@ -o /dev/null $<
+	$(AM_V_GEN)$(LEX) --header-file=$@ -o /dev/null $<
 
 repllex.l: lex.m4
-	m4 -DTARGET=repl $< > $@
+	$(AM_V_GEN)m4 -DTARGET=repl $< > $@
 
 cfilelex.l: lex.m4
-	m4 -DTARGET=cfile $< > $@
+	$(AM_V_GEN)m4 -DTARGET=cfile $< > $@
 
 replparser.y: parser.m4
-	m4 -DTARGET=repl $< > $@
+	$(AM_V_GEN)m4 -DTARGET=repl $< > $@
 
 cfileparser.y: parser.m4
-	m4 -DTARGET=cfile $< > $@
+	$(AM_V_GEN)m4 -DTARGET=cfile $< > $@
 
 DIST_SUBDIRS = x86_64 aarch64
