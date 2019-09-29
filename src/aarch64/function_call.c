@@ -38,15 +38,16 @@ static void push_to_main_arg_head(struct arg *head)
 
 /* Here we simplify the interface for accessing arguments so that
  * it is reasonable to be done in assembly. */
-ptrdiff_t do_call(void *function_address, tree args)
+union function_return do_call(void *function_address, tree args, tree ret_type,
+                         bool is_variadic)
 {
     tree fn_arg;
-    ptrdiff_t ret;
+    union function_return ret;
 
     if (args)
         for_each_tree(fn_arg, args) {
             tree arg = tFNARG_EXP(fn_arg);
-            struct arg *new_arg = GC_MALLOC(sizeof(*new_arg));
+            struct arg *new_arg = malloc(sizeof(*new_arg));
 
             switch(arg->type) {
             case T_STRING:
@@ -114,7 +115,7 @@ ptrdiff_t do_call(void *function_address, tree args)
     push_to_main_arg_head(vec_args);
     push_to_main_arg_head(int_args);
 
-    ret = __do_call(function_address, arg_head);
+    ret.ival = __do_call(function_address, arg_head);
 
     int_args = NULL;
     vec_args = NULL;

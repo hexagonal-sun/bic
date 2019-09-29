@@ -16,4 +16,11 @@ struct arg {
     enum argument_class dest;
 } __attribute__((packed)) ;
 
-ptrdiff_t do_call(void *function_address, tree args);
+union function_return
+{
+    ptrdiff_t ival;
+    double dval;
+};
+
+union function_return do_call(void *function_address, tree args, tree ret_type,
+                              bool is_variadic);
