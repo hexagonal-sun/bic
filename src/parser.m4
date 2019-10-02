@@ -144,6 +144,7 @@ ALL_TARGETS
 %type <tree> and_expression
 %type <tree> inclusive_or_expression
 %type <tree> relational_expression
+%type <tree> equality_expression
 %type <tree> logical_or_expression
 %type <tree> logical_and_expression
 %type <tree> assignment_expression
@@ -696,7 +697,11 @@ relational_expression
     set_locus(gtoreq, @2);
     $$ = gtoreq;
 }
-| relational_expression EQUATE shift_expression
+;
+
+equality_expression
+: relational_expression
+| equality_expression EQUATE relational_expression
 {
     tree equal = tree_make(T_EQ);
     tEQ_LHS(equal) = $1;
@@ -704,7 +709,7 @@ relational_expression
     set_locus(equal, @2);
     $$ = equal;
 }
-| relational_expression NOT_EQUATE shift_expression
+| equality_expression NOT_EQUATE relational_expression
 {
     tree not_equal = tree_make(T_N_EQ);
     tN_EQ_LHS(not_equal) = $1;
@@ -715,8 +720,8 @@ relational_expression
 ;
 
 and_expression
-: relational_expression
-| and_expression '&' relational_expression
+: equality_expression
+| and_expression '&' equality_expression
 {
     tree inclusive_and = tree_make(T_I_AND);
     tI_AND_LHS(inclusive_and) = $1;
