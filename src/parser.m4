@@ -146,7 +146,6 @@ ALL_TARGETS
 %type <tree> logical_expression
 %type <tree> assignment_expression
 %type <tree> expression
-%type <tree> binary_modify_expression
 %type <tree> infix_expression
 %type <tree> decl
 %type <tree> decl_possible_pointer
@@ -342,7 +341,6 @@ expression
 
 expression_statement
 : expression ';'
-| binary_modify_expression ';'
 ;
 
 iteration_statement
@@ -775,26 +773,23 @@ assignment_expression
     set_locus(assign, @2);
     $$ = assign;
 }
-;
-
-binary_modify_expression
-: primary_expression '+' '=' primary_expression
+| unary_expression '+' '=' infix_expression
 {
     $$ = tree_make_binmod(T_ADD, tADD, $1, $4);
 }
-| primary_expression '-' '=' infix_expression
+| unary_expression '-' '=' infix_expression
 {
     $$ = tree_make_binmod(T_SUB, tSUB, $1, $4);
 }
-| primary_expression '/' '=' infix_expression
+| unary_expression '/' '=' infix_expression
 {
     $$ = tree_make_binmod(T_DIV, tDIV, $1, $4);
 }
-| primary_expression SHIFT_LEFT '=' infix_expression
+| unary_expression SHIFT_LEFT '=' infix_expression
 {
     $$ = tree_make_binmod(T_LSHIFT, tLSHIFT, $1, $4);
 }
-| primary_expression SHIFT_RIGHT '=' infix_expression
+| unary_expression SHIFT_RIGHT '=' infix_expression
 {
     $$ = tree_make_binmod(T_RSHIFT, tRSHIFT, $1, $4);
 }
