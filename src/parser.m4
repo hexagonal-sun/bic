@@ -586,7 +586,7 @@ unary_expression
 
 cast_expression
 : unary_expression
-| '(' direct_type_specifier ')' unary_expression
+| '(' direct_type_specifier ')' cast_expression
 {
     tree cast = tree_make(T_CAST);
     tCAST_NEWTYPE(cast) = $2;
