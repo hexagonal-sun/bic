@@ -143,7 +143,8 @@ ALL_TARGETS
 %type <tree> shift_expression
 %type <tree> inclusive_expression
 %type <tree> relational_expression
-%type <tree> logical_expression
+%type <tree> logical_or_expression
+%type <tree> logical_and_expression
 %type <tree> assignment_expression
 %type <tree> expression
 %type <tree> conditional_expression
@@ -732,29 +733,32 @@ inclusive_expression
 }
 ;
 
-logical_expression
+logical_and_expression
 : inclusive_expression
-| logical_expression BOOL_OP_OR inclusive_expression
-{
-    tree logicor = tree_make(T_L_OR);
-    tL_OR_LHS(logicor) = $1;
-    tL_OR_RHS(logicor) = $3;
-    set_locus(logicor, @2);
-    $$ = logicor;
-}
-| logical_expression BOOL_OP_AND inclusive_expression
+| logical_and_expression BOOL_OP_AND inclusive_expression
 {
     tree logicand = tree_make(T_L_AND);
-    tL_AND_LHS(logicand) = $1;
-    tL_AND_RHS(logicand) = $3;
+    tL_OR_LHS(logicand) = $1;
+    tL_OR_RHS(logicand) = $3;
     set_locus(logicand, @2);
     $$ = logicand;
+}
+
+logical_or_expression
+: logical_and_expression
+| logical_or_expression BOOL_OP_OR logical_and_expression
+{
+    tree logicor = tree_make(T_L_OR);
+    tL_AND_LHS(logicor) = $1;
+    tL_AND_RHS(logicor) = $3;
+    set_locus(logicor, @2);
+    $$ = logicor;
 }
 ;
 
 conditional_expression
-: logical_expression
-| logical_expression '?' primary_expression ':' primary_expression
+: logical_or_expression
+| logical_or_expression '?' primary_expression ':' conditional_expression
 {
     tree infix = tree_make(T_INFIX);
     tINFIX_COND(infix) = $1;
@@ -1287,7 +1291,7 @@ enumerator
     set_locus(id, @1);
     $$ = id;
 }
-| IDENTIFIER '=' logical_expression
+| IDENTIFIER '=' logical_or_expression
 {
     tree id = $1;
     set_locus(id, @1);
