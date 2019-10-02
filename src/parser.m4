@@ -146,7 +146,7 @@ ALL_TARGETS
 %type <tree> logical_expression
 %type <tree> assignment_expression
 %type <tree> expression
-%type <tree> infix_expression
+%type <tree> conditional_expression
 %type <tree> decl
 %type <tree> decl_possible_pointer
 %type <tree> pointer
@@ -752,7 +752,7 @@ logical_expression
 }
 ;
 
-infix_expression
+conditional_expression
 : logical_expression
 | logical_expression '?' primary_expression ':' primary_expression
 {
@@ -764,8 +764,8 @@ infix_expression
 }
 
 assignment_expression
-: infix_expression
-| unary_expression '=' infix_expression
+: conditional_expression
+| unary_expression '=' conditional_expression
 {
     tree assign = tree_make(T_ASSIGN);
     tASSIGN_LHS(assign) = $1;
@@ -773,23 +773,23 @@ assignment_expression
     set_locus(assign, @2);
     $$ = assign;
 }
-| unary_expression '+' '=' infix_expression
+| unary_expression '+' '=' conditional_expression
 {
     $$ = tree_make_binmod(T_ADD, tADD, $1, $4);
 }
-| unary_expression '-' '=' infix_expression
+| unary_expression '-' '=' conditional_expression
 {
     $$ = tree_make_binmod(T_SUB, tSUB, $1, $4);
 }
-| unary_expression '/' '=' infix_expression
+| unary_expression '/' '=' conditional_expression
 {
     $$ = tree_make_binmod(T_DIV, tDIV, $1, $4);
 }
-| unary_expression SHIFT_LEFT '=' infix_expression
+| unary_expression SHIFT_LEFT '=' conditional_expression
 {
     $$ = tree_make_binmod(T_LSHIFT, tLSHIFT, $1, $4);
 }
-| unary_expression SHIFT_RIGHT '=' infix_expression
+| unary_expression SHIFT_RIGHT '=' conditional_expression
 {
     $$ = tree_make_binmod(T_RSHIFT, tRSHIFT, $1, $4);
 }
