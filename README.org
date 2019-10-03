@@ -48,6 +48,13 @@ docker build -t bic https://github.com/hexagonal-sun/bic.git#master
 docker run -i bic
 #+end_example
 
+*** Arch Linux
+    If you are using Arch Linux, you can install bic from AUR:
+
+#+begin_example
+yay -S bic
+#+end_example
+
 ** Usage
 *** REPL
     When invoking bic with no arguments the user is presented with a REPL prompt:
