@@ -98,7 +98,8 @@ static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
 %token SWITCH TYPEDEF UNION UNSIGNED VOID WHILE
 %token EQUATE NOT_EQUATE LESS_OR_EQUAL GREATER_OR_EQUAL
 %token SHIFT_LEFT SHIFT_RIGHT BOOL_OP_AND BOOL_OP_OR INC
-%token DEC ELLIPSIS PTR_ACCESS BOOL REPL
+%token DEC ELLIPSIS PTR_ACCESS BOOL REPL ADD_ASSIGN SUB_ASSIGN
+%token DIV_ASSIGN LSHIFT_ASSIGN RSHIFT_ASSIGN
 
 %nonassoc ELSE
 
@@ -786,25 +787,25 @@ assignment_expression
     set_locus(assign, @2);
     $$ = assign;
 }
-| unary_expression '+' '=' assignment_expression
+| unary_expression ADD_ASSIGN assignment_expression
 {
-    $$ = tree_make_binmod(T_ADD, tADD, $1, $4);
+    $$ = tree_make_binmod(T_ADD, tADD, $1, $3);
 }
-| unary_expression '-' '=' assignment_expression
+| unary_expression SUB_ASSIGN assignment_expression
 {
-    $$ = tree_make_binmod(T_SUB, tSUB, $1, $4);
+    $$ = tree_make_binmod(T_SUB, tSUB, $1, $3);
 }
-| unary_expression '/' '=' assignment_expression
+| unary_expression  DIV_ASSIGN assignment_expression
 {
-    $$ = tree_make_binmod(T_DIV, tDIV, $1, $4);
+    $$ = tree_make_binmod(T_DIV, tDIV, $1, $3);
 }
-| unary_expression SHIFT_LEFT '=' assignment_expression
+| unary_expression LSHIFT_ASSIGN assignment_expression
 {
-    $$ = tree_make_binmod(T_LSHIFT, tLSHIFT, $1, $4);
+    $$ = tree_make_binmod(T_LSHIFT, tLSHIFT, $1, $3);
 }
-| unary_expression SHIFT_RIGHT '=' assignment_expression
+| unary_expression RSHIFT_ASSIGN assignment_expression
 {
-    $$ = tree_make_binmod(T_RSHIFT, tRSHIFT, $1, $4);
+    $$ = tree_make_binmod(T_RSHIFT, tRSHIFT, $1, $3);
 }
 ;
 
