@@ -480,7 +480,7 @@ postfix_expression
     set_locus(fncall, @1);
     $$ = fncall;
 }
-| postfix_expression '[' assignment_expression ']'
+| postfix_expression '[' expression ']'
 {
     tree arr_access = tree_make(T_ARRAY_ACCESS);
     tARR_ACCESS_OBJ(arr_access) = $1;
@@ -767,7 +767,7 @@ logical_or_expression
 
 conditional_expression
 : logical_or_expression
-| logical_or_expression '?' primary_expression ':' conditional_expression
+| logical_or_expression '?' expression ':' conditional_expression
 {
     tree infix = tree_make(T_INFIX);
     tINFIX_COND(infix) = $1;
@@ -778,7 +778,7 @@ conditional_expression
 
 assignment_expression
 : conditional_expression
-| unary_expression '=' conditional_expression
+| unary_expression '=' assignment_expression
 {
     tree assign = tree_make(T_ASSIGN);
     tASSIGN_LHS(assign) = $1;
@@ -786,23 +786,23 @@ assignment_expression
     set_locus(assign, @2);
     $$ = assign;
 }
-| unary_expression '+' '=' conditional_expression
+| unary_expression '+' '=' assignment_expression
 {
     $$ = tree_make_binmod(T_ADD, tADD, $1, $4);
 }
-| unary_expression '-' '=' conditional_expression
+| unary_expression '-' '=' assignment_expression
 {
     $$ = tree_make_binmod(T_SUB, tSUB, $1, $4);
 }
-| unary_expression '/' '=' conditional_expression
+| unary_expression '/' '=' assignment_expression
 {
     $$ = tree_make_binmod(T_DIV, tDIV, $1, $4);
 }
-| unary_expression SHIFT_LEFT '=' conditional_expression
+| unary_expression SHIFT_LEFT '=' assignment_expression
 {
     $$ = tree_make_binmod(T_LSHIFT, tLSHIFT, $1, $4);
 }
-| unary_expression SHIFT_RIGHT '=' conditional_expression
+| unary_expression SHIFT_RIGHT '=' assignment_expression
 {
     $$ = tree_make_binmod(T_RSHIFT, tRSHIFT, $1, $4);
 }
