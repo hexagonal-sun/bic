@@ -87,7 +87,7 @@ static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
     tree tree;
 }
 
-%error-verbose
+%define parse.error verbose
 %locations
 
 %define api.prefix {TARGET}
