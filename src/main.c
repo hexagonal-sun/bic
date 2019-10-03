@@ -77,17 +77,40 @@ static void add_call_to_main(tree head)
 
 static void usage(char *progname)
 {
-    fprintf(stderr, "Usage: %s [-l library]... [--] [CFILE]\n", progname);
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Arguments:\n");
-    fprintf(stderr, "  -l: Open the specified library for external symbol\n");
-    fprintf(stderr, "      resolution in the evaluator.\n");
-    fprintf(stderr, "\n");
-    fprintf(stderr, "  CFILE: Parse, evaluate and call a function called\n");
-    fprintf(stderr, "         `main' within the file.");
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Note: if no CFILE is passed on the command line the\n");
-    fprintf(stderr, "REPL (Read, Eval, Print Loop) is started\n");
+    fprintf(stderr,
+            "Usage: %s [-v] [-I INCLUDE_DIR]... [-l library]... [--] [CFILE]\n"
+            "\n"
+            "Arguments:\n"
+            "  -l: Open the specified library for external symbol\n"
+            "      resolution in the evaluator.\n"
+            "\n"
+            "  -I: add INCLUDE_DIR to the header search path.  This allows the user to use\n"
+            "      #include directives to include a file that isn't in the default header\n"
+            "      search path.\n"
+            "\n"
+            "  -v: Print version information and exit.\n"
+            "\n"
+            "  CFILE: Parse, evaluate and call a function called\n"
+            "         `main' within the file."
+            "\n"
+            "Note: if no CFILE is passed on the command line the\n"
+            "REPL (Read, Eval, Print Loop) is started\n", progname);
+}
+
+static void print_version(char *progname)
+{
+    fprintf(stderr,
+            "This is " PACKAGE_STRING ".\n"
+            "\n"
+            "Enabled Features:\n"
+            "\n"
+            "   tree-check: "
+#ifdef ENABLE_TREE_CHECK
+            "yes\n"
+#else
+            "no\n"
+#endif
+        );
 }
 
 static int open_library(char *libname)
@@ -125,7 +148,7 @@ static int parse_args(int argc, char *argv[])
 {
     int opt;
 
-    while ((opt = getopt(argc, argv, "l:I:")) != -1) {
+    while ((opt = getopt(argc, argv, "vl:I:")) != -1) {
         switch (opt) {
         case 'l':
             if (!open_library(optarg)) {
@@ -139,6 +162,9 @@ static int parse_args(int argc, char *argv[])
         case 'I':
             preprocessor_add_include_dir(optarg);
             break;
+        case 'v':
+            print_version(argv[0]);
+            exit(EXIT_SUCCESS);
         default: /* '?' */
             usage(argv[0]);
             exit(EXIT_FAILURE);
