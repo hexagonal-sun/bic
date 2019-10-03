@@ -218,10 +218,6 @@ argument_specifier
 {
     $$ = NULL;
 }
-| '(' VOID ')'
-{
-    $$ = NULL;
-}
 | '(' argument_list ')'
 {
     $$ = $2;
