@@ -69,4 +69,4 @@ replparser.y: parser.m4
 cfileparser.y: parser.m4
 	$(AM_V_GEN)m4 -DTARGET=cfile $< > $@
 
-DIST_SUBDIRS = x86_64 aarch64
+DIST_SUBDIRS = x86_64 aarch64 armv7l
