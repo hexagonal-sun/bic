@@ -1,7 +1,7 @@
 BUILT_SOURCES = cfileparser.h cfilelex.h replparser.h repllex.h lang_lexer.h \
 	tree.def ctypes.def tree-base.h tree-access.h
 SUBDIRS = $(BUILD_CPU)
-AM_YFLAGS = -d
+AM_YFLAGS = --warnings="no-yacc" -d
 noinst_PROGRAMS = gentypes genctypes gentree genaccess gengc gendump
 bin_PROGRAMS = bic
 
