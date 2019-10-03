@@ -748,8 +748,8 @@ logical_and_expression
 | logical_and_expression BOOL_OP_AND inclusive_or_expression
 {
     tree logicand = tree_make(T_L_AND);
-    tL_OR_LHS(logicand) = $1;
-    tL_OR_RHS(logicand) = $3;
+    tL_AND_LHS(logicand) = $1;
+    tL_AND_RHS(logicand) = $3;
     set_locus(logicand, @2);
     $$ = logicand;
 }
@@ -759,8 +759,8 @@ logical_or_expression
 | logical_or_expression BOOL_OP_OR logical_and_expression
 {
     tree logicor = tree_make(T_L_OR);
-    tL_AND_LHS(logicor) = $1;
-    tL_AND_RHS(logicor) = $3;
+    tL_OR_LHS(logicor) = $1;
+    tL_OR_RHS(logicor) = $3;
     set_locus(logicor, @2);
     $$ = logicor;
 }
