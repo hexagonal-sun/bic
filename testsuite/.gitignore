@@ -57,5 +57,6 @@ sizeof-deref
 break
 comma
 modulo
+multi_assign
 
 *.trs

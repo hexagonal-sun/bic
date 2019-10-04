@@ -1128,7 +1128,9 @@ static tree eval_assign(tree t, int depth)
         eval_die(t, "Unknown assignment rvalue type.");
     }
 
-    return NULL;
+    /* Return the value that was assigned, thereby making an assignment work as
+     * a rvalue. */
+    return right;
 }
 
 static void live_var_add(tree var, unsigned long int val)
