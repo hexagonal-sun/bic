@@ -124,8 +124,6 @@ union function_return do_call(void *function_address, tree args, tree ret_type,
     tree fn_arg;
     union function_return ret;
 
-    tree_dump(args);
-
     int ncrn = 0;               /* Next core register number */
     int nvrn = 0;               /* Next vector register number */
     int nssn = 0;               /* Next stack slot number */
