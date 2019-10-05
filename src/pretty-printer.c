@@ -55,6 +55,7 @@ static void pp_live_compound(tree t, int depth)
 
         printf(" = ");
         __pp_1(right, depth + 1);
+        printf("\n");
     }
 
     printf("}");
