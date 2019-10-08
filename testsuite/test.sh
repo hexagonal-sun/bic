@@ -11,7 +11,7 @@ if [ ! -f "${SRCFILE}" ]; then
     exit 99;
 fi
 
-if [ -! -x "$BIC" ]; then
+if [ ! -x "$BIC" ]; then
     echo "Error: could not find the BIC interpreter"
     exit 99;
 fi
