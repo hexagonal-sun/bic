@@ -96,6 +96,9 @@
 (deftype T_I_OR "Inclusive OR" "tI_OR"
          ("LHS" "RHS"))
 
+(deftype T_X_OR "Exclusive OR" "tX_OR"
+         ("LHS" "RHS"))
+
 (deftype T_I_AND "Inclusive AND" "tI_AND"
          ("LHS" "RHS"))
 

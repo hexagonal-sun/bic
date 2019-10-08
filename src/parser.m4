@@ -143,6 +143,7 @@ ALL_TARGETS
 %type <tree> additive_expression
 %type <tree> shift_expression
 %type <tree> and_expression
+%type <tree> exclusive_or_expression
 %type <tree> inclusive_or_expression
 %type <tree> relational_expression
 %type <tree> equality_expression
@@ -728,9 +729,21 @@ and_expression
 }
 ;
 
-inclusive_or_expression
+exclusive_or_expression
 : and_expression
-| inclusive_or_expression '|' and_expression
+| exclusive_or_expression '^' and_expression
+{
+    tree exclusive_or = tree_make(T_X_OR);
+    tX_OR_LHS(exclusive_or) = $1;
+    tX_OR_RHS(exclusive_or) = $3;
+    set_locus(exclusive_or, @2);
+    $$ = exclusive_or;
+}
+;
+
+inclusive_or_expression
+: exclusive_or_expression
+| inclusive_or_expression '|' exclusive_or_expression
 {
     tree inclusive_or = tree_make(T_I_OR);
     tI_OR_LHS(inclusive_or) = $1;

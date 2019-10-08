@@ -13,7 +13,8 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  if_stmts eqneq union-struct casts shift loops negate	\
                  ior function_ptr_typedef array_ptr			\
                  struct_array_alignment iand factorial char-decl-and-assignment \
-                 for-loop-init-decl sizeof-deref break comma modulo multi_assign
+                 for-loop-init-decl sizeof-deref break comma modulo multi_assign \
+                 xor
 
 expect_scripts = fileio.exp strtok.exp decl.exp chars.exp infix.exp \
                  repl-interrupt.exp
