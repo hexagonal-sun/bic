@@ -99,7 +99,7 @@ static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
 %token EQUATE NOT_EQUATE LESS_OR_EQUAL GREATER_OR_EQUAL
 %token SHIFT_LEFT SHIFT_RIGHT BOOL_OP_AND BOOL_OP_OR INC
 %token DEC ELLIPSIS PTR_ACCESS BOOL REPL ADD_ASSIGN SUB_ASSIGN
-%token DIV_ASSIGN LSHIFT_ASSIGN RSHIFT_ASSIGN
+%token DIV_ASSIGN LSHIFT_ASSIGN RSHIFT_ASSIGN XOR_ASSIGN
 
 %right ')' ELSE
 
@@ -815,6 +815,10 @@ assignment_expression
 | unary_expression RSHIFT_ASSIGN assignment_expression
 {
     $$ = tree_make_binmod(T_RSHIFT, tRSHIFT, $1, $3);
+}
+| unary_expression XOR_ASSIGN assignment_expression
+{
+$$ = tree_make_binmod(T_X_OR, tX_OR, $1, $3);
 }
 ;
 

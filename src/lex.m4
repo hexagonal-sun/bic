@@ -223,6 +223,7 @@ L?'(\\.|[^\\'\n])+'	        mpz_init_set_si(LEXLVAL.integer, lex_char(LEXTEXT));
 "/="                            return DIV_ASSIGN;
 "<<="                           return LSHIFT_ASSIGN;
 ">>="                           return RSHIFT_ASSIGN;
+"^="                            return XOR_ASSIGN;
 "<"                             return '<';
 ">"                             return '>';
 "!"                             return '!';
