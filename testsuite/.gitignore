@@ -59,5 +59,6 @@ comma
 modulo
 multi_assign
 xor
+encrypt-decrypt
 
 *.trs
