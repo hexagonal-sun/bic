@@ -104,6 +104,23 @@ BIC>
 BIC> 2 * 8 + fileno(f);
 19
     #+end_example
+
+**** The Inspector
+
+     You can use bic to obtain information about any variable or type that has
+     been declared by prefixing it's name with a ~?~. This special syntax only
+     works on a REPL but will allow you to obtain various characteristics about
+     types and variables. For example:
+
+     #+begin_example
+BIC> #include <stdio.h>
+BIC> ?stdout
+stdout is a pointer to a struct _IO_FILE.
+value of stdout is 0x7ff1325bc5c0.
+sizeof(stdout) = 8 bytes.
+stdout was declared at: /usr/include/stdio.h:138.
+     #+end_example
+
 *** Evaluating Files
     If you pass bic a source file as a command line argument it will evaluate
     it, by calling a =main()= function. For example, suppose we have the file
