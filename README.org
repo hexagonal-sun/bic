@@ -110,7 +110,7 @@ BIC> 2 * 8 + fileno(f);
     ~test.c~ that contains the following:
 
     #+begin_src c
-int printf(const char *s, ...);
+#include <stdio.h>
 
 int factorial(int n)
 {
