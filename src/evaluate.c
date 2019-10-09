@@ -1449,7 +1449,7 @@ static tree eval_mod(tree t, int depth)
     if (!(is_T_INTEGER(left) && is_T_INTEGER(right)))
         eval_die(t, "Could not modulus to non integer type\n");
 
-    mpz_mod(tINT_VAL(ret), tINT_VAL(left), tINT_VAL(right));
+    mpz_tdiv_r(tINT_VAL(ret), tINT_VAL(left), tINT_VAL(right));
 
     return ret;
 }
