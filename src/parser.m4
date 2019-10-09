@@ -17,9 +17,9 @@ void TARGET()error(const char *str);
 
 extern tree TARGET()_parse_head;
 CFILE_ONLY
-    static const char *current_file;
+    const char *parser_current_file;
 REPL_ONLY
-    static const char *current_file = "<REPL>";
+    const char *parser_current_file = "<REPL>";
 ALL_TARGETS
 
 static void set_locus(tree t, YYLTYPE locus)
@@ -27,14 +27,14 @@ static void set_locus(tree t, YYLTYPE locus)
     tLOCUS(t).line_no = locus.first_line;
     tLOCUS(t).column_no = locus.first_column;
 
-    if(current_file)
-        tLOCUS(t).file = get_identifier(current_file);
+    if(parser_current_file)
+        tLOCUS(t).file = get_identifier(parser_current_file);
 }
 
 CFILE_ONLY
     void cfile_parser_set_file(const char *fname)
     {
-        current_file = fname;
+        parser_current_file = fname;
     }
 ALL_TARGETS
 

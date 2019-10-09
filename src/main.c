@@ -19,6 +19,7 @@
 extern FILE* cfilein;
 extern int cfileparse();
 extern void cfile_parser_set_file(const char *fname);
+extern const char *parser_current_file;
 
 tree cfile_parse_head;
 GC_STATIC_TREE(cfile_parse_head);
@@ -28,7 +29,9 @@ GC_STATIC_TREE(cfile_parse_head);
  */
 void cfileerror(const char *str)
 {
-    fprintf(stderr, "Parser Error: %s:%d %s.\n", "<stdin>", cfilelloc.first_line, str);
+    fprintf(stderr, "Parser Error: %s:%d %s.\n", parser_current_file,
+            cfilelloc.first_line, str);
+
     exit(1);
 }
 
