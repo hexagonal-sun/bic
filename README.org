@@ -161,9 +161,9 @@ int main()
     specification of:
 
     - Object name, for example =T_ADD=.
-    - A human readable name, such as ~"Addition"~.
+    - A human readable name, such as ~Addition~.
     - A property name prefix, such as ~tADD~.
-    - A list of properties for this type, such as ~"LHS"~ and ~"RHS"~.
+    - A list of properties for this type, such as ~LHS~ and ~RHS~.
 
     The code to create an object with the above set of attributes would be:
 
