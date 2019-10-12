@@ -601,6 +601,9 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
 
     resolve_ptr_type(&decl_element, &decl_type);
 
+    if (is_T_BITFIELD(decl_element))
+        decl_element = tBITFIELD_DECLARATOR(decl_element);
+
     if (is_T_ARRAY(decl_element)) {
         size_t array_sz = get_array_size(decl_element, decl_type, depth);
         live_element = instantiate_array(decl_element, decl_type,
