@@ -707,6 +707,11 @@ static tree handle_declarator(tree decl, tree type, int depth)
         tFNDECL_RET_TYPE(decl) = decl_type;
         map_identifier(tFNDECL_NAME(decl), decl);
         return decl;
+    case T_BITFIELD:
+        if (tBITFIELD_DECLARATOR(decl))
+            return handle_declarator(tBITFIELD_DECLARATOR(decl), type, depth);
+
+        return NULL;
     case T_ASSIGN:
     {
         tree ret = handle_declarator(tASSIGN_LHS(decl), type, depth);
@@ -1966,10 +1971,6 @@ static tree expand_decl_chain(tree decl_chain)
 
                 tree_chain(new_decl, new_chain);
             }
-
-        if (is_T_BITFIELD_EXPR(decl)) {
-            tree_chain(decl, new_chain);
-        }
     }
 
     return new_chain;
@@ -2056,12 +2057,6 @@ static tree eval_decl_compound(tree t, int depth)
         tree id, live_var, decl = i;
         size_t member_size, member_alignment, padding_size;
 
-        /* Since the layout of bit-fields is implementation defined,
-         * we can just treat bitfield declarations as separate live
-         * variables. */
-        if (is_T_BITFIELD_EXPR(decl))
-            decl = tBITFIELD_EXPR_DECL(decl);
-
         /* To calculate the size of each element of the compound, we
          * temporarily push the evaluation ctx, evaluate each decl
          * within the new evaluation ctx, resolve the identifier back
@@ -2075,6 +2070,13 @@ static tree eval_decl_compound(tree t, int depth)
         push_ctx("Compound Declaration");
 
         id = __evaluate_1(decl, depth + 1);
+
+        /* If `id` is null, we have encountered an unnamed bitfield. Since, for
+         * now, we just make each bitfield a member in it's own right, ignore
+         * it. */
+        if (!id)
+            continue;
+
         live_var = resolve_identifier(id, SCOPE_CURRENT_CTX);
 
         /* Calculate the offset of the member within the struct.

@@ -126,8 +126,8 @@
 (deftype T_STATIC "Static" "tSTATIC"
          ("EXP"))
 
-(deftype T_BITFIELD_EXPR "Bitfield expression" "tBITFIELD_EXPR"
-         ("SZ" "DECL"))
+(deftype T_BITFIELD "Bitfield declarator" "tBITFIELD"
+         ("SZ" "DECLARATOR"))
 
 (deftype T_COMP_ACCESS "Compound Access" "tCOMP_ACCESS"
          ("OBJ" "MEMBER"))

@@ -76,6 +76,42 @@ static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
     return decl;
 }
 
+static tree handle_declaration(tree type, tree declarator_list)
+{
+    tree decl = tree_make(T_DECL);
+    tDECL_TYPE(decl) = type;
+    tDECL_DECLS(decl) = declarator_list;
+
+    /* Check to see if `type' is a typedef. If so, add all identifiers
+     * in `declarator_list' to the type_names list.  This will make
+     * the lexer tokenise all subsequent instances of the identifier
+     * string as a TYPE_NAME token. */
+    if (is_T_TYPEDEF(type)) {
+        tree i;
+        for_each_tree(i, declarator_list) {
+            tree oldid = i;
+
+            while (is_T_POINTER(oldid))
+                oldid = tPTR_EXP(oldid);
+
+            if (is_T_DECL_FN(oldid))
+                oldid = tFNDECL_NAME(oldid);
+
+            if (is_T_ARRAY(oldid))
+               oldid = tARRAY_ID(oldid);
+
+            if (!is_T_IDENTIFIER(oldid)) {
+                yyerror("Expected identifier when processing typedef");
+                return NULL;
+            }
+
+            add_typename(oldid);
+        }
+    }
+
+    return decl;
+}
+
 
 %}
 
@@ -152,6 +188,7 @@ ALL_TARGETS
 %type <tree> assignment_expression
 %type <tree> expression
 %type <tree> conditional_expression
+%type <tree> constant_expression
 %type <tree> decl
 %type <tree> decl_possible_pointer
 %type <tree> pointer
@@ -167,7 +204,10 @@ ALL_TARGETS
 %type <tree> direct_type_specifier
 %type <tree> sizeof_specifier
 %type <tree> type_specifier
-%type <tree> compound_declarator
+%type <tree> struct_declaration_list
+%type <tree> struct_declaration
+%type <tree> struct_declarator_list
+%type <tree> struct_declarator
 %type <tree> declaration
 %type <tree> declaration_list
 
@@ -786,6 +826,10 @@ conditional_expression
     $$ = infix;
 }
 
+constant_expression
+: conditional_expression
+;
+
 assignment_expression
 : conditional_expression
 | unary_expression '=' assignment_expression
@@ -1174,7 +1218,7 @@ type_specifier
 ;
 
 struct_specifier
-: STRUCT IDENTIFIER '{' declaration_list '}'
+: STRUCT IDENTIFIER '{' struct_declaration_list '}'
 {
     char *struct_name = concat_strings("struct ", tID_STR($2));
     tree decl = tree_make(T_DECL_COMPOUND);
@@ -1185,7 +1229,7 @@ struct_specifier
     set_locus(tCOMP_DECL_ID(decl), @2);
     $$ = decl;
 }
-| STRUCT '{' declaration_list '}'
+| STRUCT '{' struct_declaration_list '}'
 {
     tree decl = tree_make(T_DECL_COMPOUND);
     tCOMP_DECL_ID(decl) = NULL;
@@ -1366,38 +1410,9 @@ func_ptr_decl
 declaration
 : type_specifier declarator_list
 {
-    tree decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = $1;
-    tDECL_DECLS(decl) = $2;
+    tree decl = handle_declaration($1, $2);
     set_locus(decl, @1);
     $$ = decl;
-
-    /* Check to see if `type_specifier' is a typedef. If so, add all
-     * identifiers in `declarator_list' to the type_names list.  This
-     * will make the lexer tokenise all subsequent instances of the
-     * identifier string as a TYPE_NAME token. */
-    if (is_T_TYPEDEF($1)) {
-        tree i;
-        for_each_tree(i, $2) {
-            tree oldid = i;
-
-            while (is_T_POINTER(oldid))
-                oldid = tPTR_EXP(oldid);
-
-            if (is_T_DECL_FN(oldid))
-                oldid = tFNDECL_NAME(oldid);
-
-            if (is_T_ARRAY(oldid))
-               oldid = tARRAY_ID(oldid);
-
-            if (!is_T_IDENTIFIER(oldid)) {
-                yyerror("Expected identifier when processing typedef");
-                YYERROR;
-            }
-
-            add_typename(oldid);
-        }
-    }
 }
 CFILE_ONLY
     | func_ptr_decl
@@ -1412,23 +1427,69 @@ CFILE_ONLY
 ALL_TARGETS
 ;
 
-compound_declarator
-: declaration
-| declaration ':' unary_expression
+struct_declaration_list
+: struct_declaration
 {
-    tree bitfield_expr = tree_make(T_BITFIELD_EXPR);
-    tBITFIELD_EXPR_SZ(bitfield_expr) = $3;
-    tBITFIELD_EXPR_DECL(bitfield_expr) = $1;
-    $$ = bitfield_expr;
+  $$ = tree_chain_head($1);
+}
+| struct_declaration_list struct_declaration
+{
+  tree_chain($2, $1);
+}
+;
+
+struct_declaration
+: type_specifier struct_declarator_list ';'
+{
+    tree decl = handle_declaration($1, $2);
+    set_locus(decl, @1);
+    $$ = decl;
+}
+| type_specifier ';'
+{
+    tree decl = handle_declaration($1, NULL);
+    set_locus(decl, @1);
+    $$ = decl;
+}
+;
+
+struct_declarator_list
+: struct_declarator
+{
+    $$ = tree_chain_head($1);
+}
+| struct_declarator_list ',' struct_declarator
+{
+    tree_chain($3, $1);
+}
+;
+
+struct_declarator
+: declarator
+| ':' constant_expression
+{
+    tree bitfield = tree_make(T_BITFIELD);
+    tBITFIELD_SZ(bitfield) = $2;
+    tBITFIELD_DECLARATOR(bitfield) = NULL;
+    set_locus(bitfield, @1);
+    $$ = bitfield;
+}
+| declarator ':' constant_expression
+{
+    tree bitfield = tree_make(T_BITFIELD);
+    tBITFIELD_SZ(bitfield) = $3;
+    tBITFIELD_DECLARATOR(bitfield) = $1;
+    set_locus(bitfield, @2);
+    $$ = bitfield;
 }
 ;
 
 declaration_list
-: compound_declarator ';'
+: declaration ';'
 {
     $$ = tree_chain_head($1);
 }
-| declaration_list compound_declarator ';'
+| declaration_list declaration ';'
 {
     tree_chain($2, $1);
 }
