@@ -669,9 +669,9 @@ static tree alloc_array(tree array_decl, tree base_type, int depth)
     return live_var;
 }
 
-static tree handle_decl(tree decl, tree base_type, int depth)
+static tree handle_declarator(tree decl, tree type, int depth)
 {
-    tree decl_type = base_type;
+    tree decl_type = type;
 
     /* Strip off any pointer objects and add them to the base type. */
     resolve_ptr_type(&decl, &decl_type);
@@ -709,9 +709,9 @@ static tree handle_decl(tree decl, tree base_type, int depth)
         return decl;
     case T_ASSIGN:
     {
-        tree ret = handle_decl(tASSIGN_LHS(decl), base_type, depth);
+        tree ret = handle_declarator(tASSIGN_LHS(decl), type, depth);
 
-        /* handle_decl will have stripped off any pointers from the decl name.
+        /* handle_declarator will have stripped off any pointers from the decl name.
          * Therefore ret now becomes the LHS of the assignment. */
         tASSIGN_LHS(decl) = ret;
 
@@ -971,9 +971,9 @@ static tree handle_static_decl(tree decl, int depth)
     push_ctx("Static declaration");
     if (is_CHAIN_HEAD(decls))
         for_each_tree(i, decls)
-            ret = handle_decl(i, base_type, depth);
+            ret = handle_declarator(i, base_type, depth);
     else
-        ret = handle_decl(decls, base_type, depth);
+        ret = handle_declarator(decls, base_type, depth);
 
     TYPE(decl) = E_CTX;
 
@@ -1015,9 +1015,9 @@ static tree eval_decl(tree t, int depth)
 
     if (is_CHAIN_HEAD(decls))
         for_each_tree(i, decls)
-            ret = handle_decl(i, base_type, depth);
+            ret = handle_declarator(i, base_type, depth);
     else
-        ret = handle_decl(decls, base_type, depth);
+        ret = handle_declarator(decls, base_type, depth);
 
     return ret;
 }
