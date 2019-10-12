@@ -189,7 +189,7 @@ ALL_TARGETS
 %type <tree> expression
 %type <tree> conditional_expression
 %type <tree> constant_expression
-%type <tree> decl
+%type <tree> direct_declarator
 %type <tree> decl_possible_pointer
 %type <tree> pointer
 %type <tree> declarator
@@ -866,7 +866,7 @@ $$ = tree_make_binmod(T_X_OR, tX_OR, $1, $3);
 }
 ;
 
-decl
+direct_declarator
 : IDENTIFIER
 {
     tree id = $1;
@@ -891,7 +891,7 @@ decl
     set_locus(tFNDECL_NAME(fn_decl), @2);
     $$ = fn_decl;
 }
-| decl '[' additive_expression ']'
+| direct_declarator '[' additive_expression ']'
 {
     tree array = tree_make(T_ARRAY);
     tARRAY_ID(array) = $1;
@@ -899,7 +899,7 @@ decl
     set_locus(array, @2);
     $$ = array;
 }
-| decl '[' ']'
+| direct_declarator '[' ']'
 {
     tree ptr = tree_make(T_POINTER);
     tPTR_EXP(ptr) = $1;
@@ -925,8 +925,8 @@ pointer
 ;
 
 decl_possible_pointer
-: decl
-| pointer decl
+: direct_declarator
+| pointer direct_declarator
 {
     $$ = make_pointer_type($1, $2);
 }
