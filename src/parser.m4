@@ -1451,6 +1451,7 @@ struct_declaration
     set_locus(decl, @1);
     $$ = decl;
 }
+| func_ptr_decl ';'
 ;
 
 struct_declarator_list

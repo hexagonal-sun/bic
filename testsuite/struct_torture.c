@@ -17,6 +17,12 @@ int main()
             s1 pan;
         };
 
+        struct funcptr
+        {
+            int * (*funcptr)(void *arg);
+            int arg;
+        };
+
         struct {
             void *m1;
             struct {
