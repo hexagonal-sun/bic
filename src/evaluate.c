@@ -1959,15 +1959,21 @@ static tree eval_return(tree t, int depth)
  */
 static tree expand_decl_chain(tree decl_chain)
 {
-    tree tmp, decl, decl_element, new_chain = tree_make(CHAIN_HEAD);
+    tree tmp, decl, declarator, new_chain = tree_make(CHAIN_HEAD);
 
     for_each_tree_safe(decl, tmp, decl_chain) {
         if (is_T_DECL(decl) && tDECL_DECLS(decl))
-            for_each_tree(decl_element, tDECL_DECLS(decl)) {
+            for_each_tree(declarator, tDECL_DECLS(decl)) {
                 tree new_decl = tree_make(T_DECL);
 
+                /* If `declarator` is an unnamed bitfield skip over it. Since,
+                 * for now, we just make each bitfield a member in it's own
+                 * right. */
+                if (is_T_BITFIELD(declarator) && !tBITFIELD_DECLARATOR(declarator))
+                    continue;
+
                 tDECL_TYPE(new_decl) = tDECL_TYPE(decl);
-                tDECL_DECLS(new_decl) = decl_element;
+                tDECL_DECLS(new_decl) = declarator;
 
                 tree_chain(new_decl, new_chain);
             }
@@ -2070,12 +2076,6 @@ static tree eval_decl_compound(tree t, int depth)
         push_ctx("Compound Declaration");
 
         id = __evaluate_1(decl, depth + 1);
-
-        /* If `id` is null, we have encountered an unnamed bitfield. Since, for
-         * now, we just make each bitfield a member in it's own right, ignore
-         * it. */
-        if (!id)
-            continue;
 
         live_var = resolve_identifier(id, SCOPE_CURRENT_CTX);
 
