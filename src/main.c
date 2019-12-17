@@ -21,6 +21,8 @@ extern int cfileparse();
 extern void cfile_parser_set_file(const char *fname);
 extern const char *parser_current_file;
 
+static int flag_print_ast = 0;
+
 tree cfile_parse_head;
 GC_STATIC_TREE(cfile_parse_head);
 
@@ -151,7 +153,7 @@ static int parse_args(int argc, char *argv[])
 {
     int opt;
 
-    while ((opt = getopt(argc, argv, "vl:I:")) != -1) {
+    while ((opt = getopt(argc, argv, "vTl:I:")) != -1) {
         switch (opt) {
         case 'l':
             if (!open_library(optarg)) {
@@ -168,6 +170,9 @@ static int parse_args(int argc, char *argv[])
         case 'v':
             print_version(argv[0]);
             exit(EXIT_SUCCESS);
+        case 'T':
+            flag_print_ast = 1;
+            break;
         default: /* '?' */
             usage(argv[0]);
             exit(EXIT_FAILURE);
@@ -183,6 +188,12 @@ static int bic_eval_file(const char *file)
 
     if (parse_file(file))
         return 1;
+
+    if( flag_print_ast )
+    {
+        tree_dump(cfile_parse_head);
+        exit(0);
+    }
 
     add_call_to_main(cfile_parse_head);
     return_val = evaluate(cfile_parse_head, file);
