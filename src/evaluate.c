@@ -393,11 +393,12 @@ static tree eval_fn_call(tree t, int depth)
             for_each_tree(arg_decl, arg_decls)
                 no_decls++;
 
-            for_each_tree(arg_val, arg_vals)
-                no_vals++;
+            if (arg_vals)
+                for_each_tree(arg_val, arg_vals)
+                    no_vals++;
 
             if (no_vals != no_decls)
-                eval_die(t, "Invalid number of parameters to function");
+                eval_die(t, "Invalid number of parameters to function\n");
 
             /* Evaluate an assignment for each passed value. */
             arg_val = arg_vals;
