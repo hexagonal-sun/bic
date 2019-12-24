@@ -159,7 +159,6 @@ CFILE_ONLY
 REPL_ONLY
 %type <tree> inspection_statement
 ALL_TARGETS
-%type <tree> declaration_statement
 %type <tree> func_ptr_decl
 %type <tree> argument_specifier
 %type <tree> direct_argument_list
@@ -209,6 +208,7 @@ ALL_TARGETS
 %type <tree> struct_declarator_list
 %type <tree> struct_declarator
 %type <tree> declaration
+%type <tree> declaration_specifiers
 %type <tree> declaration_list
 
 %%
@@ -235,7 +235,7 @@ ALL_TARGETS
 
 CFILE_ONLY
     toplevel_declarations
-    : declaration ';'
+    : declaration
     | function_definition
     ;
 
@@ -329,7 +329,7 @@ CFILE_ONLY
     | jump_statement
     | repl_statement
 REPL_ONLY
-    | declaration_statement
+    | declaration
     | inspection_statement
     | C_PRE_INC
     {
@@ -364,10 +364,6 @@ CFILE_ONLY
     ;
 ALL_TARGETS
 
-declaration_statement
-: declaration ';'
-;
-
 expression
 : assignment_expression
 | expression ',' assignment_expression
@@ -395,7 +391,7 @@ iteration_statement
     set_locus(for_loop, @1);
     $$ = for_loop;
 }
-| FOR '(' declaration_statement expression_statement assignment_expression ')' statement
+| FOR '(' declaration expression_statement assignment_expression ')' statement
 {
 tree for_loop = tree_make(T_LOOP_FOR);
 tFLOOP_INIT(for_loop) = $3;
@@ -1408,6 +1404,10 @@ func_ptr_decl
 ;
 
 declaration
+: declaration_specifiers ';'
+;
+
+declaration_specifiers
 : type_specifier declarator_list
 {
     tree decl = handle_declaration($1, $2);
@@ -1486,11 +1486,11 @@ struct_declarator
 ;
 
 declaration_list
-: declaration ';'
+: declaration
 {
     $$ = tree_chain_head($1);
 }
-| declaration_list declaration ';'
+| declaration_list declaration
 {
     tree_chain($2, $1);
 }
