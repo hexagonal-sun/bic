@@ -665,15 +665,65 @@ storage_class_specifier
 
 type_specifier
 : VOID
+{
+    tree void_type_specifier = tree_make(T_VOID_TS);
+    set_locus(void_type_specifier, @1);
+    $$ = void_type_specifier;
+}
 | CHAR
+{
+    tree char_type_specifier = tree_make(T_CHAR_TS);
+    set_locus(char_type_specifier, @1);
+    $$ = char_type_specifier;
+}
 | SHORT
+{
+    tree short_type_specifier = tree_make(T_SHORT_TS);
+    set_locus(short_type_specifier, @1);
+    $$ = short_type_specifier;
+}
 | INT
+{
+    tree int_type_specifier = tree_make(T_INT_TS);
+    set_locus(int_type_specifier, @1);
+    $$ = int_type_specifier;
+}
 | LONG
+{
+    tree long_type_specifier = tree_make(T_LONG_TS);
+    set_locus(long_type_specifier, @1);
+    $$ = long_type_specifier;
+}
 | FLOAT
+{
+    tree float_type_specifier = tree_make(T_FLOAT_TS);
+    set_locus(float_type_specifier, @1);
+    $$ = float_type_specifier;
+}
 | DOUBLE
+{
+    tree double_type_specifier = tree_make(T_DOUBLE_TS);
+    set_locus(double_type_specifier, @1);
+    $$ = double_type_specifier;
+}
 | SIGNED
+{
+    tree signed_type_specifier = tree_make(T_SIGNED_TS);
+    set_locus(signed_type_specifier, @1);
+    $$ = signed_type_specifier;
+}
 | UNSIGNED
+{
+    tree unsigned_type_specifier = tree_make(T_UNSIGNED_TS);
+    set_locus(unsigned_type_specifier, @1);
+    $$ = unsigned_type_specifier;
+}
 | BOOL
+{
+    tree bool_type_specifier = tree_make(T_BOOL_TS);
+    set_locus(bool_type_specifier, @1);
+    $$ = bool_type_specifier;
+}
 | struct_or_union_specifier
 | enum_specifier
 | TYPE_NAME
