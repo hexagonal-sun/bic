@@ -172,6 +172,7 @@ ALL_TARGETS
 %type <tree> constant_expression
 %type <tree> declaration
 %type <tree> declaration_specifiers
+%type <tree> declaration_specifier
 %type <tree> init_declarator_list
 %type <tree> init_declarator
 %type <tree> storage_class_specifier
@@ -664,14 +665,21 @@ declaration
 ;
 
 declaration_specifiers
+: declaration_specifier
+{
+    $$ = tree_chain_head($1);
+}
+| declaration_specifiers declaration_specifier
+{
+    tree_chain($2, $1);
+}
+;
+
+declaration_specifier
 : storage_class_specifier
-| storage_class_specifier declaration_specifiers
 | type_specifier
-| type_specifier declaration_specifiers
 | type_qualifier
-| type_qualifier declaration_specifiers
 | function_specifier
-| function_specifier declaration_specifiers
 ;
 
 init_declarator_list
