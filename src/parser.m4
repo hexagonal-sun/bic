@@ -646,7 +646,21 @@ constant_expression
 
 declaration
 : declaration_specifiers ';'
+{
+    tree decl = tree_make(T_DECL);
+    tDECL_SPECS(decl) = $1;
+    tDECL_DECLS(decl) = NULL;
+    set_locus(decl, @1);
+    $$ = decl;
+}
 | declaration_specifiers init_declarator_list ';'
+{
+    tree decl = tree_make(T_DECL);
+    tDECL_SPECS(decl) = $1;
+    tDECL_DECLS(decl) = $2;
+    set_locus(decl, @1);
+    $$ = decl;
+}
 ;
 
 declaration_specifiers
