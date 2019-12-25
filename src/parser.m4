@@ -696,6 +696,13 @@ init_declarator_list
 init_declarator
 : declarator
 | declarator '=' initializer
+{
+    tree assign = tree_make(T_ASSIGN);
+    tASSIGN_LHS(assign) = $1;
+    tASSIGN_RHS(assign) = $3;
+    set_locus(assign, @2);
+    $$ = assign;
+}
 ;
 
 storage_class_specifier
