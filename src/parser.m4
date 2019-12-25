@@ -684,7 +684,13 @@ declaration_specifier
 
 init_declarator_list
 : init_declarator
+{
+    $$ = tree_chain_head($1);
+}
 | init_declarator_list ',' init_declarator
+{
+    tree_chain($3, $1);
+}
 ;
 
 init_declarator
