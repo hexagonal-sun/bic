@@ -136,39 +136,21 @@ static tree handle_declaration(tree type, tree declarator_list)
 %token SHIFT_LEFT SHIFT_RIGHT BOOL_OP_AND BOOL_OP_OR INC
 %token DEC ELLIPSIS PTR_ACCESS BOOL REPL ADD_ASSIGN SUB_ASSIGN
 %token DIV_ASSIGN LSHIFT_ASSIGN RSHIFT_ASSIGN XOR_ASSIGN
+%token INLINE RESTRICT VOLATILE
 
 %right ')' ELSE
 
+%start translation_unit
+
 %token <tree> IDENTIFIER
 REPL_ONLY
-%token <string> C_PRE_INC
+  %token <string> C_PRE_INC
 ALL_TARGETS
 %token <tree> TYPE_NAME
 %token <string> CONST_BITS
 %token <string> CONST_STRING
 %token <integer> INTEGER;
 %token <ffloat> FLOAT_CST;
-
-CFILE_ONLY
-%type <tree> translation_unit
-%type <tree> toplevel_declarations
-%type <tree> compound_statement
-%type <tree> function_definition
-%type <tree> jump_statement
-%type <tree> repl_statement
-REPL_ONLY
-%type <tree> inspection_statement
-ALL_TARGETS
-%type <tree> func_ptr_decl
-%type <tree> argument_specifier
-%type <tree> direct_argument_list
-%type <tree> argument_list
-%type <tree> argument_decl
-%type <tree> statement
-%type <tree> statement_list
-%type <tree> expression_statement
-%type <tree> iteration_statement
-%type <tree> selection_statement
 %type <tree> primary_expression
 %type <tree> postfix_expression
 %type <tree> argument_expression_list
@@ -188,277 +170,9 @@ ALL_TARGETS
 %type <tree> expression
 %type <tree> conditional_expression
 %type <tree> constant_expression
-%type <tree> direct_declarator
-%type <tree> decl_possible_pointer
-%type <tree> pointer
-%type <tree> declarator
-%type <tree> initialiser
-%type <tree> declarator_list
-%type <tree> struct_specifier
-%type <tree> union_specifier
-%type <tree> enum_specifier
-%type <tree> enumerator_list
-%type <tree> enumerator
-%type <tree> storage_class_specifier
-%type <tree> direct_type_specifier
-%type <tree> sizeof_specifier
-%type <tree> type_specifier
-%type <tree> struct_declaration_list
-%type <tree> struct_declaration
-%type <tree> struct_declarator_list
-%type <tree> struct_declarator
-%type <tree> declaration
-%type <tree> declaration_specifiers
-%type <tree> declaration_list
+%type <tree> type_name
 
 %%
-
-CFILE_ONLY
-   translation_unit
-   : toplevel_declarations
-REPL_ONLY
-   statement_list: statement
-ALL_TARGETS
-{
-    TARGET()_parse_head = tree_chain_head($1);
-    $$ = TARGET()_parse_head;
-}
-CFILE_ONLY
-   | translation_unit toplevel_declarations
-REPL_ONLY
-   | statement_list statement
-ALL_TARGETS
-{
-    tree_chain($2, $1);
-}
-;
-
-CFILE_ONLY
-    toplevel_declarations
-    : declaration
-    | function_definition
-    ;
-
-    function_definition
-    : type_specifier IDENTIFIER argument_specifier compound_statement
-    {
-        tree function_def = tree_make(T_FN_DEF);
-        tFNDEF_NAME(function_def) = $2;
-        tFNDEF_RET_TYPE(function_def) = $1;
-        tFNDEF_ARGS(function_def) = $3;
-        tFNDEF_STMTS(function_def) = $4;
-        set_locus(function_def, @1);
-        set_locus(tFNDEF_NAME(function_def), @2);
-        $$ = function_def;
-    }
-    ;
-ALL_TARGETS
-
-argument_specifier
-: '(' ')'
-{
-    $$ = NULL;
-}
-| '(' argument_list ')'
-{
-    $$ = $2;
-}
-;
-
-direct_argument_list
-: argument_decl
-{
-    $$ = tree_chain_head($1);
-}
-| direct_argument_list ',' argument_decl
-{
-    tree_chain($3, $1);
-};
-
-argument_list
-: direct_argument_list
-| direct_argument_list ',' ELLIPSIS
-{
-    tree variadic = tree_make(T_VARIADIC);
-    set_locus(variadic, @3);
-    tree_chain(variadic, $1);
-}
-
-argument_decl
-: type_specifier decl_possible_pointer
-{
-    tree decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = $1;
-    tDECL_DECLS(decl) = $2;
-    set_locus(decl, @1);
-    $$ = decl;
-}
-| type_specifier pointer
-{
-    tree decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = make_pointer_type($2, $1);
-    set_locus(decl, @1);
-    $$ = decl;
-}
-| type_specifier
-{
-    tree decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = $1;
-    set_locus(decl, @1);
-    $$ = decl;
-}
-| func_ptr_decl
-;
-
-REPL_ONLY
-    inspection_statement
-    : '?' IDENTIFIER
-    {
-        tree inspect = tree_make(T_INSPECT);
-        tINSPECT_EXP(inspect) = $2;
-        $$ = inspect;
-    }
-ALL_TARGETS
-
-statement
-: expression_statement
-| iteration_statement
-| selection_statement
-CFILE_ONLY
-    | compound_statement
-    | jump_statement
-    | repl_statement
-REPL_ONLY
-    | declaration
-    | inspection_statement
-    | C_PRE_INC
-    {
-        tree ret = tree_make(CPP_INCLUDE);
-        tCPP_INCLUDE_STR(ret) = $1;
-        $$ = ret;
-    }
-ALL_TARGETS
-;
-
-CFILE_ONLY
-    statement_list: statement
-    {
-        $$ = tree_chain_head($1);
-    }
-    | statement_list statement
-    {
-        tree_chain($2, $1);
-    }
-    ;
-
-    compound_statement
-    : '{' statement_list '}'
-    {
-        $$ = $2;
-    }
-    | '{' declaration_list statement_list '}'
-    {
-        tree_splice_chains($2, $3);
-        $$ = $2;
-    }
-    ;
-ALL_TARGETS
-
-expression
-: assignment_expression
-| expression ',' assignment_expression
-{
-    tree comma = tree_make(T_COMMA);
-    tCOMMA_LHS(comma) = $1;
-    tCOMMA_RHS(comma) = $3;
-    set_locus(comma, @2);
-    $$ = comma;
-}
-;
-
-expression_statement
-: expression ';'
-;
-
-iteration_statement
-: FOR '(' expression_statement expression_statement assignment_expression ')' statement
-{
-    tree for_loop = tree_make(T_LOOP_FOR);
-    tFLOOP_INIT(for_loop) = $3;
-    tFLOOP_COND(for_loop) = $4;
-    tFLOOP_AFTER(for_loop) = $5;
-    tFLOOP_STMTS(for_loop) = $7;
-    set_locus(for_loop, @1);
-    $$ = for_loop;
-}
-| FOR '(' declaration expression_statement assignment_expression ')' statement
-{
-tree for_loop = tree_make(T_LOOP_FOR);
-tFLOOP_INIT(for_loop) = $3;
-tFLOOP_COND(for_loop) = $4;
-tFLOOP_AFTER(for_loop) = $5;
-tFLOOP_STMTS(for_loop) = $7;
-set_locus(for_loop, @1);
-$$ = for_loop;
-}
-| WHILE '(' assignment_expression ')' statement
-{
-    tree while_loop = tree_make(T_LOOP_WHILE);
-    tWLOOP_COND(while_loop) = $3;
-    tWLOOP_STMTS(while_loop) = $5;
-    set_locus(while_loop, @1);
-    $$ = while_loop;
-}
-;
-
-selection_statement
-: IF '(' assignment_expression ')' statement
-{
-    tree ifstmt = tree_make(T_IF);
-    tIF_COND(ifstmt) = $3;
-    tIF_TRUE_STMTS(ifstmt) = $5;
-    tIF_ELSE_STMTS(ifstmt) = NULL;
-    set_locus(ifstmt, @1);
-    $$ = ifstmt;
-}
-| IF '(' assignment_expression ')' statement ELSE statement
-{
-    tree ifstmt = tree_make(T_IF);
-    tIF_COND(ifstmt) = $3;
-    tIF_TRUE_STMTS(ifstmt) = $5;
-    tIF_ELSE_STMTS(ifstmt) = $7;
-    set_locus(ifstmt, @1);
-    $$ = ifstmt;
-}
-;
-
-CFILE_ONLY
-    jump_statement
-    : RETURN ';'
-    {
-        $$ = tree_make(T_RETURN);
-    }
-    | RETURN expression_statement
-    {
-        tree ret = tree_make(T_RETURN);
-        tRET_EXP(ret) = $2;
-        $$ = ret;
-    }
-    | BREAK ';'
-    {
-        $$ = tree_make(T_BREAK);
-    }
-    ;
-ALL_TARGETS
-
-CFILE_ONLY
-    repl_statement
-    : REPL ';'
-    {
-      $$ = tree_make(T_REPL);
-    }
-    ;
-ALL_TARGETS
 
 primary_expression
 : INTEGER
@@ -609,7 +323,14 @@ unary_expression
     set_locus(deref, @1);
     $$ = deref;
 }
-| SIZEOF '(' sizeof_specifier ')'
+| SIZEOF unary_expression
+{
+    tree szof = tree_make(T_SIZEOF);
+    tSZOF_EXP(szof) = $2;
+    set_locus(szof, @1);
+    $$ = szof;
+}
+| SIZEOF '(' type_name ')'
 {
     tree szof = tree_make(T_SIZEOF);
     tSZOF_EXP(szof) = $3;
@@ -620,7 +341,7 @@ unary_expression
 
 cast_expression
 : unary_expression
-| '(' direct_type_specifier ')' cast_expression
+| '(' type_name ')' cast_expression
 {
     tree cast = tree_make(T_CAST);
     tCAST_NEWTYPE(cast) = $2;
@@ -862,636 +583,312 @@ $$ = tree_make_binmod(T_X_OR, tX_OR, $1, $3);
 }
 ;
 
-direct_declarator
-: IDENTIFIER
-{
-    tree id = $1;
-    set_locus(id, @1);
-    $$ = id;
-}
-| IDENTIFIER argument_specifier
-{
-    tree fn_decl = tree_make(T_DECL_FN);
-    tFNDECL_NAME(fn_decl) = $1;
-    tFNDECL_ARGS(fn_decl) = $2;
-    set_locus(fn_decl, @1);
-    set_locus(tFNDECL_NAME(fn_decl), @1);
-    $$ = fn_decl;
-}
-| '(' IDENTIFIER ')' argument_specifier
-{
-    tree fn_decl = tree_make(T_DECL_FN);
-    tFNDECL_NAME(fn_decl) = $2;
-    tFNDECL_ARGS(fn_decl) = $4;
-    set_locus(fn_decl, @2);
-    set_locus(tFNDECL_NAME(fn_decl), @2);
-    $$ = fn_decl;
-}
-| direct_declarator '[' additive_expression ']'
-{
-    tree array = tree_make(T_ARRAY);
-    tARRAY_ID(array) = $1;
-    tARRAY_SZ(array) = $3;
-    set_locus(array, @2);
-    $$ = array;
-}
-| direct_declarator '[' ']'
-{
-    tree ptr = tree_make(T_POINTER);
-    tPTR_EXP(ptr) = $1;
-    set_locus(ptr, @2);
-    $$ = ptr;
-}
+expression
+: assignment_expression
+| expression ',' assignment_expression
 ;
 
-pointer
-: '*'
-{
-    tree ptr = tree_make(T_POINTER);
-    set_locus(ptr, @1);
-    $$ = ptr;
-}
-| '*' pointer
-{
-    tree ptr = tree_make(T_POINTER);
-    tPTR_EXP(ptr) = $2;
-    set_locus(ptr, @1);
-    $$ = ptr;
-}
-;
-
-decl_possible_pointer
-: direct_declarator
-| pointer direct_declarator
-{
-    $$ = make_pointer_type($1, $2);
-}
-;
-
-initialiser
-: additive_expression
-;
-
-declarator
-: decl_possible_pointer
-| decl_possible_pointer '=' initialiser
-{
-    tree assign = tree_make(T_ASSIGN);
-    tASSIGN_LHS(assign) = $1;
-    tASSIGN_RHS(assign) = $3;
-    set_locus(assign, @2);
-    $$ = assign;
-}
-;
-
-declarator_list
-: declarator
-{
-    $$ = tree_chain_head($1);
-}
-| declarator_list ',' declarator
-{
-    tree_chain($3, $1);
-}
-;
-
-storage_class_specifier
-: TYPEDEF
-{
-    tree ttypedef = tree_make(T_TYPEDEF);
-    set_locus(ttypedef, @1);
-    $$ = ttypedef;
-}
-| EXTERN
-{
-    tree eextern = tree_make(T_EXTERN);
-    set_locus(eextern, @1);
-    $$ = eextern;
-}
-| STATIC
-{
-    tree sstatic = tree_make(T_STATIC);
-    set_locus(sstatic, @1);
-    $$ = sstatic;
-}
-;
-
-direct_type_specifier
-: CHAR
-{
-    tree type = tree_make(D_T_CHAR);
-    set_locus(type, @1);
-    $$ = type;
-}
-| SIGNED CHAR
-{
-    tree type = tree_make(D_T_CHAR);
-    set_locus(type, @1);
-    $$ = type;
-}
-| UNSIGNED CHAR
-{
-    tree type = tree_make(D_T_UCHAR);
-    set_locus(type, @1);
-    $$ = type;
-}
-| SHORT
-{
-    tree type = tree_make(D_T_SHORT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| SHORT INT
-{
-    tree type = tree_make(D_T_SHORT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| SIGNED SHORT
-{
-    tree type = tree_make(D_T_SHORT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| SIGNED SHORT INT
-{
-    tree type = tree_make(D_T_SHORT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| UNSIGNED SHORT
-{
-    tree type = tree_make(D_T_USHORT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| UNSIGNED SHORT INT
-{
-    tree type = tree_make(D_T_USHORT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| INT
-{
-    tree type = tree_make(D_T_INT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| SIGNED INT
-{
-    tree type = tree_make(D_T_INT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| SIGNED
-{
-    tree type = tree_make(D_T_INT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| UNSIGNED INT
-{
-    tree type = tree_make(D_T_UINT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| UNSIGNED
-{
-    tree type = tree_make(D_T_UINT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| LONG
-{
-    tree type = tree_make(D_T_LONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| LONG INT
-{
-    tree type = tree_make(D_T_LONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| SIGNED LONG
-{
-    tree type = tree_make(D_T_LONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| SIGNED LONG INT
-{
-    tree type = tree_make(D_T_LONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| UNSIGNED LONG
-{
-    tree type = tree_make(D_T_ULONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| UNSIGNED LONG INT
-{
-    tree type = tree_make(D_T_ULONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| LONG UNSIGNED INT
-{
-    tree type = tree_make(D_T_ULONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| LONG LONG
-{
-    tree type = tree_make(D_T_LONGLONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| LONG LONG INT
-{
-    tree type = tree_make(D_T_LONGLONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| SIGNED LONG LONG
-{
-    tree type = tree_make(D_T_LONGLONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| SIGNED LONG LONG INT
-{
-    tree type = tree_make(D_T_LONGLONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| UNSIGNED LONG LONG
-{
-    tree type = tree_make(D_T_ULONGLONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| UNSIGNED LONG LONG INT
-{
-    tree type = tree_make(D_T_ULONGLONG);
-    set_locus(type, @1);
-    $$ = type;
-}
-| FLOAT
-{
-    tree type = tree_make(D_T_FLOAT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| DOUBLE
-{
-    tree type = tree_make(D_T_DOUBLE);
-    set_locus(type, @1);
-    $$ = type;
-}
-| LONG DOUBLE
-{
-    tree type = tree_make(D_T_LONGDOUBLE);
-    set_locus(type, @1);
-    $$ = type;
-}
-| BOOL
-{
-    tree type = tree_make(D_T_INT);
-    set_locus(type, @1);
-    $$ = type;
-}
-| VOID
-{
-    tree type = tree_make(D_T_VOID);
-    set_locus(type, @1);
-    $$ = type;
-}
-| TYPE_NAME
-{
-    tree id = $1;
-    set_locus(id, @1);
-    $$ = id;
-}
-| struct_specifier
-| union_specifier
-| enum_specifier
-;
-
-sizeof_specifier
-: direct_type_specifier
-| unary_expression
-| direct_type_specifier pointer
-{
-    $$ = make_pointer_type($2, $1);
-}
-;
-
-type_specifier
-: direct_type_specifier
-| storage_class_specifier direct_type_specifier
-{
-    switch ($1->type)
-    {
-    case T_TYPEDEF:
-        tTYPEDEF_EXP($1) = $2;
-        break;
-    case T_EXTERN:
-        tEXTERN_EXP($1) = $2;
-        break;
-    case T_STATIC:
-        tSTATIC_EXP($1) = $2;
-        break;
-    default:
-        yyerror("Unknown storage_class_specifier tree type");
-        YYERROR;
-    }
-
-    $$ = $1;
-}
-;
-
-struct_specifier
-: STRUCT IDENTIFIER '{' struct_declaration_list '}'
-{
-    char *struct_name = concat_strings("struct ", tID_STR($2));
-    tree decl = tree_make(T_DECL_COMPOUND);
-    tCOMP_DECL_ID(decl) = get_identifier(struct_name);
-    tCOMP_DECL_DECLS(decl) = $4;
-    tCOMP_DECL_TYPE(decl) = sstruct;
-    set_locus(decl, @1);
-    set_locus(tCOMP_DECL_ID(decl), @2);
-    $$ = decl;
-}
-| STRUCT '{' struct_declaration_list '}'
-{
-    tree decl = tree_make(T_DECL_COMPOUND);
-    tCOMP_DECL_ID(decl) = NULL;
-    tCOMP_DECL_DECLS(decl) = $3;
-    tCOMP_DECL_TYPE(decl) = sstruct;
-    set_locus(decl, @1);
-    $$ = decl;
-}
-| STRUCT IDENTIFIER
-{
-    char *struct_name = concat_strings("struct ", tID_STR($2));
-    tree ret = tree_make(T_STRUCT);
-    tSTRUCT_EXP(ret) = get_identifier(struct_name);
-    set_locus(ret, @1);
-    set_locus(tSTRUCT_EXP(ret), @2);
-    $$ = ret;
-}
-| STRUCT TYPE_NAME
-{
-    char *struct_name = concat_strings("struct ", tID_STR($2));
-    tree ret = tree_make(T_STRUCT);
-    tSTRUCT_EXP(ret) = get_identifier(struct_name);
-    set_locus(ret, @1);
-    set_locus(tSTRUCT_EXP(ret), @2);
-    $$ = ret;
-}
-;
-
-union_specifier
-: UNION IDENTIFIER '{' declaration_list '}'
-{
-    char *union_name = concat_strings("union ", tID_STR($2));
-    tree decl = tree_make(T_DECL_COMPOUND);
-    tCOMP_DECL_ID(decl) = get_identifier(union_name);
-    tCOMP_DECL_DECLS(decl) = $4;
-    tCOMP_DECL_TYPE(decl) = uunion;
-    set_locus(decl, @1);
-    set_locus(tCOMP_DECL_ID(decl), @2);
-    $$ = decl;
-}
-| UNION '{' declaration_list '}'
-{
-    tree decl = tree_make(T_DECL_COMPOUND);
-    tCOMP_DECL_ID(decl) = NULL;
-    tCOMP_DECL_DECLS(decl) = $3;
-    tCOMP_DECL_TYPE(decl) = uunion;
-    set_locus(decl, @1);
-    $$ = decl;
-}
-| UNION IDENTIFIER
-{
-    char *union_name = concat_strings("union ", tID_STR($2));
-    tree ret = tree_make(T_UNION);
-    tUNION_EXP(ret) = get_identifier(union_name);
-    set_locus(ret, @1);
-    set_locus(tUNION_EXP(ret), @2);
-    $$ = ret;
-
-}
-| UNION TYPE_NAME
-{
-    char *union_name = concat_strings("union ", tID_STR($2));
-    tree ret = tree_make(T_UNION);
-    tUNION_EXP(ret) = get_identifier(union_name);
-    set_locus(ret, @1);
-    set_locus(tUNION_EXP(ret), @2);
-    $$ = ret;
-
-}
-;
-
-possible_comma:
-| ','
-;
-
-enum_specifier
-: ENUM '{' enumerator_list possible_comma '}'
-{
-    tree enumerator = tree_make(T_ENUMERATOR);
-    tENUM_NAME(enumerator) = NULL;
-    tENUM_ENUMS(enumerator) = $3;
-    set_locus(enumerator, @1);
-    $$ = enumerator;
-}
-| ENUM IDENTIFIER '{' enumerator_list possible_comma '}'
-{
-    char *enum_name = concat_strings("enum ", tID_STR($2));
-    tree enumerator = tree_make(T_ENUMERATOR);
-    tENUM_NAME(enumerator) = get_identifier(enum_name);
-    tENUM_ENUMS(enumerator) = $4;
-    set_locus(enumerator, @1);
-    set_locus(tENUM_NAME(enumerator), @2);
-    $$ = enumerator;
-}
-| ENUM IDENTIFIER
-{
-    char *enum_name = concat_strings("enum ", tID_STR($2));
-    tree id = get_identifier(enum_name);
-    set_locus(id, @2);
-    $$ = id;
-}
-| ENUM TYPE_NAME
-{
-    char *enum_name = concat_strings("enum ", tID_STR($2));
-    tree id = get_identifier(enum_name);
-    set_locus(id, @2);
-    $$ = id;
-}
-;
-
-enumerator_list
-: enumerator
-{
-    $$ = tree_chain_head($1);
-}
-| enumerator_list ',' enumerator
-{
-    tree_chain($3, $1);
-}
-;
-
-enumerator
-: IDENTIFIER
-{
-    tree id = $1;
-    set_locus(id, @1);
-    $$ = id;
-}
-| IDENTIFIER '=' logical_or_expression
-{
-    tree id = $1;
-    set_locus(id, @1);
-    tree assign = tree_make(T_ASSIGN);
-    tASSIGN_LHS(assign) = id;
-    tASSIGN_RHS(assign) = $3;
-    set_locus(assign, @2);
-    $$ = assign;
-}
-;
-
-ALL_TARGETS
-
-func_ptr_decl
-: type_specifier pointer '(' pointer IDENTIFIER ')' argument_specifier
-{
-    tree decl = build_func_ptr($1, $2, $4, $5, $7);
-
-    set_locus(decl, @5);
-
-    $$ = decl;
-}
-| type_specifier '(' pointer IDENTIFIER ')' argument_specifier
-{
-    tree decl = build_func_ptr($1, NULL, $3, $4, $6);
-
-    set_locus(decl, @5);
-
-    $$ = decl;
-}
-| type_specifier pointer '(' pointer ')' argument_specifier
-{
-    tree decl = build_func_ptr($1, $2, $4, NULL, $6);
-
-    set_locus(decl, @4);
-
-    $$ = decl;
-}
-| type_specifier '(' pointer ')' argument_specifier
-{
-    tree decl = build_func_ptr($1, NULL, $3, NULL, $5);
-
-    set_locus(decl, @4);
-
-    $$ = decl;
-}
+constant_expression
+: conditional_expression
 ;
 
 declaration
 : declaration_specifiers ';'
+| declaration_specifiers init_declarator_list ';'
 ;
 
 declaration_specifiers
-: type_specifier declarator_list
-{
-    tree decl = handle_declaration($1, $2);
-    set_locus(decl, @1);
-    $$ = decl;
-}
-CFILE_ONLY
-    | func_ptr_decl
-    | type_specifier
-    {
-        tree decl = tree_make(T_DECL);
-        tDECL_TYPE(decl) = $1;
-        tDECL_DECLS(decl) = NULL;
-        set_locus(decl, @1);
-        $$ = decl;
-    }
-ALL_TARGETS
+: storage_class_specifier
+| storage_class_specifier declaration_specifiers
+| type_specifier
+| type_specifier declaration_specifiers
+| type_qualifier
+| type_qualifier declaration_specifiers
+| function_specifier
+| function_specifier declaration_specifiers
+;
+
+init_declarator_list
+: init_declarator
+| init_declarator_list ',' init_declarator
+;
+
+init_declarator
+: declarator
+| declarator '=' initializer
+;
+
+storage_class_specifier
+: TYPEDEF
+| EXTERN
+| STATIC
+| AUTO
+| REGISTER
+;
+
+type_specifier
+: VOID
+| CHAR
+| SHORT
+| INT
+| LONG
+| FLOAT
+| DOUBLE
+| SIGNED
+| UNSIGNED
+| BOOL
+| struct_or_union_specifier
+| enum_specifier
+| TYPE_NAME
+;
+
+struct_or_union_specifier
+: struct_or_union IDENTIFIER '{' struct_declaration_list '}'
+| struct_or_union '{' struct_declaration_list '}'
+| struct_or_union IDENTIFIER
+;
+
+struct_or_union
+: STRUCT
+| UNION
 ;
 
 struct_declaration_list
 : struct_declaration
-{
-  $$ = tree_chain_head($1);
-}
 | struct_declaration_list struct_declaration
-{
-  tree_chain($2, $1);
-}
 ;
 
 struct_declaration
-: type_specifier struct_declarator_list ';'
-{
-    tree decl = handle_declaration($1, $2);
-    set_locus(decl, @1);
-    $$ = decl;
-}
-| type_specifier ';'
-{
-    tree decl = handle_declaration($1, NULL);
-    set_locus(decl, @1);
-    $$ = decl;
-}
-| func_ptr_decl ';'
+: specifier_qualifier_list struct_declarator_list ';'
+;
+
+specifier_qualifier_list
+: type_specifier specifier_qualifier_list
+| type_specifier
+| type_qualifier specifier_qualifier_list
+| type_qualifier
 ;
 
 struct_declarator_list
 : struct_declarator
-{
-    $$ = tree_chain_head($1);
-}
 | struct_declarator_list ',' struct_declarator
-{
-    tree_chain($3, $1);
-}
 ;
 
 struct_declarator
 : declarator
 | ':' constant_expression
-{
-    tree bitfield = tree_make(T_BITFIELD);
-    tBITFIELD_SZ(bitfield) = $2;
-    tBITFIELD_DECLARATOR(bitfield) = NULL;
-    set_locus(bitfield, @1);
-    $$ = bitfield;
-}
 | declarator ':' constant_expression
-{
-    tree bitfield = tree_make(T_BITFIELD);
-    tBITFIELD_SZ(bitfield) = $3;
-    tBITFIELD_DECLARATOR(bitfield) = $1;
-    set_locus(bitfield, @2);
-    $$ = bitfield;
-}
+;
+
+enum_specifier
+: ENUM '{' enumerator_list '}'
+| ENUM IDENTIFIER '{' enumerator_list '}'
+| ENUM '{' enumerator_list ',' '}'
+| ENUM IDENTIFIER '{' enumerator_list ',' '}'
+| ENUM IDENTIFIER
+;
+
+enumerator_list
+: enumerator
+| enumerator_list ',' enumerator
+;
+
+enumerator
+: IDENTIFIER
+| IDENTIFIER '=' constant_expression
+;
+
+type_qualifier
+: CONST
+| RESTRICT
+| VOLATILE
+;
+
+function_specifier
+: INLINE
+;
+
+declarator
+: pointer direct_declarator
+| direct_declarator
+;
+
+
+direct_declarator
+: IDENTIFIER
+| '(' declarator ')'
+| direct_declarator '[' type_qualifier_list assignment_expression ']'
+| direct_declarator '[' type_qualifier_list ']'
+| direct_declarator '[' assignment_expression ']'
+| direct_declarator '[' STATIC type_qualifier_list assignment_expression ']'
+| direct_declarator '[' type_qualifier_list STATIC assignment_expression ']'
+| direct_declarator '[' type_qualifier_list '*' ']'
+| direct_declarator '[' '*' ']'
+| direct_declarator '[' ']'
+| direct_declarator '(' parameter_type_list ')'
+| direct_declarator '(' identifier_list ')'
+| direct_declarator '(' ')'
+;
+
+pointer
+: '*'
+| '*' type_qualifier_list
+| '*' pointer
+| '*' type_qualifier_list pointer
+;
+
+type_qualifier_list
+: type_qualifier
+| type_qualifier_list type_qualifier
+;
+
+parameter_type_list
+: parameter_list
+| parameter_list ',' ELLIPSIS
+;
+
+parameter_list
+: parameter_declaration
+| parameter_list ',' parameter_declaration
+;
+
+parameter_declaration
+: declaration_specifiers declarator
+| declaration_specifiers abstract_declarator
+| declaration_specifiers
+;
+
+identifier_list
+: IDENTIFIER
+| identifier_list ',' IDENTIFIER
+;
+
+type_name
+: specifier_qualifier_list
+| specifier_qualifier_list abstract_declarator
+;
+
+abstract_declarator
+: pointer
+| direct_abstract_declarator
+| pointer direct_abstract_declarator
+;
+
+direct_abstract_declarator
+: '(' abstract_declarator ')'
+| '[' ']'
+| '[' assignment_expression ']'
+| direct_abstract_declarator '[' ']'
+| direct_abstract_declarator '[' assignment_expression ']'
+| '[' '*' ']'
+| direct_abstract_declarator '[' '*' ']'
+| '(' ')'
+| '(' parameter_type_list ')'
+| direct_abstract_declarator '(' ')'
+| direct_abstract_declarator '(' parameter_type_list ')'
+;
+
+initializer
+: assignment_expression
+| '{' initializer_list '}'
+| '{' initializer_list ',' '}'
+;
+
+initializer_list
+: initializer
+| designation initializer
+| initializer_list ',' initializer
+| initializer_list ',' designation initializer
+;
+
+designation
+: designator_list '='
+;
+
+designator_list
+: designator
+| designator_list designator
+;
+
+designator
+: '[' constant_expression ']'
+| '.' IDENTIFIER
+;
+
+statement
+: labeled_statement
+| compound_statement
+| expression_statement
+| selection_statement
+| iteration_statement
+| jump_statement
+;
+
+labeled_statement
+: IDENTIFIER ':' statement
+| CASE constant_expression ':' statement
+| DEFAULT ':' statement
+;
+
+compound_statement
+: '{' '}'
+| '{' block_item_list '}'
+;
+
+block_item_list
+: block_item
+| block_item_list block_item
+;
+
+block_item
+: declaration
+| statement
+;
+
+expression_statement
+: ';'
+| expression ';'
+;
+
+selection_statement
+: IF '(' expression ')' statement
+| IF '(' expression ')' statement ELSE statement
+| SWITCH '(' expression ')' statement
+;
+
+iteration_statement
+: WHILE '(' expression ')' statement
+| DO statement WHILE '(' expression ')' ';'
+| FOR '(' expression_statement expression_statement ')' statement
+| FOR '(' expression_statement expression_statement expression ')' statement
+| FOR '(' declaration expression_statement ')' statement
+| FOR '(' declaration expression_statement expression ')' statement
+;
+
+jump_statement
+: GOTO IDENTIFIER ';'
+| CONTINUE ';'
+| BREAK ';'
+| RETURN ';'
+| RETURN expression ';'
+;
+
+translation_unit
+: external_declaration
+| translation_unit external_declaration
+;
+
+external_declaration
+: function_definition
+| declaration
+;
+
+function_definition
+: declaration_specifiers declarator declaration_list compound_statement
+| declaration_specifiers declarator compound_statement
 ;
 
 declaration_list
 : declaration
-{
-    $$ = tree_chain_head($1);
-}
 | declaration_list declaration
-{
-    tree_chain($2, $1);
-}
 ;
