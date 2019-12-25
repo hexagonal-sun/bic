@@ -38,81 +38,6 @@ CFILE_ONLY
     }
 ALL_TARGETS
 
-static tree build_func_ptr(tree ret_type, tree ret_type_ptr,
-                           tree ptr, tree id, tree args)
-{
-    tree function, decl;
-    bool is_decl = false;
-
-    if (is_T_TYPEDEF(ret_type)) {
-        add_typename(id);
-        ret_type = tTYPEDEF_EXP(ret_type);
-        is_decl = true;
-   }
-
-    ret_type = make_pointer_type(ret_type_ptr, ret_type);
-
-    function = tree_make(T_DECL_FN);
-    tFNDECL_NAME(function) = NULL;
-    tFNDECL_RET_TYPE(function) = ret_type;
-    tFNDECL_ARGS(function) = args;
-    tFNDECL_STMTS(function) = NULL;
-
-    if (is_decl)
-    {
-        tree td = tree_make(T_TYPEDEF);
-        tTYPEDEF_EXP(td) = function;
-        function = td;
-    }
-
-    decl = tree_make(T_DECL);
-
-    if (id) {
-        tDECL_TYPE(decl) = function;
-        tDECL_DECLS(decl) = make_pointer_type(ptr, id);
-    } else
-        tDECL_TYPE(decl) = function;
-
-    return decl;
-}
-
-static tree handle_declaration(tree type, tree declarator_list)
-{
-    tree decl = tree_make(T_DECL);
-    tDECL_TYPE(decl) = type;
-    tDECL_DECLS(decl) = declarator_list;
-
-    /* Check to see if `type' is a typedef. If so, add all identifiers
-     * in `declarator_list' to the type_names list.  This will make
-     * the lexer tokenise all subsequent instances of the identifier
-     * string as a TYPE_NAME token. */
-    if (is_T_TYPEDEF(type)) {
-        tree i;
-        for_each_tree(i, declarator_list) {
-            tree oldid = i;
-
-            while (is_T_POINTER(oldid))
-                oldid = tPTR_EXP(oldid);
-
-            if (is_T_DECL_FN(oldid))
-                oldid = tFNDECL_NAME(oldid);
-
-            if (is_T_ARRAY(oldid))
-               oldid = tARRAY_ID(oldid);
-
-            if (!is_T_IDENTIFIER(oldid)) {
-                yyerror("Expected identifier when processing typedef");
-                return NULL;
-            }
-
-            add_typename(oldid);
-        }
-    }
-
-    return decl;
-}
-
-
 %}
 
 %union
@@ -707,10 +632,35 @@ init_declarator
 
 storage_class_specifier
 : TYPEDEF
+{
+    tree typedeff = tree_make(T_TYPEDEF);
+    set_locus(typedeff, @1);
+    $$ = typedeff;
+}
 | EXTERN
+{
+    tree externn = tree_make(T_EXTERN);
+    set_locus(externn, @1);
+    $$ = externn;
+}
 | STATIC
+{
+    tree staticc = tree_make(T_STATIC);
+    set_locus(staticc, @1);
+    $$ = staticc;
+}
 | AUTO
+{
+    tree autoo = tree_make(T_AUTO);
+    set_locus(autoo, @1);
+    $$ = autoo;
+}
 | REGISTER
+{
+    tree registerr = tree_make(T_REGISTER);
+    set_locus(registerr, @1);
+    $$ = registerr;
+}
 ;
 
 type_specifier

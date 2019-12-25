@@ -117,14 +117,11 @@
 (deftype T_CAST "Cast" "tCAST"
          ("NEWTYPE" "EXP"))
 
-(deftype T_TYPEDEF "Typedef" "tTYPEDEF"
-         ("EXP"))
-
-(deftype T_EXTERN "External" "tEXTERN"
-         ("EXP"))
-
-(deftype T_STATIC "Static" "tSTATIC"
-         ("EXP"))
+(deftype T_TYPEDEF "typedef storage class specifier")
+(deftype T_EXTERN "external storage class specifier")
+(deftype T_STATIC "static storage class specifier")
+(deftype T_AUTO "auto storage class specifier")
+(deftype T_REGISTER "register storage class specifier")
 
 (deftype T_BITFIELD "Bitfield declarator" "tBITFIELD"
          ("SZ" "DECLARATOR"))
