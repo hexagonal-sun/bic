@@ -148,8 +148,7 @@
          ("BASE_TYPE" "SZ"))
 
 (deftype T_DECL "Declaration" "tDECL"
-         ("TYPE" "DECLS"
-                 ("OFFSET" sz)))
+         ("SPECS" "DECLS"))
 
 (deftype T_DECL_COMPOUND "Compound Declataion" "tCOMP_DECL"
          ("ID" "DECLS"
