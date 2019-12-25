@@ -631,7 +631,13 @@ $$ = tree_make_binmod(T_X_OR, tX_OR, $1, $3);
 
 expression
 : assignment_expression
+{
+    $$ = tree_chain_head($1);
+}
 | expression ',' assignment_expression
+{
+    tree_chain($3, $1);
+}
 ;
 
 constant_expression
