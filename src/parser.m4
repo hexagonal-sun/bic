@@ -1428,11 +1428,25 @@ iteration_statement
 ;
 
 jump_statement
-: GOTO IDENTIFIER ';'
-| CONTINUE ';'
-| BREAK ';'
+: BREAK ';'
+{
+    tree breakk = tree_make(T_BREAK);
+    set_locus(breakk, @1);
+    $$ = breakk;
+}
 | RETURN ';'
+{
+    tree ret = tree_make(T_RETURN);
+    set_locus(ret, @1);
+    $$ = ret;
+}
 | RETURN expression ';'
+{
+    tree ret = tree_make(T_RETURN);
+    tRET_EXP(ret) = $2;
+    set_locus(ret, @1);
+    $$ = ret;
+}
 ;
 
 translation_unit
