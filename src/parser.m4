@@ -924,10 +924,19 @@ function_specifier
 ;
 
 declarator
-: pointer direct_declarator
-| direct_declarator
-;
+: direct_declarator
+| pointer direct_declarator
+{
+    tree p = $1;
 
+    while (tPTR_EXP(p))
+        p = tPTR_EXP(p);
+
+    tPTR_EXP(p) = $2;
+
+    $$ = $1;
+}
+;
 
 direct_declarator
 : IDENTIFIER
