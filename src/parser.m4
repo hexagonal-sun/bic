@@ -941,17 +941,97 @@ declarator
 direct_declarator
 : IDENTIFIER
 | '(' declarator ')'
+{
+    $$ = $2;
+}
 | direct_declarator '[' type_qualifier_list assignment_expression ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_DECL(array) = $1;
+    tARRAY_QUALIFIERS(array) = $3;
+    tARRAY_SZ(array) = $4;
+    set_locus(array, @2);
+    $$ = array;
+}
 | direct_declarator '[' type_qualifier_list ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_DECL(array) = $1;
+    tARRAY_QUALIFIERS(array) = $3;
+    set_locus(array, @2);
+    $$ = array;
+}
 | direct_declarator '[' assignment_expression ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_DECL(array) = $1;
+    tARRAY_SZ(array) = $3;
+    set_locus(array, @2);
+    $$ = array;
+}
 | direct_declarator '[' STATIC type_qualifier_list assignment_expression ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_DECL(array) = $1;
+    tARRAY_QUALIFIERS(array) = $4;
+    tARRAY_SZ(array) = $5;
+    set_locus(array, @2);
+    $$ = array;
+}
 | direct_declarator '[' type_qualifier_list STATIC assignment_expression ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_DECL(array) = $1;
+    tARRAY_QUALIFIERS(array) = $3;
+    tARRAY_SZ(array) = $5;
+    set_locus(array, @2);
+    $$ = array;
+}
 | direct_declarator '[' type_qualifier_list '*' ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_DECL(array) = $1;
+    tARRAY_QUALIFIERS(array) = $3;
+    set_locus(array, @2);
+    $$ = array;
+}
 | direct_declarator '[' '*' ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_DECL(array) = $1;
+    set_locus(array, @2);
+    $$ = array;
+}
 | direct_declarator '[' ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_DECL(array) = $1;
+    set_locus(array, @2);
+    $$ = array;
+}
 | direct_declarator '(' parameter_type_list ')'
+{
+    tree fn = tree_make(T_FN);
+    tFN_DECL(fn) = $1;
+    tFN_ARGS(fn) = $3;
+    set_locus(fn, @2);
+    $$ = fn;
+}
 | direct_declarator '(' identifier_list ')'
+{
+    tree fn = tree_make(T_FN);
+    tFN_DECL(fn) = $1;
+    tFN_ARGS(fn) = $3;
+    set_locus(fn, @2);
+    $$ = fn;
+}
 | direct_declarator '(' ')'
+{
+    tree fn = tree_make(T_FN);
+    tFN_DECL(fn) = $1;
+    set_locus(fn, @2);
+    $$ = fn;
+}
 ;
 
 pointer
