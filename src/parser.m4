@@ -133,7 +133,6 @@ ALL_TARGETS
 %type <tree> designator_list
 %type <tree> designator
 %type <tree> statement
-%type <tree> labeled_statement
 %type <tree> compound_statement
 %type <tree> block_item_list
 %type <tree> block_item
