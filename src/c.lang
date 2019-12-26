@@ -156,7 +156,7 @@
          ("EXP"))
 
 (deftype T_ARRAY "Array Declaration" "tARRAY"
-         ("ID" "SZ"))
+         ("DECL" "QUALIFIERS" "SZ"))
 
 (deftype T_ARRAY_TYPE "Array Type" "tARRAY_TYPE"
          ("BASE_TYPE" "SZ"))
@@ -169,6 +169,9 @@
                ("SZ" sz)
                ("EXPANDED" flag)
                ("TYPE"  comp_decl_type)))
+
+(deftype T_FN "Function declaration" "tFN"
+         ("DECL" "ARGS"))
 
 (deftype T_DECL_FN "Function Declaration" "tFNDECL"
          ("NAME" "RET_TYPE" "ARGS" "STMTS"))
