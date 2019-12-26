@@ -1167,16 +1167,77 @@ abstract_declarator
 
 direct_abstract_declarator
 : '(' abstract_declarator ')'
+{
+    $$ = $2;
+}
 | '[' ']'
+{
+    tree array = tree_make(T_ARRAY);
+    set_locus(array, @1);
+    $$ = array;
+}
 | '[' assignment_expression ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_SZ(array) = $2;
+    set_locus(array, @1);
+    $$ = array;
+}
 | direct_abstract_declarator '[' ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_DECL(array) = $1;
+    set_locus(array, @2);
+    $$ = array;
+}
 | direct_abstract_declarator '[' assignment_expression ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_DECL(array) = $1;
+    tARRAY_SZ(array) = $3;
+    set_locus(array, @2);
+    $$ = array;
+}
 | '[' '*' ']'
+{
+    tree array = tree_make(T_ARRAY);
+    set_locus(array, @1);
+    $$ = array;
+}
 | direct_abstract_declarator '[' '*' ']'
+{
+    tree array = tree_make(T_ARRAY);
+    tARRAY_DECL(array) = $1;
+    $$ = array;
+}
 | '(' ')'
+{
+    tree fn = tree_make(T_FN);
+    set_locus(fn, @1);
+    $$ = fn;
+}
 | '(' parameter_type_list ')'
+{
+    tree fn = tree_make(T_FN);
+    tFN_ARGS(fn) = $2;
+    set_locus(fn, @1);
+    $$ = fn;
+}
 | direct_abstract_declarator '(' ')'
+{
+    tree fn = tree_make(T_FN);
+    tFN_DECL(fn) = $1;
+    set_locus(fn, @2);
+    $$ = fn;
+}
 | direct_abstract_declarator '(' parameter_type_list ')'
+{
+    tree fn = tree_make(T_FN);
+    tFN_DECL(fn) = $1;
+    tFN_ARGS(fn) = $3;
+    set_locus(fn, @2);
+    $$ = fn;
+}
 ;
 
 initializer
