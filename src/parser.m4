@@ -1155,6 +1155,14 @@ abstract_declarator
 : pointer
 | direct_abstract_declarator
 | pointer direct_abstract_declarator
+{
+    tree ptr = $1;
+
+    while (ptr)
+        ptr = tPTR_EXP(ptr);
+
+    tPTR_EXP(ptr) - $2;
+}
 ;
 
 direct_abstract_declarator
