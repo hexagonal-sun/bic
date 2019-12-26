@@ -1036,9 +1036,33 @@ direct_declarator
 
 pointer
 : '*'
+{
+    tree ptr = tree_make(T_POINTER);
+    set_locus(ptr, @1);
+    $$ = ptr;
+}
 | '*' type_qualifier_list
+{
+    tree ptr = tree_make(T_POINTER);
+    tPTR_QUALIFIERS(ptr) = $2;
+    set_locus(ptr, @1);
+    $$ = ptr;
+}
 | '*' pointer
+{
+    tree ptr = tree_make(T_POINTER);
+    tPTR_EXP(ptr) = $2;
+    set_locus(ptr, @1);
+    $$ = ptr;
+}
 | '*' type_qualifier_list pointer
+{
+    tree ptr = tree_make(T_POINTER);
+    tPTR_EXP(ptr) = $3;
+    tPTR_QUALIFIERS(ptr) = $2;
+    set_locus(ptr, @1);
+    $$ = ptr;
+}
 ;
 
 type_qualifier_list
