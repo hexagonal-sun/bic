@@ -182,7 +182,7 @@
          ("NAME" "RET_TYPE" "ARGS" "STMTS"))
 
 (deftype T_FN_DEF "Function Definition" "tFNDEF"
-         ("NAME" "RET_TYPE" "ARGS" "STMTS"))
+         ("DECL" "RET_TYPE" "ARGS" "STMTS"))
 
 (deftype T_FN_CALL "Function Call" "tFNCALL"
          ("ID" "ARGS"))
