@@ -1086,7 +1086,13 @@ parameter_type_list
 
 parameter_list
 : parameter_declaration
+{
+    $$ = tree_chain_head($1);
+}
 | parameter_list ',' parameter_declaration
+{
+    tree_chain($3, $1);
+}
 ;
 
 parameter_declaration
