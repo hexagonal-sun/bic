@@ -1097,8 +1097,28 @@ parameter_list
 
 parameter_declaration
 : declaration_specifiers declarator
+{
+    tree decl = tree_make(T_DECL);
+    tDECL_SPECS(decl) = $1;
+    tDECL_DECLS(decl) = $2;
+    set_locus(decl, @1);
+    $$ = decl;
+}
 | declaration_specifiers abstract_declarator
+{
+    tree decl = tree_make(T_DECL);
+    tDECL_SPECS(decl) = $1;
+    tDECL_DECLS(decl) = $2;
+    set_locus(decl, @1);
+    $$ = decl;
+}
 | declaration_specifiers
+{
+    tree decl = tree_make(T_DECL);
+    tDECL_SPECS(decl) = $1;
+    set_locus(decl, @1);
+    $$ = decl;
+}
 ;
 
 identifier_list
