@@ -892,6 +892,13 @@ enumerator_list
 enumerator
 : IDENTIFIER
 | IDENTIFIER '=' constant_expression
+{
+    tree assign = tree_make(T_ASSIGN);
+    tASSIGN_LHS(assign) = $1;
+    tASSIGN_RHS(assign) = $3;
+    set_locus(assign, @2);
+    $$ = assign;
+}
 ;
 
 type_qualifier
