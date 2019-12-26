@@ -840,10 +840,42 @@ struct_declarator
 
 enum_specifier
 : ENUM '{' enumerator_list '}'
+{
+    tree eenum = tree_make(T_ENUMERATOR);
+    tENUM_ENUMS(eenum) = $3;
+    set_locus(eenum, @1);
+    $$ = eenum;
+}
 | ENUM IDENTIFIER '{' enumerator_list '}'
+{
+    tree eenum = tree_make(T_ENUMERATOR);
+    tENUM_NAME(eenum) = $2;
+    tENUM_ENUMS(eenum) = $4;
+    set_locus(eenum, @1);
+    $$ = eenum;
+}
 | ENUM '{' enumerator_list ',' '}'
+{
+    tree eenum = tree_make(T_ENUMERATOR);
+    tENUM_ENUMS(eenum) = $3;
+    set_locus(eenum, @1);
+    $$ = eenum;
+}
 | ENUM IDENTIFIER '{' enumerator_list ',' '}'
+{
+    tree eenum = tree_make(T_ENUMERATOR);
+    tENUM_NAME(eenum) = $2;
+    tENUM_ENUMS(eenum) = $4;
+    set_locus(eenum, @1);
+    $$ = eenum;
+}
 | ENUM IDENTIFIER
+{
+    tree eenum = tree_make(T_ENUMERATOR);
+    tENUM_NAME(eenum) = $2;
+    set_locus(eenum, @1);
+    $$ = eenum;
+}
 ;
 
 enumerator_list
