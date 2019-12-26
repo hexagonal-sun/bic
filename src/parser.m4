@@ -918,6 +918,9 @@ type_qualifier
 
 function_specifier
 : INLINE
+{
+    $$ = tree_make(T_INLINE);
+}
 ;
 
 declarator
