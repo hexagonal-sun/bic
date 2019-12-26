@@ -1254,13 +1254,33 @@ initializer
 
 initializer_list
 : initializer
+{
+    $$ = tree_chain_head($1);
+}
 | designation initializer
+{
+    tASSIGN_RHS($1) = $2;
+    $$ = tree_chain_head($1);
+}
 | initializer_list ',' initializer
+{
+    tree_chain($3, $1);
+}
 | initializer_list ',' designation initializer
+{
+    tASSIGN_RHS($3) = $4;
+    tree_chain($3, $1);
+}
 ;
 
 designation
 : designator_list '='
+{
+    tree assign = tree_make(T_ASSIGN);
+    tASSIGN_LHS(assign) = $1;
+    set_locus(assign, @2);
+    $$ = assign;
+}
 ;
 
 designator_list
