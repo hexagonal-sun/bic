@@ -1312,18 +1312,11 @@ designator
 ;
 
 statement
-: labeled_statement
-| compound_statement
+: compound_statement
 | expression_statement
 | selection_statement
 | iteration_statement
 | jump_statement
-;
-
-labeled_statement
-: IDENTIFIER ':' statement
-| CASE constant_expression ':' statement
-| DEFAULT ':' statement
 ;
 
 compound_statement
