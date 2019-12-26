@@ -1489,5 +1489,11 @@ function_definition
 
 declaration_list
 : declaration
+{
+    $$ = tree_chain_head($1);
+}
 | declaration_list declaration
+{
+    tree_chain($2, $1);
+}
 ;
