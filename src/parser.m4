@@ -1321,7 +1321,15 @@ statement
 
 compound_statement
 : '{' '}'
+{
+    tree empty = tree_make(T_EMPTY);
+    set_locus(empty, @1);
+    $$ = empty;
+}
 | '{' block_item_list '}'
+{
+    $$  = $2;
+}
 ;
 
 block_item_list
