@@ -1380,11 +1380,51 @@ selection_statement
 
 iteration_statement
 : WHILE '(' expression ')' statement
-| DO statement WHILE '(' expression ')' ';'
+{
+    tree wloop = tree_make(T_LOOP_WHILE);
+    tWLOOP_COND(wloop) = $3;
+    tWLOOP_STMTS(wloop) = $5;
+    set_locus(wloop, @1);
+    $$ = wloop;
+}
 | FOR '(' expression_statement expression_statement ')' statement
+{
+    tree floop = tree_make(T_LOOP_FOR);
+    tFLOOP_INIT(floop) = $3;
+    tFLOOP_COND(floop) = $4;
+    tFLOOP_STMTS(floop) = $6;
+    set_locus(floop, @1);
+    $$ = floop;
+}
 | FOR '(' expression_statement expression_statement expression ')' statement
+{
+    tree floop = tree_make(T_LOOP_FOR);
+    tFLOOP_INIT(floop) = $3;
+    tFLOOP_COND(floop) = $4;
+    tFLOOP_AFTER(floop) = $5;
+    tFLOOP_STMTS(floop) = $7;
+    set_locus(floop, @1);
+    $$ = floop;
+}
 | FOR '(' declaration expression_statement ')' statement
+{
+    tree floop = tree_make(T_LOOP_FOR);
+    tFLOOP_INIT(floop) = $3;
+    tFLOOP_COND(floop) = $4;
+    tFLOOP_STMTS(floop) = $6;
+    set_locus(floop, @1);
+    $$ = floop;
+}
 | FOR '(' declaration expression_statement expression ')' statement
+{
+    tree floop = tree_make(T_LOOP_FOR);
+    tFLOOP_INIT(floop) = $3;
+    tFLOOP_COND(floop) = $4;
+    tFLOOP_AFTER(floop) = $5;
+    tFLOOP_STMTS(floop) = $7;
+    set_locus(floop, @1);
+    $$ = floop;
+}
 ;
 
 jump_statement
