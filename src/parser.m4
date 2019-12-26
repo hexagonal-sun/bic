@@ -1079,6 +1079,9 @@ type_qualifier_list
 parameter_type_list
 : parameter_list
 | parameter_list ',' ELLIPSIS
+{
+    tree_chain(tree_make(T_VARIADIC), $1);
+}
 ;
 
 parameter_list
