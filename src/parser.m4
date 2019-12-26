@@ -810,7 +810,13 @@ specifier_qualifier
 
 struct_declarator_list
 : struct_declarator
+{
+    $$ = tree_chain_head($1);
+}
 | struct_declarator_list ',' struct_declarator
+{
+    tree_chain($3, $1);
+}
 ;
 
 struct_declarator
