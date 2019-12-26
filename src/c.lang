@@ -134,6 +134,10 @@
 (deftype T_UNSIGNED_TS "unsigned type specifier")
 (deftype T_BOOL_TS "bool type specifier")
 
+(deftype T_CONST "const type qualifier")
+(deftype T_RESTRICT "restrict type qualifier")
+(deftype T_VOLATILE "volatile type qualifier")
+
 (deftype T_BITFIELD "Bitfield declarator" "tBITFIELD"
          ("SZ" "DECLARATOR"))
 

@@ -903,8 +903,17 @@ enumerator
 
 type_qualifier
 : CONST
+{
+    $$ = tree_make(T_CONST);
+}
 | RESTRICT
+{
+    $$ = tree_make(T_RESTRICT);
+}
 | VOLATILE
+{
+    $$ = tree_make(T_VOLATILE);
+}
 ;
 
 function_specifier
