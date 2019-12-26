@@ -771,7 +771,13 @@ struct_or_union
 
 struct_declaration_list
 : struct_declaration
+{
+    $$ = tree_chain_head($1);
+}
 | struct_declaration_list struct_declaration
+{
+    tree_chain($2, $1);
+}
 ;
 
 struct_declaration
