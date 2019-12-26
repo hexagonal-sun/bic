@@ -1334,7 +1334,13 @@ compound_statement
 
 block_item_list
 : block_item
+{
+    $$ = tree_chain_head($1);
+}
 | block_item_list block_item
+{
+    tree_chain($2, $1);
+}
 ;
 
 block_item
