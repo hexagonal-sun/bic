@@ -138,6 +138,8 @@
 (deftype T_RESTRICT "restrict type qualifier")
 (deftype T_VOLATILE "volatile type qualifier")
 
+(deftype T_EMPTY "Empty block")
+
 (deftype T_INLINE "inline function specifier")
 
 (deftype T_BITFIELD "Bitfield declarator" "tBITFIELD"
