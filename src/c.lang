@@ -164,6 +164,9 @@
 (deftype T_DECL "Declaration" "tDECL"
          ("SPECS" "DECLS"))
 
+(deftype T_TYPE_SPECIFIER "Type specifier" "tTYPE_SPECIFIER"
+         ("SPECS" "DECL"))
+
 (deftype T_DECL_COMPOUND "Compound Declataion" "tCOMP_DECL"
          ("ID" "DECLS"
                ("SZ" sz)

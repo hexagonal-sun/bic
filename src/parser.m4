@@ -1134,7 +1134,21 @@ identifier_list
 
 type_name
 : specifier_qualifier_list
+{
+    tree type_spec = tree_make(T_TYPE_SPECIFIER);
+    tTYPE_SPECIFIER_SPECS(type_spec) = $1;
+    set_locus(type_spec, @1);
+    $$ = type_spec;
+
+}
 | specifier_qualifier_list abstract_declarator
+{
+    tree type_spec = tree_make(T_TYPE_SPECIFIER);
+    tTYPE_SPECIFIER_SPECS(type_spec) = $1;
+    tTYPE_SPECIFIER_DECL(type_spec) = $2;
+    set_locus(type_spec, @1);
+    $$ = type_spec;
+}
 ;
 
 abstract_declarator
