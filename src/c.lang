@@ -46,7 +46,7 @@
          (("STR" string)))
 
 (deftype T_POINTER "Pointer" "tPTR"
-         ("EXP"))
+         ("EXP" "QUALIFIERS"))
 
 (deftype T_INSPECT "Inspect Identifier" "tINSPECT"
          ("EXP"))
