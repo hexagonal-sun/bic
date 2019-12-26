@@ -108,6 +108,7 @@ ALL_TARGETS
 %type <tree> struct_declaration_list
 %type <tree> struct_declaration
 %type <tree> specifier_qualifier_list
+%type <tree> specifier_qualifier
 %type <tree> struct_declarator_list
 %type <tree> struct_declarator
 %type <tree> enum_specifier
@@ -792,9 +793,18 @@ struct_declaration
 ;
 
 specifier_qualifier_list
-: type_specifier specifier_qualifier_list
-| type_specifier
-| type_qualifier specifier_qualifier_list
+: specifier_qualifier
+{
+    $$ = tree_chain_head($1);
+}
+| specifier_qualifier_list  specifier_qualifier
+{
+    tree_chain($2, $1);
+}
+;
+
+specifier_qualifier
+: type_specifier
 | type_qualifier
 ;
 
