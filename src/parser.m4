@@ -1285,7 +1285,13 @@ designation
 
 designator_list
 : designator
+{
+    $$ = tree_chain_head($1);
+}
 | designator_list designator
+{
+    tree_chain($2, $1);
+}
 ;
 
 designator
