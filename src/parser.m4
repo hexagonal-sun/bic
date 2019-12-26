@@ -880,7 +880,13 @@ enum_specifier
 
 enumerator_list
 : enumerator
+{
+    $$ = tree_chain_head($1);
+}
 | enumerator_list ',' enumerator
+{
+    tree_chain($3, $1);
+}
 ;
 
 enumerator
