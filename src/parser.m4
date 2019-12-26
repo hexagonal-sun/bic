@@ -1123,7 +1123,13 @@ parameter_declaration
 
 identifier_list
 : IDENTIFIER
+{
+    $$ = tree_chain_head($1);
+}
 | identifier_list ',' IDENTIFIER
+{
+    tree_chain($3, $1);
+}
 ;
 
 type_name
