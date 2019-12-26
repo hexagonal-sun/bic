@@ -1243,7 +1243,13 @@ direct_abstract_declarator
 initializer
 : assignment_expression
 | '{' initializer_list '}'
+{
+    $$ = $2;
+}
 | '{' initializer_list ',' '}'
+{
+    $$ = $2;
+}
 ;
 
 initializer_list
