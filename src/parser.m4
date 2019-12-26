@@ -782,6 +782,13 @@ struct_declaration_list
 
 struct_declaration
 : specifier_qualifier_list struct_declarator_list ';'
+{
+    tree decl = tree_make(T_DECL);
+    tDECL_SPECS(decl) = $1;
+    tDECL_DECLS(decl) = $2;
+    set_locus(decl, @1);
+    $$ = decl;
+}
 ;
 
 specifier_qualifier_list
