@@ -1350,6 +1350,11 @@ block_item
 
 expression_statement
 : ';'
+{
+    tree empty = tree_make(T_EMPTY);
+    set_locus(empty, @1);
+    $$ = empty;
+}
 | expression ';'
 ;
 
