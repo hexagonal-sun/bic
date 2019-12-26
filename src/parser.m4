@@ -822,7 +822,20 @@ struct_declarator_list
 struct_declarator
 : declarator
 | ':' constant_expression
+{
+    tree bitfield = tree_make(T_BITFIELD);
+    tBITFIELD_SZ(bitfield) = $2;
+    set_locus(bitfield, @1);
+    $$ = bitfield;
+}
 | declarator ':' constant_expression
+{
+    tree bitfield = tree_make(T_BITFIELD);
+    tBITFIELD_SZ(bitfield) = $3;
+    tBITFIELD_DECLARATOR(bitfield) = $1;
+    set_locus(bitfield, @2);
+    $$ = bitfield;
+}
 ;
 
 enum_specifier
