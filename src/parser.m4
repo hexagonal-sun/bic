@@ -1067,7 +1067,13 @@ pointer
 
 type_qualifier_list
 : type_qualifier
+{
+    $$ = tree_chain_head($1);
+}
 | type_qualifier_list type_qualifier
+{
+    tree_chain($2, $1);
+}
 ;
 
 parameter_type_list
