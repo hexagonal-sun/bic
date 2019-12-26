@@ -1360,8 +1360,22 @@ expression_statement
 
 selection_statement
 : IF '(' expression ')' statement
+{
+    tree iif = tree_make(T_IF);
+    tIF_COND(iif) = $3;
+    tIF_TRUE_STMTS(iif) = $5;
+    set_locus(iif, @1);
+    $$ = iif;
+}
 | IF '(' expression ')' statement ELSE statement
-| SWITCH '(' expression ')' statement
+{
+    tree iif = tree_make(T_IF);
+    tIF_COND(iif) = $3;
+    tIF_TRUE_STMTS(iif) = $5;
+    tIF_ELSE_STMTS(iif) = $7;
+    set_locus(iif, @1);
+    $$ = iif;
+}
 ;
 
 iteration_statement
