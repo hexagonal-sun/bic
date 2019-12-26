@@ -46,6 +46,7 @@ ALL_TARGETS
     mpf_t ffloat;
     char *string;
     tree tree;
+    compound_type compound_type;
 }
 
 %define parse.error verbose
@@ -103,7 +104,7 @@ ALL_TARGETS
 %type <tree> storage_class_specifier
 %type <tree> type_specifier
 %type <tree> struct_or_union_specifier
-%type <tree> struct_or_union
+%type <compound_type> struct_or_union
 %type <tree> struct_declaration_list
 %type <tree> struct_declaration
 %type <tree> specifier_qualifier_list
@@ -731,13 +732,41 @@ type_specifier
 
 struct_or_union_specifier
 : struct_or_union IDENTIFIER '{' struct_declaration_list '}'
+{
+    tree decl_compound = tree_make(T_DECL_COMPOUND);
+    tCOMP_DECL_ID(decl_compound) = $2;
+    tCOMP_DECL_TYPE(decl_compound) = $1;
+    tCOMP_DECL_DECLS(decl_compound) = $4;
+    set_locus(decl_compound, @1);
+    $$ = decl_compound;
+}
 | struct_or_union '{' struct_declaration_list '}'
+{
+    tree decl_compound = tree_make(T_DECL_COMPOUND);
+    tCOMP_DECL_TYPE(decl_compound) = $1;
+    tCOMP_DECL_DECLS(decl_compound) = $3;
+    set_locus(decl_compound, @1);
+    $$ = decl_compound;
+}
 | struct_or_union IDENTIFIER
+{
+    tree decl_compound = tree_make(T_DECL_COMPOUND);
+    tCOMP_DECL_TYPE(decl_compound) = $1;
+    tCOMP_DECL_ID(decl_compound) = $2;
+    set_locus(decl_compound, @1);
+    $$ = decl_compound;
+}
 ;
 
 struct_or_union
 : STRUCT
+{
+    $$ = sstruct;
+}
 | UNION
+{
+    $$ = uunion;
+}
 ;
 
 struct_declaration_list
