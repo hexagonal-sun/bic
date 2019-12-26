@@ -1296,7 +1296,19 @@ designator_list
 
 designator
 : '[' constant_expression ']'
+{
+    tree array_access = tree_make(T_ARRAY_ACCESS);
+    tARR_ACCESS_IDX(array_access) = $2;
+    set_locus(array_access, @2);
+    $$ = array_access;
+}
 | '.' IDENTIFIER
+{
+    tree comp_access = tree_make(T_COMP_ACCESS);
+    tCOMP_ACCESS_MEMBER(comp_access) = $2;
+    set_locus(comp_access, @2);
+    $$ = comp_access;
+}
 ;
 
 statement
