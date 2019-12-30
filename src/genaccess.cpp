@@ -16,18 +16,16 @@ static void outputPremble(FILE *f)
           "\n", f);
 }
 
-static void outputProps(FILE *f,
-                        typeMap_t props,
-                        std::string typeName)
+static void outputProps(FILE *f, const struct TreeType &t)
 {
-    if (props.size() == 0)
+    if (t.props.size() == 0)
         return;
 
-    fprintf(f, "/* Access macros for %s objects */\n", typeName.c_str());
+    fprintf(f, "/* Access macros for %s objects */\n", t.name.c_str());
 
-    for (const auto prop : props)
+    for (const auto prop : t.props)
         fprintf(f, "#define %s(obj) (_DATA( TREE_CHECK((obj), %s)).%s)\n",
-                prop.first.c_str(), typeName.c_str(),
+                t.getPropAccessor(prop.first).c_str(), t.name.c_str(),
                 prop.second.memberName.c_str());
 
     fprintf(f,"\n");
@@ -37,10 +35,10 @@ static void outputTreeAccessMacros(const struct lang &lang,
                                    FILE *f)
 {
     for (const auto type : lang.treeTypes)
-        outputProps(f, type.props, type.name);
+        outputProps(f, type);
 
     for (const auto ctype : lang.treeCTypes)
-        outputProps(f, ctype.props, ctype.name);
+        outputProps(f, ctype);
 }
 
 static void outputEpilogue(FILE *f)

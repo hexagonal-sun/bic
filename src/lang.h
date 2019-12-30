@@ -23,6 +23,11 @@ typedef std::unordered_map<std::string, const struct InstantiatedType> typeMap_t
 struct TreeType {
     std::string name;
     std::string friendly_name;
+    std::string propPrefix;
+    std::string getPropAccessor(std::string propName) const
+        {
+            return propPrefix + "_" + propName;
+        }
     typeMap_t props;
 };
 

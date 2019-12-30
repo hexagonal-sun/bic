@@ -130,7 +130,7 @@ static void parsePropList(struct lang &lang,
 
     if (token != STRING)
         perror("Expected STRING or ')'");
-    propNamePrefix = lexval + "_";
+    tree.propPrefix = lexval;
 
     token = yylex();
     if (token != '(')
@@ -152,7 +152,7 @@ static void parsePropList(struct lang &lang,
             break;
         }
         case STRING:
-            tree.props.insert({propNamePrefix + lexval, treeAllocator.alloc()});
+            tree.props.insert({lexval, treeAllocator.alloc()});
             break;
         default:
             perror("Expected '(' ')' or STRING");

@@ -38,14 +38,14 @@ static void outputTreeType(FILE *f, const struct TreeType &type)
             fprintf(f, "        fprintf(stderr, \"     \");\n");
         }
 
-        fprintf(f, "        fprintf(stderr, \" %s: \");\n", prop.first.c_str());
+        fprintf(f, "        fprintf(stderr, \" %s: \");\n", type.getPropAccessor(prop.first).c_str());
 
         if (prop.second.baseType.isTree) {
             hasPrintedTree = true;
-            fprintf(f, "        __tree_dump(%s(head), depth + 1);\n", prop.first.c_str());
+            fprintf(f, "        __tree_dump(%s(head), depth + 1);\n", type.getPropAccessor(prop.first).c_str());
         } else
             fprintf(f, "        tree_dump_%s(head, %s(head), TEXTUAL);\n",
-                    prop.second.baseType.name.c_str(), prop.first.c_str());
+                    prop.second.baseType.name.c_str(), type.getPropAccessor(prop.first).c_str());
 
     }
 

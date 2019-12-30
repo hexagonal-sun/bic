@@ -2,23 +2,21 @@
 
 static std::vector<std::string> propertylessTypes;
 
-static void outputGCMarkProps(FILE *f,
-                              typeMap_t props,
-                              std::string typeName)
+static void outputGCMarkProps(FILE *f, const struct TreeType &t)
 {
-    if (typeName == "CHAIN_HEAD")
+    if (t.name == "CHAIN_HEAD")
         return;
 
-    if (props.size() == 0) {
-        propertylessTypes.push_back(typeName);
+    if (t.props.size() == 0) {
+        propertylessTypes.push_back(t.name);
         return;
     }
 
-    fprintf(f, "    case %s:\n", typeName.c_str());
+    fprintf(f, "    case %s:\n", t.name.c_str());
 
-    for (const auto prop : props)
+    for (const auto prop : t.props)
         if (prop.second.baseType.isTree)
-            fprintf(f, "        mark_tree(%s(t));\n", prop.first.c_str());
+            fprintf(f, "        mark_tree(%s(t));\n", t.getPropAccessor(prop.first).c_str());
 
     fputs("        break;\n", f);
 }
@@ -36,10 +34,10 @@ static void outputGCPropTraverse(const struct lang &lang,
                                  FILE *f)
 {
     for (const auto type : lang.treeTypes)
-        outputGCMarkProps(f, type.props, type.name);
+        outputGCMarkProps(f, type);
 
     for (const auto ctype : lang.treeCTypes)
-        outputGCMarkProps(f, ctype.props, ctype.name);
+        outputGCMarkProps(f, ctype);
 
     outputPropertylessTypes(f);
 }
