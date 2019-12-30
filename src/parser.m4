@@ -567,10 +567,6 @@ expression
 }
 ;
 
-constant_expression
-: conditional_expression
-;
-
 declaration
 : declaration_specifiers ';'
 {
