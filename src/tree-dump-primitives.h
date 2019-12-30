@@ -4,6 +4,7 @@
 enum DUMP_TYPE
 {
     TEXTUAL,
+    DOT,
 };
 
 static inline void tree_dump_ptr(tree t, void *ptr, enum DUMP_TYPE dt)
@@ -26,7 +27,10 @@ static inline void tree_dump_flag(tree t, bool flag, enum DUMP_TYPE dt)
 
 static inline void tree_dump_string(tree t, const char *s, enum DUMP_TYPE dt)
 {
-    fprintf(stderr, "\"%s\"", s);
+    if (dt == TEXTUAL)
+        fprintf(stderr, "\"%s\"", s);
+    else
+        fprintf(stderr, "%s", s);
 }
 
 static inline void tree_dump_jmp_buf(tree t, jmp_buf b, enum DUMP_TYPE dt)

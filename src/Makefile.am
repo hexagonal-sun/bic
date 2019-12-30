@@ -2,7 +2,7 @@ BUILT_SOURCES = cfileparser.h cfilelex.h replparser.h repllex.h lang_lexer.h \
 	tree.def ctypes.def tree-base.h tree-access.h
 SUBDIRS = $(BUILD_CPU)
 AM_YFLAGS = --warnings="no-yacc" -d
-noinst_PROGRAMS = gentypes genctypes gentree genaccess gengc gendump
+noinst_PROGRAMS = gentypes genctypes gentree genaccess gengc gendump gendot
 bin_PROGRAMS = bic
 
 noinst_LIBRARIES = libbic.a
@@ -15,7 +15,7 @@ repllex.h replparser.y repl.c repl.h pretty-printer.c			\
 pretty-printer.h lex.m4 parser-lex-funcs.m4 parser.m4 util.c util.h	\
 gc.c gc.h preprocess.c preprocess.h tree-base.h gc-internal.h		\
 gc-internal.c tree-dump.c tree-dump.h tree-dump-primitives.h \
-inspect.c inspect.h
+inspect.c inspect.h tree-dump-dot.c
 
 EXTRA_DIST = c.lang
 DISTCLEANFILES = tree.def ctypes.def tree-base.h tree-access.h	\
@@ -32,6 +32,7 @@ gentree_SOURCES =  $(lang_src) gentree.cpp
 genaccess_SOURCES = $(lang_src) genaccess.cpp
 gengc_SOURCES = $(lang_src) gengc.cpp
 gendump_SOURCES = $(lang_src) gendump.cpp
+gendot_SOURCES = $(lang_src) gendot.cpp
 
 tree.def: gentypes c.lang
 	$(AM_V_GEN)./$^
@@ -49,6 +50,9 @@ gc-internal.c: gengc c.lang
 	$(AM_V_GEN)./$^
 
 tree-dump.c: gendump c.lang
+	$(AM_V_GEN)./$^
+
+tree-dump-dot.c: gendot c.lang
 	$(AM_V_GEN)./$^
 
 %.h: %.l

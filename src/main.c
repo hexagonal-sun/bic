@@ -11,6 +11,9 @@
 #include "util.h"
 #include "gc.h"
 #include "preprocess.h"
+#include "tree-dump-dot.h"
+#include "tree-dump.h"
+#include "tree-dump-primitives.h"
 
 #if defined(BUILD_LINUX)
  #include <gnu/lib-names.h>
@@ -20,6 +23,7 @@ extern FILE* cfilein;
 extern int cfileparse();
 extern void cfile_parser_set_file(const char *fname);
 extern const char *parser_current_file;
+enum DUMP_TYPE dump_type = TEXTUAL;
 
 static int flag_print_ast = 0;
 
@@ -95,6 +99,10 @@ static void usage(char *progname)
             "\n"
             "  -v: Print version information and exit.\n"
             "\n"
+            "  -T: after parsing CFILE, dump the AST and exit.\n"
+            "\n"
+            "  -D: output dumps in the `dot` format for use with graphviz.\n"
+            "\n"
             "  CFILE: Parse, evaluate and call a function called\n"
             "         `main' within the file."
             "\n"
@@ -153,7 +161,7 @@ static int parse_args(int argc, char *argv[])
 {
     int opt;
 
-    while ((opt = getopt(argc, argv, "vTl:I:")) != -1) {
+    while ((opt = getopt(argc, argv, "vTDl:I:")) != -1) {
         switch (opt) {
         case 'l':
             if (!open_library(optarg)) {
@@ -173,6 +181,9 @@ static int parse_args(int argc, char *argv[])
         case 'T':
             flag_print_ast = 1;
             break;
+        case 'D':
+            dump_type = DOT;
+            break;
         default: /* '?' */
             usage(argv[0]);
             exit(EXIT_FAILURE);
@@ -191,7 +202,10 @@ static int bic_eval_file(const char *file)
 
     if( flag_print_ast )
     {
-        tree_dump(cfile_parse_head);
+        if (dump_type == DOT)
+            tree_dump_dot(cfile_parse_head);
+        else
+            tree_dump(cfile_parse_head);
         exit(0);
     }
 
