@@ -35,7 +35,7 @@ static void outputTreeType(FILE *f, const struct TreeType &type)
             fprintf(f, "            if (is_CHAIN_HEAD(%s(head))) {\n", propAccessor.c_str());
             fprintf(f, "                tree first_member;\n");
             fprintf(f, "                for_each_tree(first_member, %s(head)) break;\n", propAccessor.c_str());
-            fprintf(f, "                fprintf(stderr, \"tree_%%x -> tree_%%x [label=\\\"%s\\\"];\\n\", head, first_member);\n",
+            fprintf(f, "                fprintf(stderr, \"tree_%%x -> tree_%%x [label=\\\"%s\\\", color=red, style=dashed];\\n\", head, first_member);\n",
                     prop.first.c_str());
             fprintf(f, "            } else\n");
             fprintf(f, "                fprintf(stderr, \"tree_%%x -> tree_%%x [label=\\\"%s\\\"];\\n\", head, %s(head));\n",
@@ -90,7 +90,7 @@ static void outputEpilogue(FILE *f)
           "\n"
           "            if (last_chain){\n"
           "                tree_print_indent(depth);\n"
-          "                fprintf(stderr, \"tree_%x -> tree_%x [ltail=cluster_%x_%d, lhead=cluster_%x_%d];\\n\",\n"
+          "                fprintf(stderr, \"tree_%x -> tree_%x [ltail=cluster_%x_%d, lhead=cluster_%x_%d, style=dashed, color=blue];\\n\",\n"
           "                                last_chain, i, head, subgraph_no - 1, head, subgraph_no);\n"
           "            }\n"
           "\n"
