@@ -189,6 +189,40 @@ void tree_dump(tree tree);
 #include "ctypes.def"
 #undef DEFCTYPE
 
+#define DEFTYPE(ETYPE, DESC)                          \
+    static inline int chain_has_##ETYPE (tree chain)  \
+    {                                                 \
+        tree i;                                       \
+                                                      \
+        if (!chain)                                       \
+            return 0;                                 \
+                                                      \
+        for_each_tree(i, chain)                       \
+            if (TYPE(i) == ETYPE)                     \
+                return 1;                             \
+                                                      \
+        return 0;                                     \
+    }
+#include "tree.def"
+#undef DEFTYPE
+
+#define DEFCTYPE(ETYPE, DESC, FMT, CTYPE, FFMEM)                        \
+    static inline int chain_has_##ETYPE (tree chain)                    \
+    {                                                                   \
+        tree i;                                                         \
+                                                                        \
+        if (!chain)                                                     \
+            return 0;                                                   \
+                                                                        \
+        for_each_tree(i, chain)                                         \
+            if (TYPE(i) == ETYPE)                                       \
+                return 1;                                               \
+                                                                        \
+        return 0;                                                       \
+    }
+#include "ctypes.def"
+#undef DEFCTYPE
+
 static inline int is_CTYPE(tree t)
 {
     if (!t)
