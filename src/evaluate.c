@@ -375,121 +375,121 @@ static tree eval_fn_call(tree t, int depth)
          * create a LIVE_VAR for it. */
         function = __evaluate_1(function, depth + 1);
 
-    if (is_T_FN_DEF(function)) {
-        tree arg_decls = tFNDEF_ARGS(function),
-            arg_vals = tFNCALL_ARGS(t),
-            arg_decl, arg_val, return_val, fn_ctx;
+    if (is_T_FN(function)) {
+        if (tFN_STMTS(function)) {
+            tree arg_decls = tFN_ARGS(function),
+                arg_vals = tFNCALL_ARGS(t),
+                arg_decl, arg_val, return_val, fn_ctx;
 
-        push_ctx(tID_STR(tFNDEF_NAME(function)));
-        tECTX_IS_FN_CALL(cur_ctx) = true;
+            push_ctx(tID_STR(tFN_DECL(function)));
+            tECTX_IS_FN_CALL(cur_ctx) = true;
 
-        fn_ctx = cur_ctx;
+            fn_ctx = cur_ctx;
 
-        if (arg_decls) {
-            size_t no_decls = 0, no_vals = 0;
-            /* Ensure that the number of parameters passed to the
-             * function matches the number in the function
-             * declaration. */
-            for_each_tree(arg_decl, arg_decls)
-                no_decls++;
+            if (arg_decls) {
+                size_t no_decls = 0, no_vals = 0;
+                /* Ensure that the number of parameters passed to the
+                 * function matches the number in the function
+                 * declaration. */
+                for_each_tree(arg_decl, arg_decls)
+                    no_decls++;
 
-            if (arg_vals)
-                for_each_tree(arg_val, arg_vals)
-                    no_vals++;
+                if (arg_vals)
+                    for_each_tree(arg_val, arg_vals)
+                        no_vals++;
 
-            if (no_vals != no_decls)
-                eval_die(t, "Invalid number of parameters to function\n");
+                if (no_vals != no_decls)
+                    eval_die(t, "Invalid number of parameters to function\n");
 
-            /* Evaluate an assignment for each passed value. */
-            arg_val = arg_vals;
+                /* Evaluate an assignment for each passed value. */
+                arg_val = arg_vals;
 
-            for_each_tree(arg_decl, arg_decls) {
-                tree eval_arg_val,
-                    decl_identifier,
-                    assign;
+                for_each_tree(arg_decl, arg_decls) {
+                    tree eval_arg_val,
+                        decl_identifier,
+                        assign;
 
-                arg_val = list_entry(arg_val->chain.next,
-                                     typeof(*arg_val), chain);
+                    arg_val = list_entry(arg_val->chain.next,
+                                         typeof(*arg_val), chain);
 
-                /* We need to evaluate the argument value before
-                 * adding the declaration on to the new context.  This
-                 * prevents bugs with things such as:
-                 *
-                 * 0: int foo(int a)
-                 * 1: {
-                 * 2:      use(a);
-                 * 3: }
-                 * 4:
-                 * 5: int main()
-                 * 6: {
-                 * 7:     int a = 10;
-                 * 8:     foo(a);
-                 * 9: }
-                 *
-                 * Notice that if we evaluated 'int a' on line 0
-                 * first, then we evaluate the assignment 'a = a' the
-                 * lhs would evaluate to the newly declared 'a' value.
-                 * Therefore, if we evaluate 'a' on line 8 before the
-                 * declaration on line 0, we obtain the correct lvalue
-                 * for assignment. */
-                eval_arg_val = __evaluate_1(arg_val, depth + 1);
-                decl_identifier = __evaluate_1(arg_decl, depth + 1);
+                    /* We need to evaluate the argument value before
+                     * adding the declaration on to the new context.  This
+                     * prevents bugs with things such as:
+                     *
+                     * 0: int foo(int a)
+                     * 1: {
+                     * 2:      use(a);
+                     * 3: }
+                     * 4:
+                     * 5: int main()
+                     * 6: {
+                     * 7:     int a = 10;
+                     * 8:     foo(a);
+                     * 9: }
+                     *
+                     * Notice that if we evaluated 'int a' on line 0
+                     * first, then we evaluate the assignment 'a = a' the
+                     * lhs would evaluate to the newly declared 'a' value.
+                     * Therefore, if we evaluate 'a' on line 8 before the
+                     * declaration on line 0, we obtain the correct lvalue
+                     * for assignment. */
+                    eval_arg_val = __evaluate_1(arg_val, depth + 1);
+                    decl_identifier = __evaluate_1(arg_decl, depth + 1);
 
-                assign = tree_make(T_ASSIGN);
-                tASSIGN_LHS(assign) = decl_identifier;
-                tASSIGN_RHS(assign) = eval_arg_val;
-                __evaluate_1(assign, depth + 1);
+                    assign = tree_make(T_ASSIGN);
+                    tASSIGN_LHS(assign) = decl_identifier;
+                    tASSIGN_RHS(assign) = eval_arg_val;
+                    __evaluate_1(assign, depth + 1);
+                }
             }
-        }
 
-        if (!setjmp(tECTX_JMP_BUF(cur_ctx))) {
-            __evaluate(tFNDEF_STMTS(function), depth + 1);
+            if (!setjmp(tECTX_JMP_BUF(cur_ctx))) {
+                __evaluate(tFN_STMTS(function), depth + 1);
 
-            /* If we reach here, then the function that we called was either
-             * void so a `return` statment was never executed, or it should have
-             * returned a value but didn't. In either case, return NULL. */
-            return_val = NULL;
+                /* If we reach here, then the function that we called was either
+                 * void so a `return` statment was never executed, or it should have
+                 * returned a value but didn't. In either case, return NULL. */
+                return_val = NULL;
+            } else {
+                /* After doing a longjmp, we need to pop off all redundant evaluator
+                 * contexts util we arrive at the context pushed for this function.
+                 * Unfortunetly longjmp doesn't do this for us. */
+                while (cur_ctx != fn_ctx)
+                    pop_ctx();
+
+                return_val = tECTX_RETVAL(cur_ctx);
+            }
+
+            pop_ctx();
+
+            return return_val;
         } else {
-            /* After doing a longjmp, we need to pop off all redundant evaluator
-             * contexts util we arrive at the context pushed for this function.
-             * Unfortunetly longjmp doesn't do this for us. */
-            while (cur_ctx != fn_ctx)
-                pop_ctx();
+            tree fn_arg_chain = NULL, args = tFNCALL_ARGS(t);
+            char *function_name = tID_STR(tFN_DECL(function));
+            tree i;
+            union function_return res;
+            void *function_address = dlsym(RTLD_DEFAULT, function_name);
+            bool is_variadic = false;
 
-            return_val = tECTX_RETVAL(cur_ctx);
+            if (function_address == NULL)
+                eval_die(t, "Could not resolve external symbol: %s\n", function_name);
+
+
+            for_each_tree(i, tFN_ARGS(function))
+                if (is_T_VARIADIC(i)){
+                    is_variadic = true;
+                    break;
+                }
+
+            /* Evaluate all arguments before passing into the marshalling
+             * function. */
+            fn_arg_chain = eval_fn_args(args, depth);
+
+            res = do_call(function_address, fn_arg_chain, tFN_RET_TYPE(function),
+                          is_variadic);
+
+            return make_fncall_result(tFN_RET_TYPE(function), res);
         }
-
-        pop_ctx();
-
-        return return_val;
-    }
-
-    if (is_T_DECL_FN(function)) {
-        tree fn_arg_chain = NULL, args = tFNCALL_ARGS(t);
-        char *function_name = tID_STR(tFNDECL_NAME(function));
-        tree i;
-        union function_return res;
-        void *function_address = dlsym(RTLD_DEFAULT, function_name);
-        bool is_variadic = false;
-
-        if (function_address == NULL)
-            eval_die(t, "Could not resolve external symbol: %s\n", function_name);
-
-
-        for_each_tree(i, tFNDECL_ARGS(function))
-            if (is_T_VARIADIC(i)){
-                is_variadic = true;
-                break;
-            }
-
-        /* Evaluate all arguments before passing into the marshalling
-         * function. */
-        fn_arg_chain = eval_fn_args(args, depth);
-
-        res = do_call(function_address, fn_arg_chain, tFNDECL_RET_TYPE(function),
-                      is_variadic);
-
-        return make_fncall_result(tFNDECL_RET_TYPE(function), res);
     }
 
     if (is_T_LIVE_VAR(function)) {
@@ -504,10 +504,10 @@ static tree eval_fn_call(tree t, int depth)
 
         function_type = tDTPTR_EXP(live_var_type);
 
-        if (!is_T_DECL_FN(function_type))
+        if (!is_T_FN(function_type))
             eval_die(t, "could not call non-function pointer type\n");
 
-        for_each_tree(i, tFNDECL_ARGS(function_type))
+        for_each_tree(i, tFN_ARGS(function_type))
             if (is_T_VARIADIC(i)){
                 is_variadic = true;
                 break;
@@ -518,18 +518,10 @@ static tree eval_fn_call(tree t, int depth)
         fn_arg_chain = eval_fn_args(args, depth);
 
         res = do_call(tLV_VAL(function)->D_T_PTR, fn_arg_chain,
-                      tFNDECL_RET_TYPE(function_type), is_variadic);
+                      tFN_RET_TYPE(function_type), is_variadic);
 
-        return make_fncall_result(tFNDECL_RET_TYPE(function_type), res);
-
+        return make_fncall_result(tFN_RET_TYPE(function_type), res);
     }
-
-    return NULL;
-}
-
-static tree eval_fn_def(tree t, int depth)
-{
-    map_identifier(tFNDEF_NAME(t), t);
 
     return NULL;
 }
@@ -707,9 +699,9 @@ static tree handle_declarator(tree decl, tree type, int depth)
     case T_IDENTIFIER:
         make_and_map_live_var(decl, decl_type);
         return decl;
-    case T_DECL_FN:
-        tFNDECL_RET_TYPE(decl) = decl_type;
-        map_identifier(tFNDECL_NAME(decl), decl);
+    case T_FN:
+        tFN_RET_TYPE(decl) = decl_type;
+        map_identifier(tFN_DECL(decl), decl);
         return decl;
     case T_BITFIELD:
         if (tBITFIELD_DECLARATOR(decl))
@@ -736,10 +728,10 @@ static tree map_typedef(tree id, tree type)
 {
     resolve_ptr_type(&id, &type);
 
-    if (is_T_DECL_FN(id)) {
+    if (is_T_FN(id)) {
         tree fndecl = id;
-        id = tFNDECL_NAME(fndecl);
-        tFNDECL_RET_TYPE(fndecl) = type;
+        id = tFN_DECL(fndecl);
+        tFN_RET_TYPE(fndecl) = type;
         type = fndecl;
     }
 
@@ -775,7 +767,7 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
      * Once this object is called we create a pointer to the function
      * decl, so that eval_fn_call will call the address after
      * evaluating the arguments (see `eval_ext_func'). */
-    id = tFNDECL_NAME(fndecl);
+    id = tFN_DECL(fndecl);
 
     if (!is_T_IDENTIFIER(id))
         eval_die(fndecl, "attempted to extern function that isn't an "
@@ -793,7 +785,7 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
             eval_die(fndecl, "attempted to re-declare %s as different type",
                      tID_STR(id));
 
-        if (!is_T_DECL_FN(tDTPTR_EXP(live_var_type)))
+        if (!is_T_FN(tDTPTR_EXP(live_var_type)))
             eval_die(fndecl, "attempted to re-declare %s as different type",
                      tID_STR(id));
 
@@ -804,11 +796,8 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
         return id;
 
 
-    tFNDECL_RET_TYPE(fndecl) = return_type;
-
     ext_func = tree_make(T_EXT_FUNC);
-    tEXT_FUNC_FNDECL(ext_func) = fndecl;
-    tEXT_FUNC_NAME(ext_func) = id;
+    tEXT_FUNC_FN(ext_func) = fndecl;
 
     map_identifier(id, ext_func);
 
@@ -841,7 +830,7 @@ static tree handle_extern_decl(tree extern_type, tree decl)
 
     id = decl;
 
-    if (is_T_DECL_FN(decl))
+    if (is_T_FN(decl))
         return handle_extern_fn(extern_type, decl);
 
     if (is_T_ARRAY(decl)) {
@@ -874,8 +863,8 @@ static tree eval_ext_func(tree t, int depth)
     tree live_var, func_ptr_type, id;
 
     func_ptr_type = tree_make(D_T_PTR);
-    tDTPTR_EXP(func_ptr_type) = tEXT_FUNC_FNDECL(t);
-    id = tEXT_FUNC_NAME(t);
+    tDTPTR_EXP(func_ptr_type) = tEXT_FUNC_FN(t);
+    id = tFN_DECL(tEXT_FUNC_FN(t));
 
     /* Intercept calls to alloca, atexit and at_quick_exit to provide
      * our own implementation of these functions.. */
@@ -2300,13 +2289,9 @@ static tree eval_sizeof(tree t, int depth)
 static tree handle_addr_fn_def(tree fndef)
 {
     tree ptr_type = tree_make(D_T_PTR),
-        fun_sig = tree_make(T_DECL_FN),
         live_var;
 
-    tFNDECL_RET_TYPE(fun_sig) = tFNDEF_RET_TYPE(fndef);
-    tFNDECL_ARGS(fun_sig) = tFNDEF_ARGS(fndef);
-
-    tDTPTR_EXP(ptr_type) = fun_sig;
+    tDTPTR_EXP(ptr_type) = fndef;
 
     live_var = make_live_var(ptr_type);
 
@@ -2322,7 +2307,7 @@ static tree eval_addr(tree t, int depth)
 
     void *addr;
 
-    if (is_T_FN_DEF(exp))
+    if (is_T_FN(exp))
         return handle_addr_fn_def(exp);
 
     if (!is_LIVE(exp))
@@ -2473,8 +2458,6 @@ static tree __evaluate_1(tree t, int depth)
     {
     case T_IDENTIFIER: result = eval_identifier(t, depth + 1); break;
     case T_FN_CALL:    result = eval_fn_call(t, depth + 1);    break;
-    case T_FN_DEF:     result = eval_fn_def(t, depth + 1);     break;
-    case T_DECL_FN:    result = eval_self(t, depth + 1);       break;
     case T_DECL:       result = eval_decl(t, depth + 1);       break;
     case T_ASSIGN:     result = eval_assign(t, depth + 1);     break;
     case T_FLOAT:      result = eval_self(t, depth + 1);       break;

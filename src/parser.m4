@@ -1474,20 +1474,20 @@ external_declaration
 function_definition
 : declaration_specifiers declarator declaration_list compound_statement
 {
-    tree fndef = tree_make(T_FN_DEF);
-    tFNDEF_RET_TYPE(fndef) = $1;
-    tFNDEF_DECL(fndef) = $2;
-    tFNDEF_ARGS(fndef) = $3;
-    tFNDEF_STMTS(fndef) = $4;
+    tree fndef = tree_make(T_FN);
+    tFN_RET_TYPE(fndef) = $1;
+    tFN_DECL(fndef) = $2;
+    tFN_ARGS(fndef) = $3;
+    tFN_STMTS(fndef) = $4;
     set_locus(fndef, @2);
     $$ = fndef;
 }
 | declaration_specifiers declarator compound_statement
 {
-    tree fndef = tree_make(T_FN_DEF);
-    tFNDEF_RET_TYPE(fndef) = $1;
-    tFNDEF_DECL(fndef) = $2;
-    tFNDEF_STMTS(fndef) = $3;
+    tree fndef = tree_make(T_FN);
+    tFN_RET_TYPE(fndef) = $1;
+    tFN_DECL(fndef) = $2;
+    tFN_STMTS(fndef) = $3;
     set_locus(fndef, @2);
     $$ = fndef;
 }
