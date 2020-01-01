@@ -31,6 +31,24 @@ static void set_locus(tree t, YYLTYPE locus)
         tLOCUS(t).file = get_identifier(parser_current_file);
 }
 
+static void maybe_add_typenames(tree decl)
+{
+    tree i;
+    bool is_typedef = false;
+
+    for_each_tree(i, tDECL_SPECS(decl))
+        if (is_T_TYPEDEF(i)) {
+            is_typedef = true;
+            break;
+        }
+
+    if (!is_typedef)
+        return;
+
+    for_each_tree(i, tDECL_DECLS(decl))
+        add_typename(i);
+}
+
 CFILE_ONLY
     void cfile_parser_set_file(const char *fname)
     {
@@ -582,6 +600,7 @@ declaration
     tDECL_SPECS(decl) = $1;
     tDECL_DECLS(decl) = $2;
     set_locus(decl, @1);
+    maybe_add_typenames(decl);
     $$ = decl;
 }
 ;
