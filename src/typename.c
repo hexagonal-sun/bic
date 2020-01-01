@@ -10,11 +10,22 @@ GC_STATIC_TREE(include_type_names);
 
 static int in_include_file = 0;
 
-void add_typename(tree typename)
+static void __add_typename(tree typename)
 {
     tree new_typename = get_identifier(tID_STR(typename));
     tree_chain(new_typename,
                in_include_file ? include_type_names : type_names);
+}
+
+void add_typename(tree typename_decl)
+{
+    if (is_T_IDENTIFIER(typename_decl)) {
+        __add_typename(typename_decl);
+        return;
+    }
+
+    if (is_T_POINTER(typename_decl))
+        add_typename(tPTR_EXP(typename_decl));
 }
 
 void typename_set_include_file(void)
