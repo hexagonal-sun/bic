@@ -1466,7 +1466,7 @@ jump_statement
 translation_unit
 : external_declaration
 {
-    TARGET()_parse_head = $1;
+    TARGET()_parse_head = tree_chain_head($1);
     $$ = TARGET()_parse_head;
 }
 | translation_unit external_declaration
