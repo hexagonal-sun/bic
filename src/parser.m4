@@ -34,19 +34,10 @@ static void set_locus(tree t, YYLTYPE locus)
 static void maybe_add_typenames(tree decl)
 {
     tree i;
-    bool is_typedef = false;
 
-    for_each_tree(i, tDECL_SPECS(decl))
-        if (is_T_TYPEDEF(i)) {
-            is_typedef = true;
-            break;
-        }
-
-    if (!is_typedef)
-        return;
-
-    for_each_tree(i, tDECL_DECLS(decl))
-        add_typename(i);
+    if (chain_has_T_TYPEDEF(tDECL_SPECS(decl)))
+        for_each_tree(i, tDECL_DECLS(decl))
+            add_typename(i);
 }
 
 CFILE_ONLY
