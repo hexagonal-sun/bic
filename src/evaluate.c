@@ -562,7 +562,7 @@ static tree instantiate_array(tree array_decl, tree base_type, void *base,
                               size_t length)
 {
     tree live_var, ptr = tree_make(D_T_PTR),
-        id = tARRAY_ID(array_decl);
+        id = tARRAY_DECL(array_decl);
 
     if (!is_T_IDENTIFIER(id))
         eval_die(array_decl, "Unknown array name type\n");
@@ -603,7 +603,7 @@ static void handle_struct_decl(tree decl, tree live_struct, int depth)
                                          base + tDECL_OFFSET(decl),
                                          array_sz);
 
-        __map_identifer(tARRAY_ID(decl_element), live_element,
+        __map_identifer(tARRAY_DECL(decl_element), live_element,
                         tLV_COMP_MEMBERS(live_struct));
         return;
     }
@@ -679,7 +679,7 @@ static tree handle_declarator(tree decl, tree type, int depth)
 
     if (is_T_ARRAY_TYPE(decl_type)) {
         tree array = tree_make(T_ARRAY);
-        tARRAY_ID(array) = decl;
+        tARRAY_DECL(array) = decl;
         tARRAY_SZ(array) = tARRAY_TYPE_SZ(decl_type);
         decl_type = tARRAY_TYPE_BASE_TYPE(decl_type);
         decl = array;
@@ -687,7 +687,7 @@ static tree handle_declarator(tree decl, tree type, int depth)
 
     if (is_T_ARRAY(decl)) {
         tree live_var = alloc_array(decl, decl_type, depth);
-        tree id = tARRAY_ID(decl);
+        tree id = tARRAY_DECL(decl);
 
         /* We know that since the array was successfully instantiated,
          * the left element of the decl *must* be an identifier. */
@@ -739,7 +739,7 @@ static tree map_typedef(tree id, tree type)
         tree array_type = tree_make(T_ARRAY_TYPE);
         tARRAY_TYPE_BASE_TYPE(array_type) = type;
         tARRAY_TYPE_SZ(array_type) = tARRAY_SZ(id);
-        id = tARRAY_ID(id);
+        id = tARRAY_DECL(id);
         type = array_type;
     }
 
@@ -834,9 +834,9 @@ static tree handle_extern_decl(tree extern_type, tree decl)
         return handle_extern_fn(extern_type, decl);
 
     if (is_T_ARRAY(decl)) {
-        tree id = tARRAY_ID(decl);
+        tree id = tARRAY_DECL(decl);
         size_t array_sz = get_array_size(decl, extern_type, 0);
-        sym_addr = resolve_symbol(tARRAY_ID(decl));
+        sym_addr = resolve_symbol(tARRAY_DECL(decl));
 
         map_identifier(id, instantiate_array(decl, extern_type,
                                              sym_addr, array_sz));
