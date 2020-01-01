@@ -59,7 +59,7 @@ tree resolve_fn_call(void *entry_addr)
 static tree get_argument_chain(tree fndef, struct argregs *regs)
 {
     int integer_idx = 0;
-    tree ret, arg, args = tFNDEF_ARGS(fndef);
+    tree ret, arg, args = tFN_ARGS(fndef);
 
     if (!args)
         return NULL;
@@ -104,7 +104,7 @@ ptrdiff_t handle_ptr_call(struct argregs *regs)
     tree fndef = resolve_fn_call((void *)regs->pc),
         fncall = tree_make(T_FN_CALL);
 
-    tFNCALL_ID(fncall) = tFNDEF_NAME(fndef);
+    tFNCALL_ID(fncall) = tFN_DECL(fndef);
     tFNCALL_ARGS(fncall) = get_argument_chain(fndef, regs);
 
     evaluate(fncall, "<PTR>");

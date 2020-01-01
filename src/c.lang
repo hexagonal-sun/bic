@@ -175,14 +175,8 @@
                ("EXPANDED" flag)
                ("TYPE"  comp_decl_type)))
 
-(deftype T_FN "Function declaration" "tFN"
-         ("DECL" "ARGS"))
-
-(deftype T_DECL_FN "Function Declaration" "tFNDECL"
-         ("NAME" "RET_TYPE" "ARGS" "STMTS"))
-
-(deftype T_FN_DEF "Function Definition" "tFNDEF"
-         ("DECL" "RET_TYPE" "ARGS" "STMTS"))
+(deftype T_FN "Function" "tFN"
+         ("DECL" "ARGS" "RET_TYPE" "STMTS"))
 
 (deftype T_FN_CALL "Function Call" "tFNCALL"
          ("ID" "ARGS"))
@@ -243,7 +237,7 @@
 (deftype D_T_VOID "Void type")
 
 (deftype T_EXT_FUNC "External function" "tEXT_FUNC"
-         ("NAME" "FNDECL"))
+         ("FN"))
 
 (defctype D_T_CHAR "signed char" "char" "d" "ival")
 (defctype D_T_SHORT "signed short" "short" "hd" "ival")
