@@ -139,6 +139,8 @@
 (deftype T_VOLATILE "volatile type qualifier")
 
 (deftype T_EMPTY "Empty block")
+(deftype T_EXPR_LIST "Expression List" "tEXPR_LIST"
+         ("CHAIN"))
 
 (deftype T_INLINE "inline function specifier")
 

@@ -568,11 +568,13 @@ $$ = tree_make_binmod(T_X_OR, tX_OR, $1, $3);
 expression
 : assignment_expression
 {
-    $$ = tree_chain_head($1);
+    tree expression_list = tree_make(T_EXPR_LIST);
+    tEXPR_LIST_CHAIN(expression_list) = tree_chain_head($1);
+    $$ = expression_list;
 }
 | expression ',' assignment_expression
 {
-    tree_chain($3, $1);
+    tree_chain($3, tEXPR_LIST_CHAIN($1));
 }
 ;
 

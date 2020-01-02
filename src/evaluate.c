@@ -2300,6 +2300,16 @@ static tree handle_addr_fn_def(tree fndef)
     return live_var;
 }
 
+static tree eval_expr_list(tree expr_list, int depth)
+{
+    tree expr, res = NULL;
+
+    for_each_tree(expr, tEXPR_LIST_CHAIN(expr_list))
+        res = __evaluate_1(expr, depth + 1);
+
+    return res;
+}
+
 static tree eval_addr(tree t, int depth)
 {
     tree exp = __evaluate_1(tADDR_EXP(t), depth + 1),
@@ -2515,6 +2525,7 @@ static tree __evaluate_1(tree t, int depth)
     case E_CTX:        result = eval_evaluator_ctx(t, depth + 1); break;
     case T_EXT_FUNC:   result = eval_ext_func(t, depth + 1);   break;
     case T_INSPECT:    result = eval_inspect(t, depth + 1);     break;
+    case T_EXPR_LIST:  result = eval_expr_list(t, depth + 1);  break;
 #define DEFCTYPE(TNAME, DESC, CTYPE, FMT, FFMEM)                      \
     case TNAME:        result = eval_##TNAME(t, depth + 1);    break;
 #include "ctypes.def"
