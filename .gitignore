@@ -39,6 +39,7 @@ src/tree-access.h
 src/gc-internal.c
 src/tree-dump.c
 src/tree-dump-dot.c
+src/spec-resolver.c
 src/gendump
 src/gengc
 src/genaccess
@@ -46,6 +47,7 @@ src/genctypes
 src/gentypes
 src/gentree
 src/gendot
+src/genspecresolver
 src/lang_lexer.cpp
 src/lang_lexer.h
 src/tree.def
