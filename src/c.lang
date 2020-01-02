@@ -166,7 +166,8 @@
          ("BASE_TYPE" "SZ"))
 
 (deftype T_DECL "Declaration" "tDECL"
-         ("SPECS" "DECLS"))
+         ("SPECS" "DECLS"
+          ("OFFSET" sz)))
 
 (deftype T_TYPE_SPECIFIER "Type specifier" "tTYPE_SPECIFIER"
          ("SPECS" "DECL"))

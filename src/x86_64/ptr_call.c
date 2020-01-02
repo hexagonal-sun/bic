@@ -68,9 +68,9 @@ static tree get_argument_chain(tree fndef, struct argregs *regs)
 
     for_each_tree(arg, args) {
         tree new_arg;
-        resolve_ptr_type(&tDECL_DECLS(arg), &tDECL_TYPE(arg));
+        resolve_ptr_type(&tDECL_DECLS(arg), &tDECL_SPECS(arg));
 
-        switch (TYPE(tDECL_TYPE(arg))) {
+        switch (TYPE(tDECL_SPECS(arg))) {
 #define CREATE_INT_ARG(type, mpz_func, ctype)                           \
             case type:                                                  \
                 new_arg = tree_make(T_INTEGER);                         \
