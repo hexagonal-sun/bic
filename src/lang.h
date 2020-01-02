@@ -59,9 +59,15 @@ private:
     std::vector<struct InstantiatedType> currentPool_;
 };
 
+struct SpecifierMap {
+    std::string returnTreeTypeName;
+    std::vector<std::vector<std::string>> specifiers;
+};
+
 struct lang {
     std::vector<struct TreeType> treeTypes;
     std::vector<struct CType> treeCTypes;
+    std::vector<struct SpecifierMap> specMaps;
     std::unordered_map<std::string, struct TypePool> baseTypePools;
     struct TypePool treePool;
     size_t trees_allocated;
@@ -73,6 +79,7 @@ enum token_modules
     DEFTYPE,
     DEFCTYPE,
     DEFBASETYPES,
+    DEFSPECIFIER,
     IDENTIFIER,
     STRING
 };
