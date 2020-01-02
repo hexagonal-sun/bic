@@ -256,3 +256,45 @@
 (defctype D_T_LONGDOUBLE "long double" "long double" "Lf" "dval")
 (defctype D_T_PTR "pointer" "void *" "p" "ival" "tDTPTR"
           ("EXP"))
+
+(defspecifier D_T_CHAR ((T_CHAR_TS)
+                        (T_SIGNED_TS T_CHAR_TS)))
+
+(defspecifier D_T_SHORT ((T_SHORT_TS)
+                         (T_SIGNED_TS T_SHORT_TS)
+                         (T_SHORT_TS T_INT_TS)
+                         (T_SIGNED_TS T_SHORT_TS T_INT_TS)))
+
+(defspecifier D_T_INT ((T_INT_TS)
+                       (T_SIGNED_TS)
+                       (T_SIGNED_TS T_INT_TS)))
+
+(defspecifier D_T_LONG ((T_LONG_TS)
+                        (T_SIGNED_TS T_LONG_TS)
+                        (T_LONG_TS T_INT_TS)
+                        (T_SIGNED_TS T_LONG_TS T_INT_TS)))
+
+(defspecifier D_T_LONGLONG ((T_LONG_TS T_LONG_TS)
+                            (T_SIGNED_TS T_LONG_TS T_LONG_TS)
+                            (T_LONG_TS T_LONG_TS T_INT_TS)
+                            (T_SIGNED_TS T_LONG_TS T_LONG_TS T_INT_TS)))
+
+(defspecifier D_T_UCHAR ((T_UNSIGNED_TS T_CHAR_TS)))
+
+(defspecifier D_T_USHORT ((T_UNSIGNED_TS T_SHORT_TS)
+                          (T_UNSIGNED_TS T_SHORT_TS T_INT_TS)))
+
+(defspecifier D_T_UINT ((T_UNSIGNED_TS)
+                        (T_UNSIGNED_TS T_INT_TS)))
+
+(defspecifier D_T_ULONG ((T_UNSIGNED_TS T_LONG_TS)
+                         (T_UNSIGNED_TS T_LONG_TS T_INT_TS)))
+
+(defspecifier D_T_ULONGLONG ((T_UNSIGNED_TS T_LONG_TS T_LONG_TS)
+                             (T_UNSIGNED_TS T_LONG_TS T_LONG_TS T_INT_TS)))
+
+(defspecifier D_T_FLOAT ((T_FLOAT_TS)))
+(defspecifier D_T_DOUBLE ((T_DOUBLE_TS)))
+(defspecifier D_T_LONGDOUBLE ((T_LONG_TS T_DOUBLE_TS)))
+(defspecifier D_T_VOID ((T_VOID_TS)))
+
