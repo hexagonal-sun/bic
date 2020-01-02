@@ -229,6 +229,60 @@ out:
     lang.treeCTypes.push_back(newCType);
 }
 
+static std::vector<std::string> handle_specifier_list()
+{
+    std::vector<std::string> ret;
+
+    while (1)
+    {
+        int token = yylex();
+
+        if (token == ')')
+            break;
+
+        if (token == IDENTIFIER)
+            ret.push_back(lexval);
+        else
+            perror("Expected ')' or IDENTIFIER");
+    }
+
+    return ret;
+}
+
+static void handle_defspecifier(struct lang &lang)
+{
+    int token = yylex();
+    bool haveProperties = true;
+    struct SpecifierMap specifierMap;
+
+    if (token != IDENTIFIER)
+        perror("Expected IDENTIFIER");
+    specifierMap.returnTreeTypeName = lexval;
+
+    token = yylex();
+    if (token != '(')
+        perror("Expected '('");
+
+    while (1)
+    {
+      token = yylex();
+
+      if (token == ')')
+        break;
+
+      if (token == '(')
+        specifierMap.specifiers.push_back(handle_specifier_list());
+      else
+        perror("Expected ')' or '('");
+    }
+
+    token = yylex();
+    if (token != ')')
+        perror("Expected ')'");
+
+    lang.specMaps.push_back(specifierMap);
+}
+
 static void lang_parse(struct lang &lang)
 {
     token_loc.line = 1;
@@ -255,6 +309,9 @@ static void lang_parse(struct lang &lang)
             break;
         case DEFBASETYPES:
             handle_defbasetype(lang);
+            break;
+        case DEFSPECIFIER:
+            handle_defspecifier(lang);
             break;
         default:
             perror("Unexpected toplevel construct");
