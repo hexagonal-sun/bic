@@ -2041,6 +2041,14 @@ static tree eval_decl_compound(tree t, int depth)
     int offset = 0;
     size_t max_member_sz = 0;
 
+    /* We can arrive here if something like the following code is evaluated:
+     *
+     * struct foobar{ int a, int b };  <handled by handle_forward_decl>
+     * struct foobar baz;  < i.e. baz needs to be the incomplete type>
+     */
+    if (!tCOMP_DECL_DECLS(t))
+        return __evaluate_1(tCOMP_DECL_ID(t), depth + 1);
+
     /* We map to ourselves here so that any references to the same
      * compound in the decls will result in a reference to the
      * struct_decl.  Also check to see if there are any forward
