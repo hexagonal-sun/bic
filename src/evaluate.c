@@ -638,6 +638,8 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base)
 {
     tree i, live_struct = tree_make(T_LIVE_COMPOUND);
 
+    assert(tCOMP_DECL_EXPANDED(struct_decl));
+
     tLV_COMP_DECL(live_struct) = struct_decl;
     tLV_COMP_BASE(live_struct) = base;
     tLV_COMP_MEMBERS(live_struct) = tree_make(CHAIN_HEAD);
@@ -931,12 +933,10 @@ static tree handle_forward_decl(tree type)
 {
     tree id;
 
-    if (is_T_STRUCT(type))
-        id = tSTRUCT_EXP(type);
-    else if(is_T_UNION(type))
-        id = tUNION_EXP(type);
-    else
-        eval_die(type, "unknown forward decl type\n");
+    assert(is_T_DECL_COMPOUND(type));
+    assert(tCOMP_DECL_DECLS(type) == NULL);
+
+    id = tCOMP_DECL_ID(type);
 
     /* If the declaration already exists, don't attempt to map it
      * again. */
@@ -995,6 +995,10 @@ static tree eval_decl(tree t, int depth)
         decl_type = resolve_decl_specs_to_type(decl_specs),
         decls = tDECL_DECLS(t),
         decl, ret;
+
+    if (decls == NULL && is_T_DECL_COMPOUND(decl_type) &&
+        tCOMP_DECL_DECLS(decl_type) == NULL)
+        return handle_forward_decl(decl_type);
 
     /* Resolve any type names or compound declarators. */
     if (is_T_IDENTIFIER(decl_type) || is_T_DECL_COMPOUND(decl_type))
@@ -2171,23 +2175,11 @@ static tree eval_comp_access(tree t, int depth)
     return resolve_id(id, tLV_COMP_MEMBERS(left));
 }
 
-static tree eval_struct(tree t, int depth)
-{
-    if (resolve_identifier(tSTRUCT_EXP(t), SCOPE_GLOBAL))
-        return __evaluate_1(tSTRUCT_EXP(t), depth);
-    else
-        return tree_make(E_INCOMP_TYPE);
-}
-
 static tree eval_repl(tree t, int depth)
 {
     bic_repl();
 
     return NULL;
-}
-static tree eval_union(tree t, int depth)
-{
-    return __evaluate_1(tUNION_EXP(t), depth);
 }
 
 static tree eval_array_access(tree t, int depth)
@@ -2514,9 +2506,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_ENUMERATOR: result = eval_enumerator(t, depth + 1); break;
     case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
     case T_COMP_ACCESS:result = eval_comp_access(t, depth + 1);break;
-    case T_STRUCT:     result = eval_struct(t, depth + 1);     break;
     case T_REPL:       result = eval_repl(t, depth + 1);       break;
-    case T_UNION:      result = eval_union(t, depth + 1);      break;
     case T_ARRAY_ACCESS:result = eval_array_access(t, depth + 1); break;
     case T_ADDR:       result = eval_addr(t, depth + 1);       break;
     case T_DEREF:      result = eval_deref(t, depth + 1);      break;
