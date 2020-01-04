@@ -18,12 +18,6 @@
 (deftype T_STRING "Constant string" "tSTRING"
          (("VAL" string)))
 
-(deftype T_STRUCT "Structure" "tSTRUCT"
-         ("EXP"))
-
-(deftype T_UNION "Union" "tUNION"
-         ("EXP"))
-
 (deftype T_P_INC "Increment (postfix)" "tPINC"
          ("EXP"))
 
