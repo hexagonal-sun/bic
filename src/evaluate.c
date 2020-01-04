@@ -704,9 +704,19 @@ static tree handle_declarator(tree decl, tree decl_type, int depth)
         make_and_map_live_var(decl, decl_type);
         return decl;
     case T_FN:
+    {
         tFN_RET_TYPE(decl) = decl_type;
+        tree id = tFN_DECL(decl);
+
+        if (is_T_POINTER(id)) {
+            /* This declares a function pointer. Therefore, decl_type is really
+             * a pointer to the T_FN. */
+            tFN_DECL(decl) = NULL;
+            return handle_declarator(id, decl, depth);
+        }
         map_identifier(tFN_DECL(decl), decl);
         return decl;
+    }
     case T_BITFIELD:
         if (tBITFIELD_DECLARATOR(decl))
             return handle_declarator(tBITFIELD_DECLARATOR(decl), decl_type, depth);
