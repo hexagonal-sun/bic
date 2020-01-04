@@ -2297,6 +2297,18 @@ static tree eval_sizeof(tree t, int depth)
     eval_die(t, "Could not calculate size of expression");
 }
 
+static tree eval_type_specifier(tree t, int depth)
+{
+    tree type =  resolve_decl_specs_to_type(tTYPE_SPECIFIER_SPECS(t));
+
+    if (is_T_IDENTIFIER(type))
+        type = __evaluate_1(type, depth + 1); 
+
+    resolve_ptr_type(&tTYPE_SPECIFIER_DECL(t), &type);
+
+    return type;
+}
+
 static tree handle_addr_fn_def(tree fndef)
 {
     tree ptr_type = tree_make(D_T_PTR),
@@ -2523,6 +2535,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_DECL_COMPOUND:result = eval_decl_compound(t, depth + 1);break;
     case T_ENUMERATOR: result = eval_enumerator(t, depth + 1); break;
     case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
+    case T_TYPE_SPECIFIER: result = eval_type_specifier(t, depth + 1); break;
     case T_COMP_ACCESS:result = eval_comp_access(t, depth + 1);break;
     case T_REPL:       result = eval_repl(t, depth + 1);       break;
     case T_ARRAY_ACCESS:result = eval_array_access(t, depth + 1); break;
