@@ -588,8 +588,11 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base);
 static void instantiate_struct_element(tree decl, tree live_struct, int depth)
 {
     tree live_element,
-        decl_type = __evaluate_1(tDECL_SPECS(decl), depth + 1),
+        decl_type = resolve_decl_specs_to_type(tDECL_SPECS(decl)),
         decl_element = tDECL_DECLS(decl);
+
+    if (is_T_IDENTIFIER(decl_type) || is_T_DECL_COMPOUND(decl_type))
+        decl_type = __evaluate_1(decl_type, depth + 1);
 
     void *base = tLV_COMP_BASE(live_struct);
 
@@ -666,10 +669,8 @@ static tree alloc_array(tree array_decl, tree base_type, int depth)
     return live_var;
 }
 
-static tree handle_declarator(tree decl, tree specs, int depth)
+static tree handle_declarator(tree decl, tree decl_type, int depth)
 {
-    tree decl_type = resolve_decl_specs_to_type(specs);
-
     /* Strip off any pointer objects and add them to the base type. */
     resolve_ptr_type(&decl, &decl_type);
 
@@ -706,12 +707,12 @@ static tree handle_declarator(tree decl, tree specs, int depth)
         return decl;
     case T_BITFIELD:
         if (tBITFIELD_DECLARATOR(decl))
-            return handle_declarator(tBITFIELD_DECLARATOR(decl), specs, depth);
+            return handle_declarator(tBITFIELD_DECLARATOR(decl), decl_type, depth);
 
         return NULL;
     case T_ASSIGN:
     {
-        tree ret = handle_declarator(tASSIGN_LHS(decl), specs, depth);
+        tree ret = handle_declarator(tASSIGN_LHS(decl), decl_type, depth);
 
         /* handle_declarator will have stripped off any pointers from the decl name.
          * Therefore ret now becomes the LHS of the assignment. */
@@ -899,21 +900,23 @@ static tree eval_inspect(tree t, int depth)
     return NULL;
 }
 
-static tree handle_extern_decls(tree decl_specs, tree decls, int depth)
+static tree handle_extern_decls(tree type, tree decls, int depth)
 {
     tree ret;
-    tree type = __evaluate_1(decl_specs, depth +1), i;
+    tree i;
 
-    for_each_tree(i, decls)
-        ret = handle_extern_decl(type, i);
+    if (is_CHAIN_HEAD(decls))
+        for_each_tree(i, decls)
+            ret = handle_extern_decl(type, i);
+    else
+        handle_extern_decl(type, i);
 
     return ret;
 }
 
-static tree handle_typedef(tree typedef_type, tree decls, int depth)
+static tree handle_typedef(tree type, tree decls, int depth)
 {
-    tree ret;
-    tree type = __evaluate_1(typedef_type, depth + 1), i;
+    tree ret, i;
 
     if (is_CHAIN_HEAD(decls))
         for_each_tree(i, decls)
@@ -989,14 +992,19 @@ static tree handle_static_decl(tree decl, int depth)
 static tree eval_decl(tree t, int depth)
 {
     tree decl_specs = tDECL_SPECS(t),
+        decl_type = resolve_decl_specs_to_type(decl_specs),
         decls = tDECL_DECLS(t),
         decl, ret;
 
+    /* Resolve any type names or compound declarators. */
+    if (is_T_IDENTIFIER(decl_type) || is_T_DECL_COMPOUND(decl_type))
+        decl_type = __evaluate_1(decl_type, depth + 1);
+
     if (chain_has_T_TYPEDEF(decl_specs))
-        return handle_typedef(decl_specs, decls, depth + 1);
+        return handle_typedef(decl_type, decls, depth + 1);
 
     if (chain_has_T_EXTERN(decl_specs))
-        return handle_extern_decls(decl_specs, decls, depth + 1);
+        return handle_extern_decls(decl_type, decls, depth + 1);
 
     if (chain_has_T_STATIC(decl_specs))
         return handle_static_decl(t, depth + 1);
