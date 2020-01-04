@@ -585,7 +585,7 @@ static tree instantiate_array(tree array_decl, tree base_type, void *base,
 
 static tree instantiate_struct(tree struct_decl, int depth, void *base);
 
-static void handle_struct_decl(tree decl, tree live_struct, int depth)
+static void instantiate_struct_element(tree decl, tree live_struct, int depth)
 {
     tree live_element,
         decl_type = __evaluate_1(tDECL_SPECS(decl), depth + 1),
@@ -640,7 +640,7 @@ static tree instantiate_struct(tree struct_decl, int depth, void *base)
     tLV_COMP_MEMBERS(live_struct) = tree_make(CHAIN_HEAD);
 
     for_each_tree(i, tCOMP_DECL_DECLS(struct_decl))
-        handle_struct_decl(i, live_struct, depth);
+        instantiate_struct_element(i, live_struct, depth);
 
     return live_struct;
 }
