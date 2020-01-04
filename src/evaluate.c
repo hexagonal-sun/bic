@@ -1012,8 +1012,11 @@ static tree eval_decl(tree t, int depth)
     if (!decls)
         return NULL;
 
-    for_each_tree(decl, decls)
-        ret = handle_declarator(decl, decl_specs, depth);
+    if (is_CHAIN_HEAD(decls))
+        for_each_tree(decl, decls)
+            ret = handle_declarator(decl, decl_type, depth);
+    else
+        ret = handle_declarator(decls, decl_type, depth);
 
     return ret;
 }
