@@ -774,6 +774,8 @@ static tree handle_extern_fn(tree return_type, tree fndecl)
 {
     tree id, ext_func, previous_decl;
 
+    tFN_RET_TYPE(fndecl) = return_type;
+
     /* We handle an extern fn decl by firstly creating a EXT_FUNC
      * object.  This denotes an external function that has been seen,
      * but hasn't yet been resolved.
