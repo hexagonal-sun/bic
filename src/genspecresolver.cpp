@@ -70,6 +70,22 @@ static std::map<std::string, int> outputBitStirngSetLoop(const lang &lang, FILE 
       }
     }
 
+    // Output any self specifiers.
+    if (!lang.selfSpecifiers.empty()) {
+        for (auto selfSpecifier : lang.selfSpecifiers ) {
+            fprintf(output, "        case %s:\n", selfSpecifier.c_str());
+        }
+        fputs("            return i;\n", output);
+    }
+
+    // Output any ignored specifiers.
+    if (!lang.ignoredSpecifiers.empty()) {
+        fputs("        /* Ignore these specifiers as they don't have any bearing on type information. */\n", output);
+        for (auto ignoredSpec : lang.ignoredSpecifiers)
+            fprintf(output, "        case %s:\n", ignoredSpec.c_str());
+        fputs("            break;\n", output);
+    }
+
     fputs("        default:\n"
           "            eval_die(i, \"unknown type specifier found in specifier list: %s\\n\", tree_type_string(TYPE(i)));\n"
           "        }\n"

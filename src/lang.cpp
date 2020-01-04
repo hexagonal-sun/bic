@@ -255,32 +255,51 @@ static void handle_defspecifier(struct lang &lang)
     bool haveProperties = true;
     struct SpecifierMap specifierMap;
 
-    if (token != IDENTIFIER)
-        perror("Expected IDENTIFIER");
-    specifierMap.returnTreeTypeName = lexval;
-
-    token = yylex();
-    if (token != '(')
-        perror("Expected '('");
-
-    while (1)
+    switch (token) {
+    case IDENTIFIER:
     {
-      token = yylex();
+        specifierMap.returnTreeTypeName = lexval;
 
-      if (token == ')')
+        token = yylex();
+        if (token != '(')
+          perror("Expected '('");
+
+        while (1) {
+          token = yylex();
+
+          if (token == ')')
+            break;
+
+          if (token == '(')
+            specifierMap.specifiers.push_back(handle_specifier_list());
+          else
+            perror("Expected ')' or '('");
+        }
+
+        lang.specMaps.push_back(specifierMap);
         break;
+    }
+    case IGNORE:
+      token = yylex();
+      if (token != IDENTIFIER)
+        perror("Expected IDENTIFIER");
 
-      if (token == '(')
-        specifierMap.specifiers.push_back(handle_specifier_list());
-      else
-        perror("Expected ')' or '('");
+      lang.ignoredSpecifiers.push_back(lexval);
+      break;
+    case SELF:
+        token = yylex();
+        if (token != IDENTIFIER)
+            perror("Expected IDENTIFIER");
+
+        lang.selfSpecifiers.push_back(lexval);
+        break;
+    default:
+      perror("Expected IDENTIFIER or IGNORE");
     }
 
     token = yylex();
     if (token != ')')
         perror("Expected ')'");
-
-    lang.specMaps.push_back(specifierMap);
 }
 
 static void lang_parse(struct lang &lang)

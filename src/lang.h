@@ -68,6 +68,8 @@ struct lang {
     std::vector<struct TreeType> treeTypes;
     std::vector<struct CType> treeCTypes;
     std::vector<struct SpecifierMap> specMaps;
+    std::vector<std::string> ignoredSpecifiers;
+    std::vector<std::string> selfSpecifiers;
     std::unordered_map<std::string, struct TypePool> baseTypePools;
     struct TypePool treePool;
     size_t trees_allocated;
@@ -81,7 +83,9 @@ enum token_modules
     DEFBASETYPES,
     DEFSPECIFIER,
     IDENTIFIER,
-    STRING
+    STRING,
+    IGNORE,
+    SELF
 };
 
 struct locus
