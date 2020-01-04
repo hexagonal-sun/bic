@@ -1004,17 +1004,17 @@ direct_declarator
 }
 | direct_declarator '[' '*' ']'
 {
-    tree array = tree_make(T_ARRAY);
-    tARRAY_DECL(array) = $1;
-    set_locus(array, @2);
-    $$ = array;
+    tree ptr = tree_make(T_POINTER);
+    tPTR_EXP(ptr) = $1;
+    set_locus(ptr, @2);
+    $$ = ptr;
 }
 | direct_declarator '[' ']'
 {
-    tree array = tree_make(T_ARRAY);
-    tARRAY_DECL(array) = $1;
-    set_locus(array, @2);
-    $$ = array;
+    tree ptr = tree_make(T_POINTER);
+    tPTR_EXP(ptr) = $1;
+    set_locus(ptr, @2);
+    $$ = ptr;
 }
 | direct_declarator '(' parameter_type_list ')'
 {
