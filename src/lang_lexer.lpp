@@ -30,6 +30,8 @@ deftype       return DEFTYPE;
 defctype      return DEFCTYPE;
 defbasetypes  return DEFBASETYPES;
 defspecifier  return DEFSPECIFIER;
+":ignore"     return IGNORE;
+":self"       return SELF;
 \"(\\.|[^"\\])*\" lexval = std::string(yytext+1, strlen(yytext) - 2); return STRING;
 {L}({L}|{D})* lexval = std::string(yytext); return IDENTIFIER;
 "("     return '(';
