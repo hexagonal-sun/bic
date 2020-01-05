@@ -814,6 +814,13 @@ struct_declaration
     set_locus(decl, @1);
     $$ = decl;
 }
+| specifier_qualifier_list ';'
+{
+    tree decl = tree_make(T_DECL);
+    tDECL_SPECS(decl) = $1;
+    set_locus(decl, @1);
+    $$ = decl;
+}
 ;
 
 specifier_qualifier_list
