@@ -739,6 +739,9 @@ static tree handle_declarator(tree decl, tree decl_type, int depth)
     /* Strip off any pointer objects and add them to the base type. */
     resolve_ptr_type(&decl, &decl_type);
 
+    assert(decl);
+    assert(decl_type);
+
     if (is_T_DECL_COMPOUND(decl_type) && is_T_IDENTIFIER(decl)) {
         map_identifier(decl, alloc_struct(decl_type, depth));
         return decl;
