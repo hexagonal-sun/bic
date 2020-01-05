@@ -2227,6 +2227,10 @@ static tree eval_enumerator(tree t, int depth)
     tree enum_expr, enum_base_type = tree_make(ENUMTYPE);
     unsigned int enum_val = 0;
 
+    /* Handle the case where a perviously declared enum is referred to. */
+    if (!tENUM_ENUMS(t))
+        return __evaluate_1(tENUM_NAME(t), depth + 1);
+
     /* Whenever we encounter this decl, we wish to treat it as just a
      * normal integer. */
     if (tENUM_NAME(t))
