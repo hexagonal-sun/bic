@@ -31,13 +31,30 @@ static void set_locus(tree t, YYLTYPE locus)
         tLOCUS(t).file = get_identifier(parser_current_file);
 }
 
+static void find_ids_to_map_to_typenames(tree decl)
+{
+    tree i;
+
+    if (is_T_IDENTIFIER(decl))
+        add_typename(decl);
+
+    if (is_T_POINTER(decl))
+        find_ids_to_map_to_typenames(tPTR_EXP(decl));
+
+    if (is_T_FN(decl))
+        find_ids_to_map_to_typenames(tFN_DECL(decl));
+
+    if (is_T_DECL(decl))
+        for_each_tree(i, tDECL_DECLS(decl))
+            find_ids_to_map_to_typenames(i);
+}
+
 static void maybe_add_typenames(tree decl)
 {
     tree i;
 
     if (chain_has_T_TYPEDEF(tDECL_SPECS(decl)))
-        for_each_tree(i, tDECL_DECLS(decl))
-            add_typename(i);
+        find_ids_to_map_to_typenames(decl);
 }
 
 CFILE_ONLY
