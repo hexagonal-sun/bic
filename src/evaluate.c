@@ -259,15 +259,14 @@ static void map_identifier(tree id, tree t)
 
 static void map_compound(tree comp_decl, tree t)
 {
-    assert(tCOMP_DECL_ID(comp_decl));
+    tree id = tCOMP_DECL_ID(comp_decl);
+    assert(id && is_T_IDENTIFIER(id));
 
     tree idmap = tCOMP_DECL_TYPE(comp_decl) == sstruct ?
         tECTX_STRUCT_ID_MAP(cur_ctx) :
         tECTX_UNION_ID_MAP(cur_ctx);
 
-
-    if (tCOMP_DECL_TYPE(comp_decl) == sstruct)
-        __map_identifer(tCOMP_DECL_ID(comp_decl), t, idmap);
+    __map_identifer(id, t, idmap);
 }
 
 static tree eval_identifier(tree t, int depth)
