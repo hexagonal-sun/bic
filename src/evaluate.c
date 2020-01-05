@@ -1090,7 +1090,8 @@ static tree eval_decl(tree t, int depth)
         return handle_forward_decl(decl_type);
 
     /* Resolve any type names or compound declarators. */
-    if (is_T_IDENTIFIER(decl_type) || is_T_DECL_COMPOUND(decl_type))
+    if (is_T_IDENTIFIER(decl_type) || is_T_DECL_COMPOUND(decl_type)
+        || is_T_ENUMERATOR(decl_type))
         decl_type = __evaluate_1(decl_type, depth + 1);
 
     if (chain_has_T_TYPEDEF(decl_specs))

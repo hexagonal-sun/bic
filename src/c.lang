@@ -297,3 +297,4 @@
 (defspecifier :ignore T_STATIC)
 (defspecifier :self T_IDENTIFIER)
 (defspecifier :self T_DECL_COMPOUND)
+(defspecifier :self T_ENUMERATOR)
