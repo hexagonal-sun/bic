@@ -2128,8 +2128,14 @@ static tree eval_decl_compound(tree t, int depth)
      * struct foobar{ int a, int b };  <handled by handle_forward_decl>
      * struct foobar baz;  < i.e. baz needs to be the incomplete type>
      */
-    if (!tCOMP_DECL_DECLS(t))
-        return resolve_compound(t, SCOPE_GLOBAL);
+    if (!tCOMP_DECL_DECLS(t)) {
+        tree ret = resolve_compound(t, SCOPE_GLOBAL);
+
+        if (!ret)
+            return handle_forward_decl(t);
+
+        return ret;
+    }
 
     /* We map to ourselves here so that any references to the same
      * compound in the decls will result in a reference to the
