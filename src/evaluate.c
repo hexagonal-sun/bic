@@ -2380,8 +2380,8 @@ static tree eval_type_specifier(tree t, int depth)
 {
     tree type =  resolve_decl_specs_to_type(tTYPE_SPECIFIER_SPECS(t));
 
-    if (is_T_IDENTIFIER(type))
-        type = __evaluate_1(type, depth + 1); 
+    if (is_T_IDENTIFIER(type) || is_T_DECL_COMPOUND(type))
+        type = __evaluate_1(type, depth + 1);
 
     resolve_ptr_type(&tTYPE_SPECIFIER_DECL(t), &type);
 
