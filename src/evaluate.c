@@ -807,10 +807,20 @@ static tree map_typedef(tree id, tree type)
     resolve_ptr_type(&id, &type);
 
     if (is_T_FN(id)) {
-        tree fndecl = id;
-        id = tFN_DECL(fndecl);
-        tFN_RET_TYPE(fndecl) = type;
-        type = fndecl;
+        tree fn = id;
+        tree fndecl = tFN_DECL(fn);
+        tFN_RET_TYPE(fn) = type;
+
+        while (is_T_POINTER(fndecl)) {
+            tFN_DECL(fn) = tPTR_EXP(fndecl);
+            id = fndecl = tFN_DECL(fn);
+
+            tree pointer = tree_make(T_POINTER);
+            tPTR_EXP(pointer) = fn;
+            fn = pointer;
+        }
+
+        return map_typedef(id, fn);
     }
 
     if (is_T_ARRAY(id)) {
