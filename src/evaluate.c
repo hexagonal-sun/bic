@@ -75,6 +75,8 @@ static void push_ctx(const char *name)
     tECTX_PARENT_CTX(new_ctx) = cur_ctx;
     tECTX_NAME(new_ctx) = get_identifier(name);
     tECTX_ID_MAP(new_ctx) = tree_make(CHAIN_HEAD);
+    tECTX_STRUCT_ID_MAP(new_ctx) = tree_make(CHAIN_HEAD);
+    tECTX_UNION_ID_MAP(new_ctx) = tree_make(CHAIN_HEAD);
     tECTX_ALLOC_CHAIN(new_ctx) = tree_make(CHAIN_HEAD);
 
     cur_ctx = new_ctx;
@@ -109,30 +111,58 @@ void __attribute__((noreturn)) eval_die(tree t, const char *format, ...)
     exit(EXIT_FAILURE);
 }
 
-static tree resolve_id(tree id, tree idmap)
+enum idmap_type
+{
+    NORMAL_TYPE,
+    STRUCT_TYPE,
+    UNION_TYPE,
+};
+
+static tree __resolve_id(tree id, tree idmap)
 {
     tree i;
 
-    for_each_tree(i, idmap) {
+    for_each_tree(i, idmap)
         if (strcmp(tID_STR(tEMAP_LEFT(i)), tID_STR(id)) == 0)
             return tEMAP_RIGHT(i);
-    }
 
     return NULL;
 }
 
-static tree resolve_identifier(tree id,
-                               enum identifier_search_scope scope)
+static tree resolve_id(tree id, tree ectx, enum idmap_type map_type)
+{
+    tree i;
+    tree idmap;
+
+    switch (map_type)
+    {
+    case NORMAL_TYPE:
+        idmap = tECTX_ID_MAP(ectx);
+        break;
+    case STRUCT_TYPE:
+        idmap = tECTX_STRUCT_ID_MAP(ectx);
+        break;
+    case UNION_TYPE:
+        idmap = tECTX_UNION_ID_MAP(ectx);
+        break;
+    }
+
+    return __resolve_id(id, idmap);
+}
+
+static tree __resolve_identifier(tree id,
+                                 enum identifier_search_scope scope,
+                                 enum idmap_type map_type)
 {
     tree search_ctx = cur_ctx;
 
     if (scope == SCOPE_CURRENT_CTX)
-        return resolve_id(id, tECTX_ID_MAP(search_ctx));
+        return resolve_id(id, search_ctx, map_type);
 
     /* Search through the identifier mappings of the current context
      * stack to find the appropriate object. */
     while (search_ctx) {
-        tree search_result = resolve_id(id, tECTX_ID_MAP(search_ctx));
+        tree search_result = resolve_id(id, search_ctx, map_type);
 
         if (search_result)
             return search_result;
@@ -142,13 +172,34 @@ static tree resolve_identifier(tree id,
 
     /* Also search the include_ctx if it exists. */
     if (include_ctx) {
-        tree result = resolve_id(id, tECTX_ID_MAP(include_ctx));
+        tree result = resolve_id(id, include_ctx, map_type);
 
         if (result)
             return result;
     }
 
     return NULL;
+}
+
+static tree resolve_identifier(tree id,
+                               enum identifier_search_scope scope)
+{
+    return __resolve_identifier(id, scope, NORMAL_TYPE);
+}
+
+static tree resolve_compound(tree compound_decl,
+                             enum identifier_search_scope scope)
+{
+    enum idmap_type type;
+
+    assert(tCOMP_DECL_ID(compound_decl));
+
+    if (tCOMP_DECL_TYPE(compound_decl) == sstruct)
+        type = STRUCT_TYPE;
+    else
+        type = UNION_TYPE;
+
+    return __resolve_identifier(tCOMP_DECL_ID(compound_decl), scope, type);
 }
 
 tree find_global_identifiers(const char *prefix)
@@ -204,6 +255,19 @@ static void map_identifier(tree id, tree t)
                  tID_STR(id));
 
     __map_identifer(id, t, tECTX_ID_MAP(cur_ctx));
+}
+
+static void map_compound(tree comp_decl, tree t)
+{
+    assert(tCOMP_DECL_ID(comp_decl));
+
+    tree idmap = tCOMP_DECL_TYPE(comp_decl) == sstruct ?
+        tECTX_STRUCT_ID_MAP(cur_ctx) :
+        tECTX_UNION_ID_MAP(cur_ctx);
+
+
+    if (tCOMP_DECL_TYPE(comp_decl) == sstruct)
+        __map_identifer(tCOMP_DECL_ID(comp_decl), t, idmap);
 }
 
 static tree eval_identifier(tree t, int depth)
@@ -947,17 +1011,18 @@ static tree handle_forward_decl(tree type)
 
     assert(is_T_DECL_COMPOUND(type));
     assert(tCOMP_DECL_DECLS(type) == NULL);
+    assert(tCOMP_DECL_ID(type));
 
     id = tCOMP_DECL_ID(type);
 
     /* If the declaration already exists, don't attempt to map it
      * again. */
-    if (resolve_identifier(id, SCOPE_CURRENT_CTX))
+    if (resolve_compound(type, SCOPE_GLOBAL))
         return id;
 
     tree forward_decl = tree_make(E_INCOMP_TYPE);
 
-    map_identifier(id, forward_decl);
+    map_compound(type, forward_decl);
 
     return id;
 }
@@ -2049,7 +2114,7 @@ static tree eval_decl_compound(tree t, int depth)
      * struct foobar baz;  < i.e. baz needs to be the incomplete type>
      */
     if (!tCOMP_DECL_DECLS(t))
-        return __evaluate_1(tCOMP_DECL_ID(t), depth + 1);
+        return resolve_compound(t, SCOPE_GLOBAL);
 
     /* We map to ourselves here so that any references to the same
      * compound in the decls will result in a reference to the
@@ -2064,7 +2129,7 @@ static tree eval_decl_compound(tree t, int depth)
             tree_copy(forward_decl, t);
             t = forward_decl;
         } else
-            map_identifier(struct_id, t);
+            map_compound(t, t);
     }
 
     /* Don't attempt to expand an already expanded struct. */
@@ -2192,7 +2257,7 @@ static tree eval_comp_access(tree t, int depth)
     if (!is_T_IDENTIFIER(id))
         eval_die(t, "Unknown accessor in compound access\n");
 
-    return resolve_id(id, tLV_COMP_MEMBERS(left));
+    return __resolve_id(id, tLV_COMP_MEMBERS(left));
 }
 
 static tree eval_repl(tree t, int depth)

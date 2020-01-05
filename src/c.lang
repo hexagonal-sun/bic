@@ -215,7 +215,7 @@
 (deftype CHAIN_HEAD "Tree Chain Head")
 
 (deftype E_CTX "Evaluator Context" "tECTX"
-         ("ID_MAP" "PARENT_CTX" "ALLOC_CHAIN" "NAME" "RETVAL"
+         ("ID_MAP" "STRUCT_ID_MAP" "UNION_ID_MAP" "PARENT_CTX" "ALLOC_CHAIN" "NAME" "RETVAL"
           ("JMP_BUF" jmp_buf)
           ("IS_FN_CALL" flag)
           ("IS_STATIC" flag)))
