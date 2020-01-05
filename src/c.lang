@@ -294,5 +294,6 @@
 (defspecifier D_T_VOID ((T_VOID_TS)))
 (defspecifier :ignore T_EXTERN)
 (defspecifier :ignore T_TYPEDEF)
+(defspecifier :ignore T_STATIC)
 (defspecifier :self T_IDENTIFIER)
 (defspecifier :self T_DECL_COMPOUND)
