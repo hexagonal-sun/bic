@@ -1711,7 +1711,7 @@ out:
 static tree eval_cast(tree t, int depth)
 {
     tree source = __evaluate_1(tCAST_EXP(t), depth + 1),
-        dest_type = tCAST_NEWTYPE(t),
+        dest_type = __evaluate_1(tCAST_NEWTYPE(t), depth + 1),
         ret;
 
     if (is_T_INTEGER(source)) {
