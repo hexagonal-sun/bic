@@ -2145,7 +2145,7 @@ static tree eval_decl_compound(tree t, int depth)
      * unresolved decl and use that as our new 't' so all referencies
      * to it will be updated.*/
     if (struct_id) {
-        tree forward_decl = resolve_compound(t, SCOPE_GLOBAL);
+        tree forward_decl = resolve_compound(t, SCOPE_CURRENT_CTX);
 
         if (forward_decl) {
             tree_copy(forward_decl, t);
