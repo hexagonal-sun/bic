@@ -1037,43 +1037,45 @@ static tree handle_forward_decl(tree type)
     return id;
 }
 
-static tree handle_static_decl(tree decl, int depth)
+static tree handle_static_decl(tree base_type, tree decl, int depth)
 {
-    tree base_type = tDECL_DECLS(decl),
-        decls = tDECL_DECLS(decl),
-        i,
-        ret;
+  tree decls = tDECL_DECLS(decl), i, ret;
 
-    /* This function will be called the very first time this static
-     * decl is encountered.  We will change the type of tree object
-     * here from a T_DECL to an E_CTX so subsequent evaluations of
-     * this object result in the static objects being found from the
-     * map (see eval_evaluator_ctx).
-     *
-     * For this to work, we push a temporary context, evaluate all
-     * decls and retain the id_map and alloc chain.  We then use them
-     * to construct the E_CTX object. */
+  /* See if the decl defines a function. If so, just evaluate it as normal.
+   * `static' functions have no real meaning in bic. */
+  if (is_CHAIN_HEAD(decls))
+      for_each_tree(i, decls)
+          if (is_T_FN(i) && tFN_STMTS(i))
+              return handle_declarator(i, base_type, depth + 1);
 
-    push_ctx("Static declaration");
-    if (is_CHAIN_HEAD(decls))
-        for_each_tree(i, decls)
-            ret = handle_declarator(i, base_type, depth);
-    else
-        ret = handle_declarator(decls, base_type, depth);
+  /* This function will be called the very first time this static
+   * decl is encountered.  We will change the type of tree object
+   * here from a T_DECL to an E_CTX so subsequent evaluations of
+   * this object result in the static objects being found from the
+   * map (see eval_evaluator_ctx).
+   *
+   * For this to work, we push a temporary context, evaluate all
+   * decls and retain the id_map and alloc chain.  We then use them
+   * to construct the E_CTX object. */
+  push_ctx("Static declaration");
+  if (is_CHAIN_HEAD(decls))
+    for_each_tree(i, decls) ret = handle_declarator(i, base_type, depth);
+  else
+    ret = handle_declarator(decls, base_type, depth);
 
-    TYPE(decl) = E_CTX;
+  TYPE(decl) = E_CTX;
 
-    tECTX_ID_MAP(decl) = tECTX_ID_MAP(cur_ctx);
-    tECTX_ALLOC_CHAIN(decl) = tECTX_ALLOC_CHAIN(cur_ctx);
-    tECTX_PARENT_CTX(decl) = NULL;
-    tECTX_NAME(decl) = get_identifier("Static declaration");
-    tECTX_IS_STATIC(decl) = 1;
+  tECTX_ID_MAP(decl) = tECTX_ID_MAP(cur_ctx);
+  tECTX_ALLOC_CHAIN(decl) = tECTX_ALLOC_CHAIN(cur_ctx);
+  tECTX_PARENT_CTX(decl) = NULL;
+  tECTX_NAME(decl) = get_identifier("Static declaration");
+  tECTX_IS_STATIC(decl) = 1;
 
-    pop_ctx();
+  pop_ctx();
 
-    __evaluate_1(decl, depth + 1);
+  __evaluate_1(decl, depth + 1);
 
-    return ret;
+  return ret;
 }
 
 static tree eval_decl(tree t, int depth)
@@ -1098,7 +1100,7 @@ static tree eval_decl(tree t, int depth)
         return handle_extern_decls(decl_type, decls, depth + 1);
 
     if (chain_has_T_STATIC(decl_specs))
-        return handle_static_decl(t, depth + 1);
+        return handle_static_decl(decl_type, t, depth + 1);
 
     if (!decls)
         return NULL;
