@@ -44,6 +44,9 @@ static void find_ids_to_map_to_typenames(tree decl)
     if (is_T_FN(decl))
         find_ids_to_map_to_typenames(tFN_DECL(decl));
 
+    if (is_T_ARRAY(decl))
+        find_ids_to_map_to_typenames(tARRAY_DECL(decl));
+
     if (is_T_DECL(decl))
         for_each_tree(i, tDECL_DECLS(decl))
             find_ids_to_map_to_typenames(i);
