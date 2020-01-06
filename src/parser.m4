@@ -1395,6 +1395,12 @@ CFILE_ONLY
     | selection_statement
     | iteration_statement
     | jump_statement
+    | REPL ';'
+    {
+        tree interrupt = tree_make(T_REPL);
+        set_locus(interrupt, @1);
+        $$ = interrupt;
+    }
     ;
 
     compound_statement
