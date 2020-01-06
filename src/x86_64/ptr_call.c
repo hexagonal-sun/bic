@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "../evaluate.h"
+#include "../spec-resolver.h"
 #include "ptr_call.h"
 
 extern void entry_point_0(void);
@@ -67,10 +68,13 @@ static tree get_argument_chain(tree fndef, struct argregs *regs)
     ret = tree_make(CHAIN_HEAD);
 
     for_each_tree(arg, args) {
-        tree new_arg;
-        resolve_ptr_type(&tDECL_DECLS(arg), &tDECL_SPECS(arg));
+        tree argType = resolve_decl_specs_to_type(tDECL_SPECS(arg)),
+            decl = tDECL_DECLS(arg),
+            new_arg;
 
-        switch (TYPE(tDECL_SPECS(arg))) {
+        resolve_ptr_type(&decl, &argType);
+
+        switch (TYPE(argType)) {
 #define CREATE_INT_ARG(type, mpz_func, ctype)                           \
             case type:                                                  \
                 new_arg = tree_make(T_INTEGER);                         \
