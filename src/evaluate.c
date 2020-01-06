@@ -82,13 +82,15 @@ static void push_ctx(const char *name)
     cur_ctx = new_ctx;
 }
 
-static void track_alloc(void *ptr)
+static void *track_alloc(void *ptr)
 {
     tree alloc = tree_make(E_ALLOC);
 
     tALLOC_PTR(alloc) = ptr;
 
     tree_chain(alloc, tECTX_ALLOC_CHAIN(cur_ctx));
+
+    return ptr;
 }
 
 static void ctx_backtrace(void)
@@ -1181,7 +1183,7 @@ static void assign_ptr(tree var, tree right)
     switch (TYPE(right))
     {
     case T_STRING:
-        ptr = tSTRING_VAL(right);
+        ptr = track_alloc(strdup(tSTRING_VAL(right)));
         break;
     case T_LIVE_VAR:
         ptr = (void *)tLV_VAL(right)->D_T_PTR;
