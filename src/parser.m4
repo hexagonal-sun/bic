@@ -95,7 +95,7 @@ ALL_TARGETS
 
 %right ')' ELSE
 
-%start translation_unit
+%start TARGET()_translation_unit
 
 %token <tree> IDENTIFIER
 REPL_ONLY
@@ -161,18 +161,22 @@ ALL_TARGETS
 %type <tree> designation
 %type <tree> designator_list
 %type <tree> designator
-%type <tree> statement
-%type <tree> compound_statement
-%type <tree> block_item_list
-%type <tree> block_item
 %type <tree> expression_statement
-%type <tree> selection_statement
-%type <tree> iteration_statement
-%type <tree> jump_statement
-%type <tree> translation_unit
-%type <tree> external_declaration
-%type <tree> function_definition
-%type <tree> declaration_list
+%type <tree> TARGET()_translation_unit
+REPL_ONLY
+    %type <tree> repl_statement
+CFILE_ONLY
+    %type <tree> statement
+    %type <tree> compound_statement
+    %type <tree> block_item_list
+    %type <tree> block_item
+    %type <tree> selection_statement
+    %type <tree> iteration_statement
+    %type <tree> jump_statement
+    %type <tree> external_declaration
+    %type <tree> function_definition
+    %type <tree> declaration_list
+ALL_TARGETS
 
 %%
 
@@ -1345,43 +1349,6 @@ designator
 }
 ;
 
-statement
-: compound_statement
-| expression_statement
-| selection_statement
-| iteration_statement
-| jump_statement
-;
-
-compound_statement
-: '{' '}'
-{
-    tree empty = tree_make(T_EMPTY);
-    set_locus(empty, @1);
-    $$ = empty;
-}
-| '{' block_item_list '}'
-{
-    $$  = $2;
-}
-;
-
-block_item_list
-: block_item
-{
-    $$ = tree_chain_head($1);
-}
-| block_item_list block_item
-{
-    tree_chain($2, $1);
-}
-;
-
-block_item
-: declaration
-| statement
-;
-
 expression_statement
 : ';'
 {
@@ -1392,142 +1359,210 @@ expression_statement
 | expression ';'
 ;
 
-selection_statement
-: IF '(' expression ')' statement
-{
-    tree iif = tree_make(T_IF);
-    tIF_COND(iif) = $3;
-    tIF_TRUE_STMTS(iif) = $5;
-    set_locus(iif, @1);
-    $$ = iif;
-}
-| IF '(' expression ')' statement ELSE statement
-{
-    tree iif = tree_make(T_IF);
-    tIF_COND(iif) = $3;
-    tIF_TRUE_STMTS(iif) = $5;
-    tIF_ELSE_STMTS(iif) = $7;
-    set_locus(iif, @1);
-    $$ = iif;
-}
-;
+REPL_ONLY
+    repl_statement
+    : expression_statement
+    | declaration
+    | C_PRE_INC
+    {
+        tree ret = tree_make(CPP_INCLUDE);
+        tCPP_INCLUDE_STR(ret) = $1;
+        $$ = ret;
+    }
+    | '?' IDENTIFIER
+    {
+        tree inspect = tree_make(T_INSPECT);
+        tINSPECT_EXP(inspect) = $2;
+        $$ = inspect;
+    }
+    ;
 
-iteration_statement
-: WHILE '(' expression ')' statement
-{
-    tree wloop = tree_make(T_LOOP_WHILE);
-    tWLOOP_COND(wloop) = $3;
-    tWLOOP_STMTS(wloop) = $5;
-    set_locus(wloop, @1);
-    $$ = wloop;
-}
-| FOR '(' expression_statement expression_statement ')' statement
-{
-    tree floop = tree_make(T_LOOP_FOR);
-    tFLOOP_INIT(floop) = $3;
-    tFLOOP_COND(floop) = $4;
-    tFLOOP_STMTS(floop) = $6;
-    set_locus(floop, @1);
-    $$ = floop;
-}
-| FOR '(' expression_statement expression_statement expression ')' statement
-{
-    tree floop = tree_make(T_LOOP_FOR);
-    tFLOOP_INIT(floop) = $3;
-    tFLOOP_COND(floop) = $4;
-    tFLOOP_AFTER(floop) = $5;
-    tFLOOP_STMTS(floop) = $7;
-    set_locus(floop, @1);
-    $$ = floop;
-}
-| FOR '(' declaration expression_statement ')' statement
-{
-    tree floop = tree_make(T_LOOP_FOR);
-    tFLOOP_INIT(floop) = $3;
-    tFLOOP_COND(floop) = $4;
-    tFLOOP_STMTS(floop) = $6;
-    set_locus(floop, @1);
-    $$ = floop;
-}
-| FOR '(' declaration expression_statement expression ')' statement
-{
-    tree floop = tree_make(T_LOOP_FOR);
-    tFLOOP_INIT(floop) = $3;
-    tFLOOP_COND(floop) = $4;
-    tFLOOP_AFTER(floop) = $5;
-    tFLOOP_STMTS(floop) = $7;
-    set_locus(floop, @1);
-    $$ = floop;
-}
-;
+    repl_translation_unit
+    : repl_statement
+    {
+        TARGET()_parse_head = tree_chain_head($1);
+        $$ = TARGET()_parse_head;
+    }
+    | repl_translation_unit repl_statement
+    {
+        tree_chain($2, $1);
+    }
+    ;
+CFILE_ONLY
+    statement
+    : expression_statement
+    | compound_statement
+    | selection_statement
+    | iteration_statement
+    | jump_statement
+    ;
 
-jump_statement
-: BREAK ';'
-{
-    tree breakk = tree_make(T_BREAK);
-    set_locus(breakk, @1);
-    $$ = breakk;
-}
-| RETURN ';'
-{
-    tree ret = tree_make(T_RETURN);
-    set_locus(ret, @1);
-    $$ = ret;
-}
-| RETURN expression ';'
-{
-    tree ret = tree_make(T_RETURN);
-    tRET_EXP(ret) = $2;
-    set_locus(ret, @1);
-    $$ = ret;
-}
-;
+    compound_statement
+    : '{' '}'
+    {
+        tree empty = tree_make(T_EMPTY);
+        set_locus(empty, @1);
+        $$ = empty;
+    }
+    | '{' block_item_list '}'
+    {
+        $$  = $2;
+    }
+    ;
 
-translation_unit
-: external_declaration
-{
-    TARGET()_parse_head = tree_chain_head($1);
-    $$ = TARGET()_parse_head;
-}
-| translation_unit external_declaration
-{
-    tree_chain($2, $1);
-}
-;
+    block_item_list
+    : block_item
+    {
+        $$ = tree_chain_head($1);
+    }
+    | block_item_list block_item
+    {
+        tree_chain($2, $1);
+    }
+    ;
 
-external_declaration
-: function_definition
-| declaration
-;
+    block_item
+    : declaration
+    | statement
+    ;
 
-function_definition
-: declaration_specifiers declarator declaration_list compound_statement
-{
-    tree decl = tree_make(T_DECL);
-    tDECL_SPECS(decl) = $1;
-    tDECL_DECLS(decl) = tree_chain_head($2);
-    tFN_STMTS($2) = $4;
-    set_locus(decl, @2);
-    $$ = decl;
-}
-| declaration_specifiers declarator compound_statement
-{
-    tree decl = tree_make(T_DECL);
-    tDECL_SPECS(decl) = $1;
-    tDECL_DECLS(decl) = tree_chain_head($2);
-    tFN_STMTS($2) = $3;
-    set_locus(decl, @2);
-    $$ = decl;
-}
-;
+    selection_statement
+    : IF '(' expression ')' statement
+    {
+        tree iif = tree_make(T_IF);
+        tIF_COND(iif) = $3;
+        tIF_TRUE_STMTS(iif) = $5;
+        set_locus(iif, @1);
+        $$ = iif;
+    }
+    | IF '(' expression ')' statement ELSE statement
+    {
+        tree iif = tree_make(T_IF);
+        tIF_COND(iif) = $3;
+        tIF_TRUE_STMTS(iif) = $5;
+        tIF_ELSE_STMTS(iif) = $7;
+        set_locus(iif, @1);
+        $$ = iif;
+    }
+    ;
 
-declaration_list
-: declaration
-{
-    $$ = tree_chain_head($1);
-}
-| declaration_list declaration
-{
-    tree_chain($2, $1);
-}
-;
+    iteration_statement
+    : WHILE '(' expression ')' statement
+    {
+        tree wloop = tree_make(T_LOOP_WHILE);
+        tWLOOP_COND(wloop) = $3;
+        tWLOOP_STMTS(wloop) = $5;
+        set_locus(wloop, @1);
+        $$ = wloop;
+    }
+    | FOR '(' expression_statement expression_statement ')' statement
+    {
+        tree floop = tree_make(T_LOOP_FOR);
+        tFLOOP_INIT(floop) = $3;
+        tFLOOP_COND(floop) = $4;
+        tFLOOP_STMTS(floop) = $6;
+        set_locus(floop, @1);
+        $$ = floop;
+    }
+    | FOR '(' expression_statement expression_statement expression ')' statement
+    {
+        tree floop = tree_make(T_LOOP_FOR);
+        tFLOOP_INIT(floop) = $3;
+        tFLOOP_COND(floop) = $4;
+        tFLOOP_AFTER(floop) = $5;
+        tFLOOP_STMTS(floop) = $7;
+        set_locus(floop, @1);
+        $$ = floop;
+    }
+    | FOR '(' declaration expression_statement ')' statement
+    {
+        tree floop = tree_make(T_LOOP_FOR);
+        tFLOOP_INIT(floop) = $3;
+        tFLOOP_COND(floop) = $4;
+        tFLOOP_STMTS(floop) = $6;
+        set_locus(floop, @1);
+        $$ = floop;
+    }
+    | FOR '(' declaration expression_statement expression ')' statement
+    {
+        tree floop = tree_make(T_LOOP_FOR);
+        tFLOOP_INIT(floop) = $3;
+        tFLOOP_COND(floop) = $4;
+        tFLOOP_AFTER(floop) = $5;
+        tFLOOP_STMTS(floop) = $7;
+        set_locus(floop, @1);
+        $$ = floop;
+    }
+    ;
+
+    jump_statement
+    : BREAK ';'
+    {
+        tree breakk = tree_make(T_BREAK);
+        set_locus(breakk, @1);
+        $$ = breakk;
+    }
+    | RETURN ';'
+    {
+        tree ret = tree_make(T_RETURN);
+        set_locus(ret, @1);
+        $$ = ret;
+    }
+    | RETURN expression ';'
+    {
+        tree ret = tree_make(T_RETURN);
+        tRET_EXP(ret) = $2;
+        set_locus(ret, @1);
+        $$ = ret;
+    }
+    ;
+
+    cfile_translation_unit
+    : external_declaration
+    {
+        TARGET()_parse_head = tree_chain_head($1);
+        $$ = TARGET()_parse_head;
+    }
+    | cfile_translation_unit external_declaration
+    {
+        tree_chain($2, $1);
+    }
+    ;
+
+    external_declaration
+    : function_definition
+    | declaration
+    ;
+
+    function_definition
+    : declaration_specifiers declarator declaration_list compound_statement
+    {
+        tree decl = tree_make(T_DECL);
+        tDECL_SPECS(decl) = $1;
+        tDECL_DECLS(decl) = tree_chain_head($2);
+        tFN_STMTS($2) = $4;
+        set_locus(decl, @2);
+        $$ = decl;
+    }
+    | declaration_specifiers declarator compound_statement
+    {
+        tree decl = tree_make(T_DECL);
+        tDECL_SPECS(decl) = $1;
+        tDECL_DECLS(decl) = tree_chain_head($2);
+        tFN_STMTS($2) = $3;
+        set_locus(decl, @2);
+        $$ = decl;
+    }
+    ;
+
+    declaration_list
+    : declaration
+    {
+        $$ = tree_chain_head($1);
+    }
+    | declaration_list declaration
+    {
+        tree_chain($2, $1);
+    }
+    ;
+ALL_TARGETS
