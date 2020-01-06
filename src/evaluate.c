@@ -2383,6 +2383,7 @@ static tree eval_sizeof(tree t, int depth)
     }
 
     if (is_T_DECL_COMPOUND(type)) {
+        assert(tCOMP_DECL_EXPANDED(type));
         mpz_init_set_ui(tINT_VAL(ret), tCOMP_DECL_SZ(type));
         return ret;
     }
