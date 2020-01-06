@@ -810,17 +810,12 @@ static tree map_typedef(tree id, tree type)
 
     if (is_T_FN(id)) {
         tree fn = id;
-        tree fndecl;
         tFN_RET_TYPE(fn) = type;
 
-        id = fndecl = tFN_DECL(fn);
-        while (is_T_POINTER(fndecl)) {
-            tFN_DECL(fn) = tPTR_EXP(fndecl);
-            id = fndecl = tFN_DECL(fn);
-
-            tree pointer = tree_make(T_POINTER);
-            tPTR_EXP(pointer) = fn;
-            fn = pointer;
+        id = tFN_DECL(fn);
+        if (is_T_POINTER(id)) {
+            tFN_DECL(fn) = NULL;
+            return map_typedef(id, fn);
         }
 
         return map_typedef(id, fn);
