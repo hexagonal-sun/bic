@@ -47,7 +47,7 @@ static int parse_file(const char *fname)
     FILE *f;
     char *command;
 
-    asprintf(&command, "gcc -E \"%s\"", fname);
+    asprintf(&command, "gcc -E " EXTRA_CPP_OPTS " \"%s\"", fname);
 
     if (!command) {
         fprintf(stderr, "Error: could not allocate preprocessor command.\n");
