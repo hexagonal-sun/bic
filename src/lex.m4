@@ -134,6 +134,7 @@ X                               [0-9A-Fa-f]
 %%
 "__attribute__"[ \t]*"((".*"))" /* Ignore attributes */
 "_Nullable"                     /* Ignore builtin */
+"_Nonnull"                      /* Ignore builtin */
 ("__")?"restrict"               /* Ignore builtin */
 "__asm"("__")?[ \t]*"(".*")"    /* Ignore asm stmts. */
 "__extension__"                 /* Ignore gcc warning suppression
