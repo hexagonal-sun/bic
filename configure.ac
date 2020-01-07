@@ -66,10 +66,14 @@ case "${build_os}" in
      linux*)
         AC_DEFINE([BUILD_LINUX], [1],
                   [bic is to be built for the Linux OS])
+        AC_DEFINE([[EXTRA_CPP_OPTS]], [""],
+                  [Extra options to be passed to the C preprocessor])
         ;;
      darwin*)
         AC_DEFINE([BUILD_DARWIN], [1],
                   [bic is to be built for the Darwin OS])
+        AC_DEFINE([[EXTRA_CPP_OPTS]], ["-U__BLOCKS__"],
+                  [Extra options to be passed to the C preprocessor])
         ;;
      *)
         AC_MSG_ERROR(["OS ${build_os} not supported"])

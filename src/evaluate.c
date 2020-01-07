@@ -2512,7 +2512,7 @@ static tree eval_cpp_include(tree t, int depth)
     tCPP_INCLUDE_STR(cpp_include) = strdup(tCPP_INCLUDE_STR(t));
     tree_chain(cpp_include, include_chain);
 
-    out_file_stream = run_cpp(include_chain, "-E", NULL);
+    out_file_stream = run_cpp(include_chain, "-E " EXTRA_CPP_OPTS, NULL);
 
     cfilein = out_file_stream;
 
