@@ -661,6 +661,13 @@ static void instantiate_struct_element(tree decl, tree live_struct, int depth)
 
     void *base = tLV_COMP_BASE(live_struct);
 
+    if (is_T_FN(decl_element)) {
+        tree fn = alloc_copy_tree(decl_element);
+        tFN_RET_TYPE(fn) = decl_type;
+        decl_element = tFN_DECL(fn);
+        decl_type = fn;
+    }
+
     resolve_ptr_type(&decl_element, &decl_type);
 
     if (is_T_BITFIELD(decl_element))
@@ -773,16 +780,18 @@ static tree handle_declarator(tree decl, tree decl_type, int depth)
         return decl;
     case T_FN:
     {
-        tFN_RET_TYPE(decl) = decl_type;
-        tree id = tFN_DECL(decl);
+        tree fn = alloc_copy_tree(decl);
+        tFN_RET_TYPE(fn) = decl_type;
+        tree id = tFN_DECL(fn);
 
         if (is_T_POINTER(id)) {
             /* This declares a function pointer. Therefore, decl_type is really
              * a pointer to the T_FN. */
-            tFN_DECL(decl) = NULL;
-            return handle_declarator(id, decl, depth);
+            tFN_DECL(fn) = NULL;
+            return handle_declarator(id, fn, depth);
         }
-        map_identifier(tFN_DECL(decl), decl);
+
+        map_identifier(tFN_DECL(fn), fn);
         return decl;
     }
     case T_BITFIELD:
@@ -811,7 +820,7 @@ static tree map_typedef(tree id, tree type)
     resolve_ptr_type(&id, &type);
 
     if (is_T_FN(id)) {
-        tree fn = id;
+        tree fn = alloc_copy_tree(id);
         tFN_RET_TYPE(fn) = type;
 
         id = tFN_DECL(fn);

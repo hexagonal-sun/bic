@@ -269,4 +269,17 @@ static inline void tree_copy(tree dest, tree src)
     memcpy(dest, src, sizeof(*dest));
 }
 
+extern tree alloc_tree();
+
+/* Allocate a new tree and copy the contents of t to it.
+ *
+ * NOTE: this is a shallow copy!
+ */
+static inline tree alloc_copy_tree(tree t)
+{
+    tree ret = alloc_tree();
+    tree_copy(ret, t);
+    return ret;
+}
+
 #endif
