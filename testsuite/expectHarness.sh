@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -ux
 SRCDIR="$1"
 EXPSCRIPT="$2"
