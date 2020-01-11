@@ -3,6 +3,7 @@
 struct foobar {
     int a;
     int b;
+    void (*foo)(int ba);
 };
 
 int main()
