@@ -25,37 +25,39 @@ static int linenum = 1;
 
 
 static char *sl_buf = NULL;
-extern void cfile_parser_set_file(const char *fname);
+CFILE_AND_CSCRIPT_ONLY
+    extern void TARGET()_parser_set_file(const char *fname);
 
-static void handle_line_marker(char *s)
-{
-    /* Lex the '#' */
-    s = strtok(s, " ");
+    static void handle_line_marker(char *s)
+    {
+        /* Lex the '#' */
+        s = strtok(s, " ");
 
-    if (!s)
-        return;
+        if (!s)
+            return;
 
-    /* Now the line number. */
-    s = strtok(NULL, " ");
+        /* Now the line number. */
+        s = strtok(NULL, " ");
 
-    if (!s)
-        return;
+        if (!s)
+            return;
 
-    linenum = atoi(s) - 1;
+        linenum = atoi(s) - 1;
 
-    /* Now the file name.
-     *
-     * Note that the filename is sourrounded by quotes. Remove that here.*/
-    s = strtok(NULL, " ");
+        /* Now the file name.
+         *
+         * Note that the filename is sourrounded by quotes. Remove that here.*/
+        s = strtok(NULL, " ");
 
-    if (!s)
-        return;
+        if (!s)
+            return;
 
-    s += 1;
-    s[strlen(s) - 1] = 0;
+        s += 1;
+        s[strlen(s) - 1] = 0;
 
-    cfile_parser_set_file(s);
-}
+        TARGET()_parser_set_file(s);
+    }
+ALL_TARGETS
 
 static void sl_begin(void)
 {

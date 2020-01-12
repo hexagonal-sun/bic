@@ -5,7 +5,7 @@
 #include "gc.h"
 
 extern FILE *cscriptin;
-static const char* cscript_file;
+extern const char* cscript_current_file;
 
 tree cscript_parse_head;
 GC_STATIC_TREE(cscript_parse_head);
@@ -15,7 +15,7 @@ GC_STATIC_TREE(cscript_parse_head);
  */
 void cscripterror(const char *str)
 {
-    fprintf(stderr, "Parser Error: %s:%d %s.\n", cscript_file,
+    fprintf(stderr, "Parser Error: %s:%d %s.\n", cscript_current_file,
             cscriptlloc.first_line, str);
 
     exit(1);
@@ -60,6 +60,7 @@ int evaluate_cscript(const char *script_name,
 {
   tree return_val;
 
+  cscript_current_file = script_name;
   if (parse_cscript(script_name))
       return 254;
 
