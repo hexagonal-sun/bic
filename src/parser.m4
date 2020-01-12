@@ -1196,10 +1196,10 @@ abstract_declarator
 {
     tree ptr = $1;
 
-    while (ptr)
+    while (tPTR_EXP(ptr))
         ptr = tPTR_EXP(ptr);
 
-    tPTR_EXP(ptr) - $2;
+    tPTR_EXP(ptr) = $2;
 }
 ;
 
