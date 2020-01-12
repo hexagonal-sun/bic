@@ -1,6 +1,10 @@
+sudo: required
+
 language: c
 
-services:
-  - docker
+before_install:
+    - sudo apt-get update -qq
+    - sudo apt-get install libreadline-dev autoconf-archive libgmp-dev expect
 
-script: docker build -t bic .
+before_script: autoreconf --install
+script: ./configure --enable-debug && make && make check
