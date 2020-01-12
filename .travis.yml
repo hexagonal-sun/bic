@@ -1,5 +1,9 @@
 sudo: required
 
+os:
+  - linux
+  - osx
+
 language: c
 
 addons:
@@ -9,6 +13,17 @@ addons:
       - autoconf-archive
       - libgmp-dev
       - expect
+  homebrew:
+    packages:
+      - autoconf-archive
+      - bison
+      - flex
+      - gmp
+      - readline
 
-before_script: autoreconf --install
-script: ./configure --enable-debug && make && make check
+before_script:
+  - autoreconf --install
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then YACC="$(brew --prefix bison)/bin/bison -y" ./configure --enable-debug; fi
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./configure --enable-debug; fi
+
+script: make && make check
