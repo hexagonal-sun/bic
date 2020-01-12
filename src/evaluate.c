@@ -780,7 +780,7 @@ static tree handle_declarator(tree decl, tree decl_type, int depth)
         return decl;
     case T_FN:
     {
-        tree fn = alloc_copy_tree(decl);
+        tree previous_decl, fn = alloc_copy_tree(decl);
         tFN_RET_TYPE(fn) = decl_type;
         tree id = tFN_DECL(fn);
 
@@ -790,6 +790,14 @@ static tree handle_declarator(tree decl, tree decl_type, int depth)
             tFN_DECL(fn) = NULL;
             return handle_declarator(id, fn, depth);
         }
+
+        /* Allow a declaration (not a definition!) of a funcion to be repeated. */
+        if (!tFN_STMTS(fn)) {
+            previous_decl = resolve_identifier(tFN_DECL(fn), SCOPE_CURRENT_CTX);
+
+            if (previous_decl)
+                return previous_decl;
+    }
 
         map_identifier(tFN_DECL(fn), fn);
         return decl;
@@ -922,7 +930,7 @@ static void *resolve_symbol(tree id)
 
 static tree handle_extern_decl(tree extern_type, tree decl)
 {
-    tree live_var, id;
+    tree live_var, id, previous_decl;
     void *sym_addr;
 
     resolve_ptr_type(&decl, &extern_type);
@@ -939,6 +947,19 @@ static tree handle_extern_decl(tree extern_type, tree decl)
 
         map_identifier(id, instantiate_array(decl, extern_type,
                                              sym_addr, array_sz));
+
+        return id;
+    }
+
+    /* See if this symbol has already been declared. If it has, and has the same
+     * type, just return the already declared symbol.
+     */
+    previous_decl = resolve_identifier(id, SCOPE_CURRENT_CTX);
+
+    if (previous_decl) {
+        if (TYPE(tLV_TYPE(previous_decl)) != TYPE(extern_type)) {
+            eval_die(decl, "Attempted to redeclare %s with a different type", tID_STR(id));
+        }
 
         return id;
     }
