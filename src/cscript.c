@@ -27,7 +27,7 @@ static int parse_cscript(const char *fname)
     FILE *f;
     char *command;
 
-    asprintf(&command, "cpp -E \"%s\"", fname);
+    asprintf(&command, "gcc -x c -E \"%s\"", fname);
 
     if (!command) {
         fprintf(stderr, "Error: could not allocate preprocessor command.\n");
