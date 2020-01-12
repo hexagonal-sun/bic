@@ -16,7 +16,7 @@ int TARGET()lex(void);
 void TARGET()error(const char *str);
 
 extern tree TARGET()_parse_head;
-CFILE_ONLY
+CFILE_AND_CSCRIPT_ONLY
     const char *parser_current_file;
 REPL_ONLY
     const char *parser_current_file = "<REPL>";
@@ -165,7 +165,7 @@ ALL_TARGETS
 %type <tree> TARGET()_translation_unit
 REPL_ONLY
     %type <tree> repl_statement
-CFILE_ONLY
+CFILE_AND_CSCRIPT_ONLY
     %type <tree> statement
     %type <tree> compound_statement
     %type <tree> block_item_list
@@ -176,6 +176,8 @@ CFILE_ONLY
     %type <tree> external_declaration
     %type <tree> function_definition
     %type <tree> declaration_list
+CSCRIPT_ONLY
+    %type <tree> cscript_external_declaration
 ALL_TARGETS
 
 %%
@@ -1388,7 +1390,7 @@ REPL_ONLY
         tree_chain($2, $1);
     }
     ;
-CFILE_ONLY
+CFILE_AND_CSCRIPT_ONLY
     statement
     : expression_statement
     | compound_statement
@@ -1523,18 +1525,6 @@ CFILE_ONLY
     }
     ;
 
-    cfile_translation_unit
-    : external_declaration
-    {
-        TARGET()_parse_head = tree_chain_head($1);
-        $$ = TARGET()_parse_head;
-    }
-    | cfile_translation_unit external_declaration
-    {
-        tree_chain($2, $1);
-    }
-    ;
-
     external_declaration
     : function_definition
     | declaration
@@ -1567,6 +1557,35 @@ CFILE_ONLY
         $$ = tree_chain_head($1);
     }
     | declaration_list declaration
+    {
+        tree_chain($2, $1);
+    }
+    ;
+CFILE_ONLY
+    cfile_translation_unit
+    : external_declaration
+    {
+        TARGET()_parse_head = tree_chain_head($1);
+        $$ = TARGET()_parse_head;
+    }
+    | cfile_translation_unit external_declaration
+    {
+        tree_chain($2, $1);
+    }
+    ;
+CSCRIPT_ONLY
+    cscript_external_declaration
+    : external_declaration
+    | statement
+    ;
+
+    cscript_translation_unit
+    : cscript_external_declaration
+    {
+        TARGET()_parse_head = tree_chain_head($1);
+        $$ = TARGET()_parse_head;
+    }
+    | cscript_translation_unit cscript_external_declaration
     {
         tree_chain($2, $1);
     }

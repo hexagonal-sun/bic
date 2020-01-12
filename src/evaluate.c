@@ -2709,8 +2709,15 @@ static tree __evaluate(tree head, int depth)
         if (is_T_RETURN(result)) {
             tree fn_ctx = cur_ctx;
 
-            while (!tECTX_IS_FN_CALL(fn_ctx))
+            while (fn_ctx && !tECTX_IS_FN_CALL(fn_ctx))
                 fn_ctx = tECTX_PARENT_CTX(fn_ctx);
+
+            /* If we reach the top of the evaluation stack, we have been
+             * executing a cscript and the top-level of it has called return. In
+             * that case, just return the result.
+             */
+            if (!fn_ctx)
+                return tRET_EXP(result);
 
             tECTX_RETVAL(fn_ctx) = tRET_EXP(result);
             longjmp(tECTX_JMP_BUF(fn_ctx), 1);

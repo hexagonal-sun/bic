@@ -17,7 +17,8 @@ repllex.h replparser.y repl.c repl.h pretty-printer.c			\
 pretty-printer.h lex.m4 parser-lex-funcs.m4 parser.m4 util.c util.h	\
 gc.c gc.h preprocess.c preprocess.h tree-base.h gc-internal.h		\
 gc-internal.c tree-dump.c tree-dump.h tree-dump-primitives.h \
-inspect.c inspect.h tree-dump-dot.c spec-resolver.c spec-resolver.h
+inspect.c inspect.h tree-dump-dot.c spec-resolver.c spec-resolver.h \
+cscriptparser.y cscriptlex.l cscriptlex.h cscript.c cscript.h
 
 EXTRA_DIST = c.lang
 DISTCLEANFILES = tree.def ctypes.def tree-base.h tree-access.h	\
@@ -73,10 +74,16 @@ repllex.l: lex.m4
 cfilelex.l: lex.m4
 	$(AM_V_GEN)m4 -DTARGET=cfile $< > $@
 
+cscriptlex.l: lex.m4
+	$(AM_V_GEN)m4 -DTARGET=cscript $< > $@
+
 replparser.y: parser.m4
 	$(AM_V_GEN)m4 -DTARGET=repl $< > $@
 
 cfileparser.y: parser.m4
 	$(AM_V_GEN)m4 -DTARGET=cfile $< > $@
+
+cscriptparser.y: parser.m4
+	$(AM_V_GEN)m4 -DTARGET=cscript $< > $@
 
 DIST_SUBDIRS = x86_64 aarch64 armv7l

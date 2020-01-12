@@ -183,7 +183,7 @@ X                               [0-9A-Fa-f]
 REPL_ONLY
 "`#'include"[ \t]*"<"({L}|{D}|\.|\/)+">" {LEXLVAL.string = strdup(LEXTEXT);
                                      return C_PRE_INC; }
-CFILE_ONLY
+CFILE_AND_CSCRIPT_ONLY
 "`#'"[ \t]*[0-9]+[ \t]*\"({L}|{D}|\-|\.|\/|<|>|\ )+\"[ 1-4]*    {handle_line_marker(LEXTEXT);}
 ALL_TARGETS
 {L}({L}|{D})*                   {LEXLVAL.tree = get_identifier(LEXTEXT);

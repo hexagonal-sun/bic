@@ -25,6 +25,10 @@ src/repllex.c
 src/repllex.o
 src/repllex.h
 src/repllex.l
+src/cscriptlex.c
+src/cscriptlex.o
+src/cscriptlex.h
+src/cscriptlex.l
 src/libbic.a
 src/main.o
 src/cfileparser.c
@@ -35,6 +39,10 @@ src/replparser.c
 src/replparser.y
 src/replparser.h
 src/replparser.o
+src/cscriptparser.c
+src/cscriptparser.y
+src/cscriptparser.h
+src/cscriptparser.o
 src/tree-access.h
 src/gc-internal.c
 src/tree-dump.c
