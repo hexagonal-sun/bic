@@ -26,6 +26,12 @@
 apt-get install build-essential libreadline-dev autoconf-archive libgmp-dev expect flex bison automake m4 libtool pkg-config
    #+end_example
 
+   You can also use the following command to install the required dependencies
+   via [[https://brew.sh/][Homebrew]] on a MacOS system.
+   #+begin_example
+brew install bison flex gmp readline autoconf-archive
+   #+end_example
+
 ** Installation
    You can compile and install bic with the following commands:
 
@@ -34,6 +40,11 @@ autoreconf -i
 ./configure --enable-debug
 make
 make install
+#+end_example
+
+    For building on a MacOS system, you need to change the configure line to:
+#+begin_example
+YACC="$(brew --prefix bison)/bin/bison -y" ./configure --enable-debug
 #+end_example
 
 *** Docker
