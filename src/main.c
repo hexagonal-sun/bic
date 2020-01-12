@@ -23,7 +23,7 @@
 extern FILE* cfilein;
 extern int cfileparse();
 extern void cfile_parser_set_file(const char *fname);
-extern const char *parser_current_file;
+extern const char *cfile_current_file;
 enum DUMP_TYPE dump_type = TEXTUAL;
 
 static int flag_print_ast = 0;
@@ -37,7 +37,7 @@ GC_STATIC_TREE(cfile_parse_head);
  */
 void cfileerror(const char *str)
 {
-    fprintf(stderr, "Parser Error: %s:%d %s.\n", parser_current_file,
+    fprintf(stderr, "Parser Error: %s:%d %s.\n", cfile_current_file,
             cfilelloc.first_line, str);
 
     exit(1);
