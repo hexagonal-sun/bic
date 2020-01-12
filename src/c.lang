@@ -175,6 +175,9 @@
 (deftype T_FN "Function" "tFN"
          ("DECL" "ARGS" "RET_TYPE" "STMTS"))
 
+(deftype T_BUILTIN "Builtin function handler" "tBUILTIN"
+         (("HANDLER" ptr)))
+
 (deftype T_FN_CALL "Function Call" "tFNCALL"
          ("ID" "ARGS"))
 

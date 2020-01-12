@@ -415,7 +415,7 @@ static tree eval_fn_args(tree args, int depth)
 
 static tree eval_fn_call(tree t, int depth)
 {
-    /* There are four possibilities here:
+    /* There are five possibilities here:
      *
      * 1: The function call is to a /defined/ function, i.e. one that
      *    has been parsed and has a corresponding T_FN_DEF tree.  If
@@ -432,7 +432,10 @@ static tree eval_fn_call(tree t, int depth)
      *    pointer, evaluate the arguments and call the address pointed
      *    to by that live variable.
      *
-     * 4: The function couldn't be found.  In that case, error.
+     * 4: The function is an evaluator builtin.  In that case, call
+     *    the handler with the argument chain.
+     *
+     * 5: The function couldn't be found.  In that case, error.
      */
     tree function = __evaluate_1(tFNCALL_ID(t), depth + 1);
 
@@ -587,6 +590,11 @@ static tree eval_fn_call(tree t, int depth)
                       tFN_RET_TYPE(function_type), is_variadic);
 
         return make_fncall_result(tFN_RET_TYPE(function_type), res);
+    }
+
+    if (is_T_BUILTIN(function)) {
+        tree (*handler)(tree) = tBUILTIN_HANDLER(function);
+        return handler(tFNCALL_ARGS(t));
     }
 
     return NULL;
@@ -2734,15 +2742,64 @@ tree evaluate(tree t, const char *fname)
     return __evaluate(t, 0);
 }
 
+static tree handle_builtin_strcpy_chk(tree args)
+{
+    /* Transform into a normal call to strcpy, stripping off the last argument.
+     */
+    int i = 0;
+    tree arg, fncall = tree_make(T_FN_CALL);
+    tFNCALL_ID(fncall) = get_identifier("strcpy");
+
+    for_each_tree(arg, args) {
+        if (i == 2) {
+            tree_unchain(arg);
+            break;
+        }
+        i++;
+    }
+    tFNCALL_ARGS(fncall) = args;
+    return __evaluate_1(fncall, 0);
+}
+
+static tree handle_builtin_strcat_chk(tree args)
+{
+    /* Transform into a normal call to strcat, stripping off the last argument.
+     */
+    int i = 0;
+    tree arg, fncall = tree_make(T_FN_CALL);
+    tFNCALL_ID(fncall) = get_identifier("strcat");
+
+    for_each_tree(arg, args) {
+        if (i == 2) {
+            tree_unchain(arg);
+            break;
+        }
+        i++;
+    }
+    tFNCALL_ARGS(fncall) = args;
+    return __evaluate_1(fncall, 0);
+}
+
 static void eval_init_builtins(void)
 {
     map_identifier(get_identifier(strdup("__builtin_va_list")),
                    tree_make(D_T_INT));
+
+    tree strcpy_builtin = tree_make(T_BUILTIN);
+    tBUILTIN_HANDLER(strcpy_builtin) = &handle_builtin_strcpy_chk;
+    map_identifier(get_identifier("__builtin___strcpy_chk"),
+                   strcpy_builtin);
+
+    tree strcat_builtin = tree_make(T_BUILTIN);
+    tBUILTIN_HANDLER(strcat_builtin) = &handle_builtin_strcat_chk;
+    map_identifier(get_identifier("__builtin___strcat_chk"),
+                   strcat_builtin);
 }
 
 void eval_init(void)
 {
-    push_ctx("Toplevel");
+    push_ctx("Bultins");
     eval_init_builtins();
+    push_ctx("Toplevel");
     include_chain = tree_make(CHAIN_HEAD);
 }
