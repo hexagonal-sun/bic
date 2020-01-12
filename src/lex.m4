@@ -130,6 +130,7 @@ W                               [\ \t]
 X                               [0-9A-Fa-f]
 
 %x str_lit
+%x compound_start_cond
 
 %%
 "__attribute__"[ \t]*"((".*"))" /* Ignore attributes */
@@ -138,7 +139,7 @@ X                               [0-9A-Fa-f]
 ("__")?"restrict"               /* Ignore builtin */
 "__asm"("__")?[ \t]*"(".*")"    /* Ignore asm stmts. */
 "__extension__"                 /* Ignore gcc warning suppression
-                                 * extension. */
+* extension. */
 "volatile"                      /* Ignore volatile */
 ("__")?"inline"("__")?          /* Ignore inlining */
 "auto"				return AUTO;
@@ -167,10 +168,14 @@ X                               [0-9A-Fa-f]
 "signed"			return SIGNED;
 "sizeof"			return SIZEOF;
 "static"			return STATIC;
-"struct"			return STRUCT;
+"struct"			{ BEGIN compound_start_cond; return STRUCT;}
+<compound_start_cond>{L}({L}|{D})* {BEGIN 0;
+                        LEXLVAL.tree = get_identifier(LEXTEXT);
+                        return IDENTIFIER; }
+<compound_start_cond>"{"  {BEGIN 0; return '{';}
 "switch"			return SWITCH;
 "typedef"			return TYPEDEF;
-"union"				return UNION;
+"union"			{ BEGIN compound_start_cond; return UNION;}
 "unsigned"			return UNSIGNED;
 "void"				return VOID;
 "while"				return WHILE;
@@ -201,8 +206,8 @@ L?'(\\.|[^\\'\n])+'	        mpz_init_set_si(LEXLVAL.integer, lex_char(LEXTEXT));
 <str_lit>\\.                    { lex_err("bogus escape '%s' in string\n", LEXTEXT); }
 <str_lit>\n                     { lex_err("newline in string\n"); }
 
-[ \t\r]                         /* skip whitespace */
-"\n"                            {linenum++; colnum = 1;}
+<INITIAL,compound_start_cond>[ \t\r]                         /* skip whitespace */
+<INITIAL,compound_start_cond>"\n"                            {linenum++; colnum = 1;}
 
 "..."                           return ELLIPSIS;
 "=="                            return EQUATE;
