@@ -143,6 +143,11 @@ static inline void tree_chain(tree new, tree chain)
     list_add_tail(&new->chain, &chain->chain);
 }
 
+static inline void tree_unchain(tree obj)
+{
+    list_del(&obj->chain);
+}
+
 #define for_each_tree(pos, head)                \
     list_for_each((pos), &(head)->chain, chain)
 
