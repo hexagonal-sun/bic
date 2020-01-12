@@ -12,6 +12,23 @@ struct arrayStruct
 
 };
 
+/* Ensure that even though `astruct` and `aunion` will be declared as typenames
+ * this can still be parsed successfully.
+ */
+
+typedef struct astruct {
+    int       foobar[20];
+} astruct;
+
+typedef union aunion {
+    int       foobar[20];
+} aunion;
+
+int ununsed(const struct astruct *somestruct, const union aunion *someunion)
+{
+    return 0;
+}
+
 int main()
 {
     int i;
