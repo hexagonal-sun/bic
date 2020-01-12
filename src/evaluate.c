@@ -2390,12 +2390,18 @@ static tree eval_sizeof(tree t, int depth)
 
 static tree eval_type_specifier(tree t, int depth)
 {
-    tree type =  resolve_decl_specs_to_type(tTYPE_SPECIFIER_SPECS(t));
+    tree type =  resolve_decl_specs_to_type(tTYPE_SPECIFIER_SPECS(t)),
+        decl = tTYPE_SPECIFIER_DECL(t);
 
     if (is_T_IDENTIFIER(type) || is_T_DECL_COMPOUND(type))
         type = __evaluate_1(type, depth + 1);
 
-    resolve_ptr_type(&tTYPE_SPECIFIER_DECL(t), &type);
+    while (is_T_POINTER(decl)) {
+        tree ptr = tree_make(D_T_PTR);
+        tDTPTR_EXP(ptr) = type;
+        type = ptr;
+        decl = tPTR_EXP(decl);
+    }
 
     return type;
 }

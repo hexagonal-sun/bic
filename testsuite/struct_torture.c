@@ -5,9 +5,18 @@ typedef struct {
     int a, b;
 } s1;
 
+struct arrayStruct
+{
+    char arrr[20];
+    char _unused2[15 * sizeof (int) - 4 * sizeof (void *) - sizeof (unsigned int)];
+
+};
+
 int main()
 {
     int i;
+    struct arrayStruct array_struct_instance;
+    printf("%d\n", sizeof(array_struct_instance));
     for (i = 0; i < 3000; i++) {
         struct foobar {
             int a;
