@@ -14,6 +14,7 @@
 #include "tree-dump-dot.h"
 #include "tree-dump.h"
 #include "tree-dump-primitives.h"
+#include "cscript.h"
 
 #if defined(BUILD_LINUX)
  #include <gnu/lib-names.h>
@@ -26,6 +27,7 @@ extern const char *parser_current_file;
 enum DUMP_TYPE dump_type = TEXTUAL;
 
 static int flag_print_ast = 0;
+static const char *cscript_file = NULL;
 
 tree cfile_parse_head;
 GC_STATIC_TREE(cfile_parse_head);
@@ -87,7 +89,7 @@ static void add_call_to_main(tree head)
 static void usage(char *progname)
 {
     fprintf(stderr,
-            "Usage: %s [-v] [-I INCLUDE_DIR]... [-l library]... [--] [CFILE]\n"
+            "Usage: %s [-v] [-s CSCRIPT] [-I INCLUDE_DIR]... [-l library]... [--] [CFILE]\n"
             "\n"
             "Arguments:\n"
             "  -l: Open the specified library for external symbol\n"
@@ -96,6 +98,8 @@ static void usage(char *progname)
             "  -I: add INCLUDE_DIR to the header search path.  This allows the user to use\n"
             "      #include directives to include a file that isn't in the default header\n"
             "      search path.\n"
+            "\n"
+            "  -s: execute CSCRIPT as a cscript file.\n"
             "\n"
             "  -v: Print version information and exit.\n"
             "\n"
@@ -161,7 +165,7 @@ static int parse_args(int argc, char *argv[])
 {
     int opt;
 
-    while ((opt = getopt(argc, argv, "vTDl:I:")) != -1) {
+    while ((opt = getopt(argc, argv, "vTDl:s:I:")) != -1) {
         switch (opt) {
         case 'l':
             if (!open_library(optarg)) {
@@ -181,6 +185,9 @@ static int parse_args(int argc, char *argv[])
         case 'T':
             flag_print_ast = 1;
             break;
+        case 's':
+            cscript_file = strdup(optarg);
+            break;
         case 'D':
             dump_type = DOT;
             break;
@@ -193,7 +200,7 @@ static int parse_args(int argc, char *argv[])
     return optind;
 }
 
-static int bic_eval_file(const char *file)
+static int bic_eval_cfile(const char *file)
 {
     tree return_val;
 
@@ -230,8 +237,11 @@ int main(int argc, char *argv[])
 
     int idx = parse_args(argc, argv);
 
+    if (cscript_file)
+        return evaluate_cscript(cscript_file, argc, argv, idx);
+
     if (idx == argc)
         bic_repl();
     else
-        return bic_eval_file(argv[idx]);
+        return bic_eval_cfile(argv[idx]);
 }
