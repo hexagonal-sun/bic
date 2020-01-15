@@ -4,6 +4,15 @@ os:
   - linux
   - osx
 
+arch:
+  - amd64
+  - arm64
+
+jobs:
+  exclude:
+    os: osx
+    arch: arm64
+
 language: c
 
 addons:
@@ -15,6 +24,7 @@ addons:
       - expect
       - bison
       - flex
+      - libltdl-dev
   homebrew:
     packages:
       - autoconf-archive
