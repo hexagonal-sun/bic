@@ -16,3 +16,17 @@ tree get_identifier(const char *name)
     tID_STR(ret) = strdup(name);
     return ret;
 }
+
+tree get_integer(unsigned int n)
+{
+    tree ret = tree_make(T_INTEGER);
+    mpz_init_set_ui(tINT_VAL(ret), n);
+    return ret;
+}
+
+tree get_addr(void *p)
+{
+    tree ret = tree_make(T_INTEGER);
+    mpz_init_set_ui(tINT_VAL(ret), (ptrdiff_t)p);
+    return ret;
+}

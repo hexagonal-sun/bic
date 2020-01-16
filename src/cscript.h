@@ -3,6 +3,5 @@
 
 int evaluate_cscript(const char *file,
                      int argc,
-                     char *argv[],
-                     int idx);
+                     char *argv[]);
 #endif
