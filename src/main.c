@@ -187,7 +187,9 @@ static int parse_args(int argc, char *argv[])
             break;
         case 's':
             cscript_file = strdup(optarg);
-            break;
+            /* Once we have seen the script parameter, don't process any more
+             * options. This allows the cscript to be given it's own options. */
+            return optind;
         case 'D':
             dump_type = DOT;
             break;
@@ -235,13 +237,17 @@ int main(int argc, char *argv[])
     typename_init();
     eval_init();
 
-    int idx = parse_args(argc, argv);
+    int opt_idx = parse_args(argc, argv);
 
-    if (cscript_file)
-        return evaluate_cscript(cscript_file, argc, argv, idx);
+    if (cscript_file) {
+        /* Decrement the option index to include the script name as a
+         * parameter. */
+        opt_idx--;
+        return evaluate_cscript(cscript_file, argc - opt_idx, &argv[opt_idx]);
+    }
 
-    if (idx == argc)
+    if (opt_idx == argc)
         bic_repl();
     else
-        return bic_eval_cfile(argv[idx]);
+        return bic_eval_cfile(argv[opt_idx]);
 }

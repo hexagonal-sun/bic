@@ -114,6 +114,8 @@ static inline tree tree_check(tree obj, enum tree_type type,
 
 tree tree_make(enum tree_type);
 tree get_identifier(const char *name);
+tree get_integer(unsigned int n);
+tree get_addr(void *ptr);
 
 static inline tree tree_chain_head(tree head)
 {
