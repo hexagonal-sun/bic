@@ -19,6 +19,7 @@
 #include "preprocess.h"
 #include "inspect.h"
 #include "spec-resolver.h"
+#include "cscript.h"
 
 static tree cur_ctx = NULL;
 GC_STATIC_TREE(cur_ctx);
@@ -2717,7 +2718,7 @@ static tree __evaluate(tree head, int depth)
              * that case, just return the result.
              */
             if (!fn_ctx)
-                return tRET_EXP(result);
+                cscript_exit(tRET_EXP(result));
 
             tECTX_RETVAL(fn_ctx) = tRET_EXP(result);
             longjmp(tECTX_JMP_BUF(fn_ctx), 1);
