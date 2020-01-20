@@ -102,6 +102,11 @@ static void create_arguments(int argc, char *argv[])
     evaluate(chain, "<COMPOSE ARGS>");
 }
 
+void cscript_exit(tree result)
+{
+    exit(get_c_main_return_value(result));
+}
+
 int evaluate_cscript(const char *script_name,
                      int argc,
                      char *argv[])
