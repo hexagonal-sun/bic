@@ -1,5 +1,5 @@
-BUILT_SOURCES = replparser.h repllex.h lang_lexer.h tree.def ctypes.def	\
-	tree-base.h tree-access.h
+BUILT_SOURCES = replparser.h repllex.h lang_lexer.h tree.def ctypes.def		\
+	tree-base.h tree-access.h cscriptparser.h cscriptlex.h
 
 SUBDIRS = $(BUILD_CPU)
 AM_YFLAGS = --warnings="no-yacc" -d
@@ -18,11 +18,11 @@ pretty-printer.h lex.m4 parser-lex-funcs.m4 parser.m4 util.c util.h gc.c gc.h	\
 preprocess.c preprocess.h tree-base.h gc-internal.h gc-internal.c tree-dump.c	\
 tree-dump.h tree-dump-primitives.h inspect.c inspect.h tree-dump-dot.c				\
 spec-resolver.c spec-resolver.h cscriptparser.y cscriptlex.l cscriptlex.h			\
-cscript.c cscript.h
+cscript.c cscript.h tree-dump-dot.h
 
 EXTRA_DIST = c.lang
-DISTCLEANFILES = tree.def ctypes.def tree-base.h tree-access.h	\
-gc-internal.c tree-dump.c
+DISTCLEANFILES = tree.def ctypes.def tree-base.h tree-access.h gc-internal.c	\
+tree-dump.c spec-resolver.c tree-dump-dot.c
 
 bic_SOURCES = main.c
 bic_LDADD = libbic.a $(BUILD_CPU)/libbic_$(BUILD_CPU).a
