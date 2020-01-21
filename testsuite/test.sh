@@ -20,7 +20,7 @@ COMPILED_OUTPUT=$(mktemp)
 BIC_OUTPUT=$(mktemp)
 
 "${1}" > "${COMPILED_OUTPUT}";
-"${BIC}" "${SRCFILE}" > "${BIC_OUTPUT}";
+"${BIC}" -s "${SRCFILE}" > "${BIC_OUTPUT}";
 
 if ! diff "${COMPILED_OUTPUT}" "${BIC_OUTPUT}"; then
     echo "Error: BIC and compiled output differ.";
