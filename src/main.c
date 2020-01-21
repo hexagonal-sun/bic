@@ -20,8 +20,7 @@
 #endif
 
 enum DUMP_TYPE dump_type = TEXTUAL;
-
-static int flag_print_ast = 0;
+static bool flag_print_ast = false;
 static const char *cscript_file = NULL;
 
 static void add_call_to_main(tree head)
@@ -131,7 +130,7 @@ static int parse_args(int argc, char *argv[])
             print_version(argv[0]);
             exit(EXIT_SUCCESS);
         case 'T':
-            flag_print_ast = 1;
+            flag_print_ast = true;
             break;
         case 's':
             cscript_file = strdup(optarg);
@@ -166,8 +165,11 @@ int main(int argc, char *argv[])
         /* Decrement the option index to include the script name as a
          * parameter. */
         opt_idx--;
-        return evaluate_cscript(cscript_file, argc - opt_idx, &argv[opt_idx]);
+        return evaluate_cscript(cscript_file, flag_print_ast, dump_type,
+                                argc - opt_idx, &argv[opt_idx]);
     }
 
     bic_repl();
+
+    return 0;
 }
