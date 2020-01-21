@@ -10,9 +10,9 @@
 #include <unistd.h>
 
 #include "evaluate.h"
+#include "cscriptparser.h"
 #include "function_call.h"
 #include "ptr_call.h"
-#include "cfileparser.h"
 #include "typename.h"
 #include "repl.h"
 #include "gc.h"
@@ -2534,10 +2534,10 @@ static tree eval_deref(tree t, int depth)
 
 static tree eval_cpp_include(tree t, int depth)
 {
-    extern tree cfile_parse_head;
+    extern tree cscript_parse_head;
     tree cpp_include = tree_make(CPP_INCLUDE);
     FILE *out_file_stream;
-    extern FILE *cfilein;
+    extern FILE *cscriptin;
     int ret;
 
     /* We don't have a real C preprocessor that we can call upon
@@ -2553,11 +2553,11 @@ static tree eval_cpp_include(tree t, int depth)
 
     out_file_stream = run_cpp(include_chain, "-E " EXTRA_CPP_OPTS, NULL);
 
-    cfilein = out_file_stream;
+    cscriptin = out_file_stream;
 
     reset_include_typenames();
     typename_set_include_file();
-    ret = cfileparse();
+    ret = cscriptparse();
     typename_unset_include_file();
 
     fclose(out_file_stream);
@@ -2570,7 +2570,7 @@ static tree eval_cpp_include(tree t, int depth)
     /* Delete old #include evaluator state before evaluating the parse
      * tree for the new #includes. */
     include_ctx = NULL;
-    __evaluate(cfile_parse_head, depth + 1);
+    __evaluate(cscript_parse_head, depth + 1);
     include_ctx = cur_ctx;
     pop_ctx();
 

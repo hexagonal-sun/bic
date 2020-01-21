@@ -1,8 +1,9 @@
-BUILT_SOURCES = cfileparser.h cfilelex.h replparser.h repllex.h lang_lexer.h \
-	tree.def ctypes.def tree-base.h tree-access.h
+BUILT_SOURCES = replparser.h repllex.h lang_lexer.h tree.def ctypes.def	\
+	tree-base.h tree-access.h
+
 SUBDIRS = $(BUILD_CPU)
 AM_YFLAGS = --warnings="no-yacc" -d
-noinst_PROGRAMS = gentypes genctypes gentree genaccess gengc gendump gendot \
+noinst_PROGRAMS = gentypes genctypes gentree genaccess gengc gendump gendot	\
 									genspecresolver
 
 bin_PROGRAMS = bic
@@ -10,15 +11,14 @@ bin_PROGRAMS = bic
 noinst_LIBRARIES = libbic.a
 libbic_a_CFLAGS = -I$(srcdir)/$(BUILD_CPU)
 
-libbic_a_SOURCES = cfileparser.y cfilelex.l cfilelex.h tree.c tree.h	\
-tree.def list.h list.c hash_table.c hash_table.h evaluate.c		\
-evaluate.h ctypes.def tree-access.h typename.h typename.c repllex.l	\
-repllex.h replparser.y repl.c repl.h pretty-printer.c			\
-pretty-printer.h lex.m4 parser-lex-funcs.m4 parser.m4 util.c util.h	\
-gc.c gc.h preprocess.c preprocess.h tree-base.h gc-internal.h		\
-gc-internal.c tree-dump.c tree-dump.h tree-dump-primitives.h \
-inspect.c inspect.h tree-dump-dot.c spec-resolver.c spec-resolver.h \
-cscriptparser.y cscriptlex.l cscriptlex.h cscript.c cscript.h
+libbic_a_SOURCES = tree.c tree.h tree.def list.h list.c hash_table.c					\
+hash_table.h evaluate.c evaluate.h ctypes.def tree-access.h typename.h				\
+typename.c repllex.l repllex.h replparser.y repl.c repl.h pretty-printer.c		\
+pretty-printer.h lex.m4 parser-lex-funcs.m4 parser.m4 util.c util.h gc.c gc.h	\
+preprocess.c preprocess.h tree-base.h gc-internal.h gc-internal.c tree-dump.c	\
+tree-dump.h tree-dump-primitives.h inspect.c inspect.h tree-dump-dot.c				\
+spec-resolver.c spec-resolver.h cscriptparser.y cscriptlex.l cscriptlex.h			\
+cscript.c cscript.h
 
 EXTRA_DIST = c.lang
 DISTCLEANFILES = tree.def ctypes.def tree-base.h tree-access.h	\
@@ -71,17 +71,12 @@ spec-resolver.c: genspecresolver c.lang
 repllex.l: lex.m4
 	$(AM_V_GEN)m4 -DTARGET=repl $< > $@
 
-cfilelex.l: lex.m4
-	$(AM_V_GEN)m4 -DTARGET=cfile $< > $@
 
 cscriptlex.l: lex.m4
 	$(AM_V_GEN)m4 -DTARGET=cscript $< > $@
 
 replparser.y: parser.m4
 	$(AM_V_GEN)m4 -DTARGET=repl $< > $@
-
-cfileparser.y: parser.m4
-	$(AM_V_GEN)m4 -DTARGET=cfile $< > $@
 
 cscriptparser.y: parser.m4
 	$(AM_V_GEN)m4 -DTARGET=cscript $< > $@
