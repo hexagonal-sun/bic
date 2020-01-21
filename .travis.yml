@@ -13,6 +13,8 @@ addons:
       - autoconf-archive
       - libgmp-dev
       - expect
+      - bison
+      - flex
   homebrew:
     packages:
       - autoconf-archive
