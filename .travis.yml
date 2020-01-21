@@ -26,4 +26,4 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then YACC="$(brew --prefix bison)/bin/bison -y" ./configure --enable-debug; fi
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then ./configure --enable-debug; fi
 
-script: make && make check
+script: make && make distcheck
