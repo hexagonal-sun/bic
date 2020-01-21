@@ -23,16 +23,6 @@ enum DUMP_TYPE dump_type = TEXTUAL;
 static bool flag_print_ast = false;
 static const char *cscript_file = NULL;
 
-static void add_call_to_main(tree head)
-{
-    tree main_fncall = tree_make(T_FN_CALL);
-
-    tFNCALL_ID(main_fncall) = get_identifier(strdup("main"));
-    tFNCALL_ARGS(main_fncall) = NULL;
-
-    tree_chain(main_fncall, head);
-}
-
 static void usage(char *progname)
 {
     fprintf(stderr,

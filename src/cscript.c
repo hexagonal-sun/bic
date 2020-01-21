@@ -105,6 +105,39 @@ static void create_arguments(int argc, char *argv[])
     evaluate(chain, "<COMPOSE ARGS>");
 }
 
+static bool contains_main(tree chain)
+{
+    tree i;
+
+    for_each_tree(i, chain) {
+        if (is_T_DECL(i) && chain_has_T_FN(tDECL_DECLS(i))) {
+            tree fn, id;
+            for_each_tree(fn, tDECL_DECLS(i))
+                break;
+
+            id = tFN_DECL(fn);
+
+            if (!is_T_IDENTIFIER(id))
+                continue;
+
+            if (strcmp(tID_STR(id), "main") == 0)
+                return true;
+        }
+    }
+
+    return false;
+}
+
+static void add_call_to_main(tree head)
+{
+    tree main_fncall = tree_make(T_FN_CALL);
+
+    tFNCALL_ID(main_fncall) = get_identifier(strdup("main"));
+    tFNCALL_ARGS(main_fncall) = NULL;
+
+    tree_chain(main_fncall, head);
+}
+
 void cscript_exit(tree result)
 {
     exit(get_c_main_return_value(result));
@@ -134,6 +167,9 @@ int evaluate_cscript(const char *script_name,
       }
       exit(0);
   }
+
+  if (contains_main(cscript_parse_head))
+      add_call_to_main(cscript_parse_head);
 
   create_arguments(argc, argv);
 
