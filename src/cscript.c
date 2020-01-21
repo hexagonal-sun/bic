@@ -1,8 +1,11 @@
 #define _GNU_SOURCE
-#include <string.h>
-#include "evaluate.h"
+#include "cscript.h"
 #include "cscriptparser.h"
+#include "evaluate.h"
 #include "gc.h"
+#include "tree-dump.h"
+#include "tree-dump-dot.h"
+#include <string.h>
 
 extern FILE *cscriptin;
 extern const char* cscript_current_file;
@@ -108,14 +111,29 @@ void cscript_exit(tree result)
 }
 
 int evaluate_cscript(const char *script_name,
+                     bool dump_ast,
+                     enum DUMP_TYPE dump_type,
                      int argc,
                      char *argv[])
 {
   tree return_val;
 
   cscript_current_file = script_name;
+
   if (parse_cscript(script_name))
       return 254;
+
+  if (dump_ast) {
+      switch(dump_type) {
+      case TEXTUAL:
+          tree_dump(cscript_parse_head);
+          break;
+      case DOT:
+          tree_dump_dot(cscript_parse_head);
+          break;
+      }
+      exit(0);
+  }
 
   create_arguments(argc, argv);
 
