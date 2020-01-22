@@ -105,37 +105,81 @@ static void create_arguments(int argc, char *argv[])
     evaluate(chain, "<COMPOSE ARGS>");
 }
 
-static bool contains_main(tree chain)
-{
-    tree i;
-
-    for_each_tree(i, chain) {
-        if (is_T_DECL(i) && chain_has_T_FN(tDECL_DECLS(i))) {
-            tree fn, id;
-            for_each_tree(fn, tDECL_DECLS(i))
-                break;
-
-            id = tFN_DECL(fn);
-
-            if (!is_T_IDENTIFIER(id))
-                continue;
-
-            if (strcmp(tID_STR(id), "main") == 0)
-                return true;
-        }
-    }
-
-    return false;
-}
-
-static void add_call_to_main(tree head)
+static void add_call_to_main(tree head, int num_args)
 {
     tree main_fncall = tree_make(T_FN_CALL);
 
     tFNCALL_ID(main_fncall) = get_identifier(strdup("main"));
     tFNCALL_ARGS(main_fncall) = NULL;
 
+    if (num_args > 0)
+        tFNCALL_ARGS(main_fncall) = tree_chain_head(get_identifier("argc"));
+
+    if (num_args > 1)
+        tree_chain(get_identifier("argv"), tFNCALL_ARGS(main_fncall));
+
+    if (num_args > 2)
+        fprintf(stderr, "Error: too many arguments in main function");
+
     tree_chain(main_fncall, head);
+}
+
+static tree __evaluate_cscript(tree head, const char *fname, int argc,
+                               char* argv[])
+{
+    /* Figure out how to execute the cscript:
+     *
+     * If it contains a function called main(), create a function call to
+     * that.
+     *
+     * If it doesn't contain a call to main, execute any code that exists.
+     *
+     * If it contains main() and any other non-decl code error as we can't mix
+     * top-level declarations and a main() function.
+     */
+    tree i;
+    int num_main_args = 0;
+    bool has_main = false;
+    bool has_non_decls = false;
+
+    for_each_tree(i, head) {
+        if (is_T_DECL(i) && chain_has_T_FN(tDECL_DECLS(i))) {
+            tree fn, id;
+            for_each_tree(fn, tDECL_DECLS(i)) break;
+
+            id = tFN_DECL(fn);
+
+            if (!is_T_IDENTIFIER(id))
+                continue;
+
+            if (strcmp(tID_STR(id), "main") == 0) {
+                tree args = tFN_ARGS(fn);
+                tree arg;
+
+                if (args)
+                    for_each_tree(arg, tFN_ARGS(fn))
+                        num_main_args++;
+
+                has_main = true;
+            }
+        }
+
+        if (!is_T_DECL(i))
+            has_non_decls = true;
+    }
+
+    if (has_main && has_non_decls) {
+        fprintf(stderr, "%s Error: contains a mix of top-level code and main()\n",
+                fname);
+        exit(1);
+    }
+
+    create_arguments(argc, argv);
+
+    if (has_main)
+        add_call_to_main(head, num_main_args);
+
+    return evaluate(head, fname);
 }
 
 void cscript_exit(tree result)
@@ -168,12 +212,7 @@ int evaluate_cscript(const char *script_name,
       exit(0);
   }
 
-  if (contains_main(cscript_parse_head))
-      add_call_to_main(cscript_parse_head);
-
-  create_arguments(argc, argv);
-
-  return_val = evaluate(cscript_parse_head, script_name);
+  return_val = __evaluate_cscript(cscript_parse_head, script_name, argc, argv);
 
   if (!return_val)
     return 0;
