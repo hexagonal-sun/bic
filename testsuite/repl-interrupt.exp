@@ -1,7 +1,7 @@
 set srcdir [lindex $argv 0]
 source "${srcdir}/utils.exp"
 
-spawn ../src/bic "${srcdir}/repl-interrupt.c"
+spawn ../src/bic -s "${srcdir}/repl-interrupt.c"
 bp
 send "i;\n"
 expect "20"
