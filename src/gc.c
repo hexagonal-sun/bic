@@ -110,7 +110,8 @@ static void sweep(void)
         if (!allocs[i]->reachable) {
             dealloc_object(allocs[i]);
             allocs[i] = 0;
-        }
+        } else
+            allocs[i]->reachable = 0;
 }
 
 static void fixup_alloc_array()
