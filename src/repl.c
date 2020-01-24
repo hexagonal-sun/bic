@@ -1,4 +1,11 @@
+#define _GNU_SOURCE
+#include <unistd.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <pwd.h>
+
 #include "config.h"
+#include "cscript.h"
 #include "tree.h"
 #include "typename.h"
 #include "evaluate.h"
@@ -419,11 +426,36 @@ static tree repl_parse_line(char *line)
     return stmt;
 }
 
+static void evaluate_startup_file()
+{
+    const char *homedir;
+    char *dotfile;
+
+    if ((homedir = getenv("HOME")) == NULL) {
+        homedir = getpwuid(getuid())->pw_dir;
+    }
+
+    if (!homedir)
+        return;
+
+    asprintf(&dotfile, "%s/%s", homedir, ".bic");
+
+    if (!dotfile)
+        return;
+
+
+    if (access(dotfile, R_OK))
+        return;
+
+    evaluate_cscript(dotfile, false, TEXTUAL, 1, &dotfile);
+}
+
 void bic_repl()
 {
     char *line;
 
     setup_readline();
+    evaluate_startup_file();
 
     line = readline(BIC_PROMPT);
     while (line) {
