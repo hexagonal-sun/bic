@@ -5,6 +5,7 @@
 #include "gc.h"
 #include "tree-dump.h"
 #include "tree-dump-dot.h"
+#include <sys/stat.h>
 #include <string.h>
 
 extern FILE *cscriptin;
@@ -29,7 +30,11 @@ static int parse_cscript(const char *fname)
     int parse_result;
     FILE *f;
     char *command;
-
+    struct stat st;
+    if (stat(fname, &st) < 0) {
+        fprintf(stderr, "File not found: %s\n", fname);
+        return 1;
+    }
     asprintf(&command, "gcc -x c -E " EXTRA_CPP_OPTS " \"%s\"", fname);
 
     if (!command) {
