@@ -5,8 +5,8 @@
 #include "gc.h"
 #include "tree-dump.h"
 #include "tree-dump-dot.h"
-#include <sys/stat.h>
 #include <string.h>
+#include <unistd.h>
 
 extern FILE *cscriptin;
 extern const char* cscript_current_file;
@@ -30,8 +30,7 @@ static int parse_cscript(const char *fname)
     int parse_result;
     FILE *f;
     char *command;
-    struct stat st;
-    if (stat(fname, &st) < 0) {
+    if (access(fname, F_OK)) {
         fprintf(stderr, "File not found: %s\n", fname);
         return 1;
     }
