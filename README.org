@@ -81,14 +81,7 @@ BIC>
     program:
 
     #+begin_src C
- #include <stdio.h>
-
-int main()
-{
-    FILE *f = fopen("out.txt", "w");
-    fputs("Hello, world!\n", f);
-    return 0;
-}
+#+INCLUDE: "doc/example-scripts/fputs.example"
     #+end_src
 
     We can do this on the REPL with BIC using the following commands:
