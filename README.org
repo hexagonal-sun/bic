@@ -81,27 +81,11 @@ BIC>
     program:
 
     #+begin_src C
- #include <stdio.h>
-
-int main()
-{
-    FILE *f = fopen("out.txt", "w");
-    fputs("Hello, world!\n", f);
-    return 0;
-}
     #+end_src
 
     We can do this on the REPL with BIC using the following commands:
 
-    #+begin_example
-BIC> #include <stdio.h>
-BIC> FILE *f;
-f
-BIC> f = fopen("test.txt", "w");
-BIC> fputs("Hello, World!\n", f);
-1
-BIC>
-    #+end_example
+#+INCLUDE: "doc/example-scripts/fputs.example"
 
     This will cause bic to call out to the C-library =fopen()= and =fputs()=
     functions to create a file and write the hello world string into it. If you

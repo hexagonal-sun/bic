@@ -1,0 +1,8 @@
+#+begin_example
+BIC> #include <stdio.h>
+BIC> FILE *f;
+f
+BIC> f = fopen("test.txt", "a");
+0x562c188c2d40
+BIC> 
+#+end_example
