@@ -128,7 +128,7 @@ static tree get_compound_completion_object(struct completion_comp_access comp_ac
     if (parse_result)
         return NULL;
 
-    return evaluate(repl_parse_head, "<completion>");
+    return evaluate_expr(repl_parse_head);
 }
 
 void match_identifiers_for_idmap(tree chain, tree idmap,
@@ -466,7 +466,7 @@ void bic_repl()
 
             add_history(line);
 
-            result = evaluate(parsed_line, "<stdin>");
+            result = evaluate_expr(parsed_line);
 
             if (result) {
                 pretty_print(result);
