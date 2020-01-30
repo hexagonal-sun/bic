@@ -2762,6 +2762,11 @@ tree evaluate(tree t, const char *fname)
     return __evaluate(t, 0);
 }
 
+tree evaluate_expr(tree t)
+{
+    return __evaluate_1(t, 0);
+}
+
 static tree handle_builtin_strcpy_chk(tree args)
 {
     /* Transform into a normal call to strcpy, stripping off the last argument.
