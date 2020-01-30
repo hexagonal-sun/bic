@@ -20,7 +20,7 @@ static void print_sizeof_object(tree inspect_id,
 
     tSZOF_EXP(sizeof_obj) = resolved_object;
 
-    sizeof_result = evaluate(sizeof_obj, "<inspector>");
+    sizeof_result = evaluate_expr(sizeof_obj);
 
     printf("sizeof(%s) = ", tID_STR(inspect_id));
     pretty_print(sizeof_result);
