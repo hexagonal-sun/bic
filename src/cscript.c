@@ -179,7 +179,7 @@ static tree __evaluate_cscript(tree head, const char *fname, int argc,
     if (has_main)
         add_call_to_main(head, num_main_args);
 
-    return evaluate(head, fname);
+    evaluate(head, fname);
 }
 
 void cscript_exit(tree result)
@@ -214,8 +214,5 @@ int evaluate_cscript(const char *script_name,
 
   return_val = __evaluate_cscript(cscript_parse_head, script_name, argc, argv);
 
-  if (!return_val)
-    return 0;
-
-  return get_c_main_return_value(return_val);
+  return 0;
 }
