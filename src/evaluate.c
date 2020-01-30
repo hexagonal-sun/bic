@@ -43,7 +43,7 @@ const tree get_include_chain(void)
 static const char *current_filename;
 
 static tree __evaluate_1(tree t, int depth);
-static tree __evaluate(tree t, int depth);
+static void __evaluate(tree t, int depth);
 
 enum identifier_search_scope
 {
@@ -2708,18 +2708,18 @@ static tree __evaluate_1(tree t, int depth)
     return result;
 }
 
-static tree __evaluate(tree head, int depth)
+static void __evaluate(tree head, int depth)
 {
-    tree result, i;
+    tree i;
 
     if (!head)
-        return NULL;
+        return;
 
     if (!is_CHAIN_HEAD(head))
-        return __evaluate_1(head, depth);
+        __evaluate_1(head, depth);
 
     for_each_tree(i, head) {
-        result = __evaluate_1(i, depth);
+        tree result = __evaluate_1(i, depth);
 
         if (is_T_RETURN(result)) {
             tree fn_ctx = cur_ctx;
@@ -2739,10 +2739,8 @@ static tree __evaluate(tree head, int depth)
         }
 
         if (is_T_BREAK(result))
-            return result;
+            return;
     }
-
-    return result;
 }
 
 int get_c_main_return_value(tree t)
@@ -2758,10 +2756,10 @@ int get_c_main_return_value(tree t)
     return ret;
 }
 
-tree evaluate(tree t, const char *fname)
+void evaluate(tree t, const char *fname)
 {
     current_filename = fname;
-    return __evaluate(t, 0);
+    __evaluate(t, 0);
 }
 
 tree evaluate_expr(tree t)
