@@ -1693,6 +1693,13 @@ static tree eval_gteq(tree t, int depth)
     return ret;
 }
 
+static tree eval_break(tree t, int depth)
+{
+    tECTX_SHOULD_BREAK(cur_ctx) = true;
+
+    return t;
+}
+
 static tree eval_eq(tree t, int depth)
 {
     tree left = convert_to_comparable_type(tEQ_LHS(t), depth),
@@ -2672,7 +2679,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_INFIX:      result = eval_infix(t, depth + 1);      break;
     case T_IF:         result = eval_if(t, depth + 1);         break;
     case T_RETURN:     result = eval_return(t, depth + 1);     break;
-    case T_BREAK:      result = t;                             break;
+    case T_BREAK:      result = eval_break(t, depth + 1);      break;
     case T_DECL_COMPOUND:result = eval_decl_compound(t, depth + 1);break;
     case T_ENUMERATOR: result = eval_enumerator(t, depth + 1); break;
     case T_SIZEOF:     result = eval_sizeof(t, depth + 1);     break;
