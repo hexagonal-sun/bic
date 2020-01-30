@@ -1997,11 +1997,12 @@ static tree eval_loop_for(tree t, int depth)
             break;
 
         push_ctx("For Loop");
-        tree ret = __evaluate(tFLOOP_STMTS(t), depth + 1);
-        pop_ctx();
+        __evaluate(tFLOOP_STMTS(t), depth + 1);
 
-        if (is_T_BREAK(ret))
+        if (tECTX_SHOULD_BREAK(cur_ctx))
             return NULL;
+
+        pop_ctx();
 
         __evaluate_1(tFLOOP_AFTER(t), depth + 1);
 
@@ -2026,11 +2027,12 @@ static tree eval_loop_while(tree t, int depth)
             break;
 
         push_ctx("While Loop");
-        tree ret = __evaluate(tWLOOP_STMTS(t), depth + 1);
-        pop_ctx();
+        __evaluate(tWLOOP_STMTS(t), depth + 1);
 
-        if (is_T_BREAK(ret))
+        if (tECTX_SHOULD_BREAK(cur_ctx))
             return NULL;
+
+        pop_ctx();
 
     } while (1);
 
