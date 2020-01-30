@@ -96,8 +96,13 @@ static void *track_alloc(void *ptr)
 
 static void ctx_backtrace(void)
 {
-    fprintf(stderr, "Evaluator Backtrace\n===================\n");
-    tree_dump(cur_ctx);
+    fprintf(stderr, "Evaluator Backtrace:\n");
+    tree ctx = cur_ctx;
+
+    while (ctx) {
+        puts(tID_STR(tECTX_NAME(ctx)));
+        ctx = tECTX_PARENT_CTX(ctx);
+    }
 }
 
 void __attribute__((noreturn)) eval_die(tree t, const char *format, ...)
