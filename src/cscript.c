@@ -30,8 +30,9 @@ static int parse_cscript(const char *fname)
     int parse_result;
     FILE *f;
     char *command;
+
     if (access(fname, F_OK)) {
-        fprintf(stderr, "File not found: %s\n", fname);
+        fprintf(stderr, "Error, file not found: %s\n", fname);
         return 1;
     }
     asprintf(&command, "gcc -x c -E " EXTRA_CPP_OPTS " \"%s\"", fname);
