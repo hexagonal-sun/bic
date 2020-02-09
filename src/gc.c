@@ -10,7 +10,14 @@ static const int COLLECT_TREE_ALLOC = 2000;
 
 void mark_tree(tree obj)
 {
-    mark_object((gc_obj)obj->locus.file);
+    if (!obj)
+        return;
+
+    tree locus_file = obj->locus.file;
+
+    if (locus_file)
+        mark_object((gc_obj)locus_file);
+
     mark_object((gc_obj)obj);
 }
 
