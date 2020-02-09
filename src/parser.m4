@@ -278,6 +278,7 @@ postfix_expression
 
     set_locus(deref, @2);
     set_locus(access, @2);
+    set_locus(tCOMP_ACCESS_MEMBER(access), @3);
 
     $$ = access;
 }
@@ -771,6 +772,7 @@ struct_or_union_specifier
     tCOMP_DECL_ID(decl_compound) = $2;
     tCOMP_DECL_TYPE(decl_compound) = $1;
     tCOMP_DECL_DECLS(decl_compound) = $4;
+    set_locus($2, @2);
     set_locus(decl_compound, @1);
     $$ = decl_compound;
 }
@@ -787,6 +789,7 @@ struct_or_union_specifier
     tree decl_compound = tree_make(T_DECL_COMPOUND);
     tCOMP_DECL_TYPE(decl_compound) = $1;
     tCOMP_DECL_ID(decl_compound) = $2;
+    set_locus($2, @2);
     set_locus(decl_compound, @1);
     $$ = decl_compound;
 }
@@ -891,6 +894,7 @@ enum_specifier
     tree eenum = tree_make(T_ENUMERATOR);
     tENUM_NAME(eenum) = $2;
     tENUM_ENUMS(eenum) = $4;
+    set_locus($2, @2);
     set_locus(eenum, @1);
     $$ = eenum;
 }
@@ -906,6 +910,7 @@ enum_specifier
     tree eenum = tree_make(T_ENUMERATOR);
     tENUM_NAME(eenum) = $2;
     tENUM_ENUMS(eenum) = $4;
+    set_locus($2, @2);
     set_locus(eenum, @1);
     $$ = eenum;
 }
@@ -913,6 +918,7 @@ enum_specifier
 {
     tree eenum = tree_make(T_ENUMERATOR);
     tENUM_NAME(eenum) = $2;
+    set_locus($2, @2);
     set_locus(eenum, @1);
     $$ = eenum;
 }
@@ -931,6 +937,10 @@ enumerator_list
 
 enumerator
 : IDENTIFIER
+{
+    set_locus($1, @1);
+    $$ = $1;
+}
 | IDENTIFIER '=' constant_expression
 {
     tree assign = tree_make(T_ASSIGN);
@@ -980,6 +990,10 @@ declarator
 
 direct_declarator
 : IDENTIFIER
+{
+    set_locus($1, @1);
+    $$ = $1;
+}
 | '(' declarator ')'
 {
     $$ = $2;
@@ -1164,10 +1178,12 @@ parameter_declaration
 identifier_list
 : IDENTIFIER
 {
+    set_locus($1, @1);
     $$ = tree_chain_head($1);
 }
 | identifier_list ',' IDENTIFIER
 {
+    set_locus($3, @3);
     tree_chain($3, $1);
 }
 ;
@@ -1346,6 +1362,7 @@ designator
 {
     tree comp_access = tree_make(T_COMP_ACCESS);
     tCOMP_ACCESS_MEMBER(comp_access) = $2;
+    set_locus($2, @2);
     set_locus(comp_access, @2);
     $$ = comp_access;
 }
