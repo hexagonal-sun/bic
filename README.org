@@ -75,13 +75,19 @@ BIC>
     #+end_example
 
     Here you can type C statements and =#include= various system headers to
-    provide access to different APIs on the system. One thing to note is that
-    statements can be entered directly into the REPL; there is no need to define
-    a function for them to be evaluated. Say we wish to execute the following C
-    program:
+    provide access to different APIs on the system. Statements can be entered
+    directly into the REPL; there is no need to define a function for them to be
+    evaluated. Say we wish to execute the following C program:
 
     #+begin_src C
-#+INCLUDE: "doc/example-scripts/fputs.example"
+#include <stdio.h>
+
+int main()
+{
+    FILE *f = fopen("out.txt", "w");
+    fputs("Hello, world!\n", f);
+    return 0;
+}
     #+end_src
 
     We can do this on the REPL with BIC using the following commands:
@@ -113,8 +119,8 @@ BIC> 2 * 8 + fileno(f);
 
      You can use bic to obtain information about any variable or type that has
      been declared by prefixing it's name with a ~?~. This special syntax only
-     works on a REPL but will allow you to obtain various characteristics about
-     types and variables. For example:
+     works in the REPL but will allow you to obtain various characteristics
+     about types and variables. For example:
 
      #+begin_example
 BIC> #include <stdio.h>
@@ -125,10 +131,38 @@ sizeof(stdout) = 8 bytes.
 stdout was declared at: /usr/include/stdio.h:138.
      #+end_example
 
+**** Startup Files
+
+     When the REPL starts, bic will see if =~/.bic= exists. If it does it is
+     automatically evaluated and the resulting enviroment is used by the REPL.
+     This can be useful for defining functions or varibles that are commonly
+     used. For instance, say our =~/.bic= file contains:
+
+     #+begin_src c
+#include <stdio.h>
+
+int increment(int a)
+{
+    return a + 1;
+}
+
+puts("Good morning, Dave.");
+     #+end_src
+     
+     When we launch the REPL we get:
+
+     #+begin_example
+$ bic
+Good morning, Dave.
+BIC> increment(2);
+3
+     #+end_example
+
 *** Evaluating Files
-    If you pass bic a source file as a command line argument it will evaluate
-    it, by calling a =main()= function. For example, suppose we have the file
-    ~test.c~ that contains the following:
+
+    If you pass bic a source file, along with =-s=, as a command line argument
+    it will evaluate it, by calling a =main()= function. For example, suppose we
+    have the file ~test.c~ that contains the following:
 
     #+begin_src c
 #include <stdio.h>
@@ -151,9 +185,58 @@ int main()
 }
     #+end_src
 
-    We can then invoke bic with ~test.c~ as a parameter to evaluate it:
+    We can then invoke bic with ~-s test.c~ to evaluate it:
 
-    [[file:doc/img/eval-file.gif]]
+    #+begin_example
+$ bic -s test.c
+Factorial of 4 is: 24
+    #+end_example
+    
+    
+**** Passing Arguments
+
+     If you wish to pass arguments to a C file, append them to bic's command
+     line. Once bic has processed the ~-s~ argument all other arguments are
+     interpreted as parameters to be passed to the program. These parameters are
+     created as =argc= and =argv= variables passed =main()=. The value of
+     =argv[0]= is the name of the C file that bic is executing. Consider the
+     following C program:
+
+     #+begin_src C
+#include <stdio.h>
+
+int main(int argc, char *argv[])
+{
+    for (int i = 0; i < argc; i++)
+        printf("argv[%d] = %s\n", i, argv[i]);
+
+    return 0;
+}
+     #+end_src
+     
+     If we don't pass any arguments:
+
+     #+begin_example
+$ bic -s test.c
+argv[0] = test.c
+    #+end_example
+     
+    Whereas if we invoke bic with more arguments, they are passed to the
+    program:
+
+    #+begin_example
+$ bic -s test.c -a foo -s bar a b c
+argv[0] = test.c
+argv[1] = -a
+argv[2] = foo
+argv[3] = -s
+argv[4] = bar
+argv[5] = a
+argv[6] = b
+argv[7] = c
+    #+end_example
+    
+**** Dropping Into a REPL
 
     You can also use a special expression: =<REPL>;= in your source code to make
     bic drop you into the repl at a particular point in the file evaluation:
