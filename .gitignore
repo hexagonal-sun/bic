@@ -11,6 +11,7 @@ config.guess
 config.sub
 configure
 depcomp
+ar-lib
 install-sh
 missing
 src/.deps/
