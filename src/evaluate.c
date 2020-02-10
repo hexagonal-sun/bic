@@ -139,7 +139,6 @@ static tree __resolve_id(tree id, tree idmap)
 
 static tree resolve_id(tree id, tree ectx, enum idmap_type map_type)
 {
-    tree i;
     tree idmap;
 
     switch (map_type)
