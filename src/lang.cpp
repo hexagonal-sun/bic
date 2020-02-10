@@ -252,7 +252,6 @@ static std::vector<std::string> handle_specifier_list()
 static void handle_defspecifier(struct lang &lang)
 {
     int token = yylex();
-    bool haveProperties = true;
     struct SpecifierMap specifierMap;
 
     switch (token) {
