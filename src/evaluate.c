@@ -1033,21 +1033,21 @@ static tree eval_inspect(tree t, int depth)
 
 static tree handle_extern_decls(tree type, tree decls, int depth)
 {
-    tree ret;
+    tree ret = NULL;
     tree i;
 
     if (is_CHAIN_HEAD(decls))
         for_each_tree(i, decls)
             ret = handle_extern_decl(type, i);
     else
-        handle_extern_decl(type, i);
+        ret = handle_extern_decl(type, decls);
 
     return ret;
 }
 
 static tree handle_typedef(tree type, tree decls, int depth)
 {
-    tree ret, i;
+    tree i, ret = NULL;
 
     if (is_CHAIN_HEAD(decls))
         for_each_tree(i, decls)
@@ -1082,7 +1082,7 @@ static tree handle_forward_decl(tree type)
 
 static tree handle_static_decl(tree base_type, tree decl, int depth)
 {
-  tree decls = tDECL_DECLS(decl), i, ret;
+  tree decls = tDECL_DECLS(decl), i, ret = NULL;
 
   /* See if the decl defines a function. If so, just evaluate it as normal.
    * `static' functions have no real meaning in bic. */
@@ -1126,7 +1126,7 @@ static tree eval_decl(tree t, int depth)
     tree decl_specs = tDECL_SPECS(t),
         decl_type = resolve_decl_specs_to_type(decl_specs),
         decls = tDECL_DECLS(t),
-        decl, ret;
+        decl, ret = NULL;
 
     if (decls == NULL && is_T_DECL_COMPOUND(decl_type) &&
         tCOMP_DECL_DECLS(decl_type) == NULL)
