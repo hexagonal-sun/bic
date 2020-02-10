@@ -8,7 +8,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CANONICAL_BUILD
 
 LT_INIT
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([-Wall foreign])
 AM_SILENT_RULES([yes])
 
 
