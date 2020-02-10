@@ -54,6 +54,10 @@ AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 AC_CHECK_TYPES([ptrdiff_t])
+
+# Compiler configuration
+AX_CFLAGS_WARN_ALL
+AX_CXXFLAGS_WARN_ALL
 AX_CXX_COMPILE_STDCXX_11(, [mandatory])
 
 # Configuration options for the program
