@@ -71,8 +71,8 @@ struct lang {
     std::vector<std::string> ignoredSpecifiers;
     std::vector<std::string> selfSpecifiers;
     std::unordered_map<std::string, struct TypePool> baseTypePools;
-    struct TypePool treePool;
     size_t trees_allocated;
+    struct TypePool treePool;
     lang() : trees_allocated (0), treePool({"tree", "t", true}) {};
 };
 
