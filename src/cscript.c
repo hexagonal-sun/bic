@@ -193,8 +193,6 @@ int evaluate_cscript(const char *script_name,
                      int argc,
                      char *argv[])
 {
-  tree return_val;
-
   cscript_current_file = script_name;
 
   if (parse_cscript(script_name))
@@ -212,7 +210,7 @@ int evaluate_cscript(const char *script_name,
       exit(0);
   }
 
-  return_val = __evaluate_cscript(cscript_parse_head, script_name, argc, argv);
+  __evaluate_cscript(cscript_parse_head, script_name, argc, argv);
 
   return 0;
 }
