@@ -125,6 +125,7 @@ int TARGET()wrap(void) {
 %}
 
 %option prefix="TARGET" outfile="TARGET()lex.c"
+%option nounput
 
 L                               [a-zA-Z_]
 D                               [0-9]
