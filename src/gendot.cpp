@@ -25,7 +25,7 @@ static void outputTreeType(FILE *f, const struct TreeType &type)
 {
     fprintf(f, "    case %s:\n", type.name.c_str());
     fprintf(f, "        tree_print_indent(depth);\n");
-    fprintf(f, "        fprintf(stderr, \"tree_%%x [label=\\\"%s\\\"];\\n\", head);\n", type.name.c_str());
+    fprintf(f, "        fprintf(stderr, \"tree_%%p [label=\\\"%s\\\"];\\n\", head);\n", type.name.c_str());
 
     for (const auto &prop : type.props) {
         std::string propAccessor = type.getPropAccessor(prop.first);
@@ -35,22 +35,22 @@ static void outputTreeType(FILE *f, const struct TreeType &type)
             fprintf(f, "            if (is_CHAIN_HEAD(%s(head))) {\n", propAccessor.c_str());
             fprintf(f, "                tree first_member;\n");
             fprintf(f, "                for_each_tree(first_member, %s(head)) break;\n", propAccessor.c_str());
-            fprintf(f, "                fprintf(stderr, \"tree_%%x -> tree_%%x [label=\\\"%s\\\", color=red, style=dashed];\\n\", head, first_member);\n",
+            fprintf(f, "                fprintf(stderr, \"tree_%%p -> tree_%%p [label=\\\"%s\\\", color=red, style=dashed];\\n\", head, first_member);\n",
                     prop.first.c_str());
             fprintf(f, "            } else\n");
-            fprintf(f, "                fprintf(stderr, \"tree_%%x -> tree_%%x [label=\\\"%s\\\"];\\n\", head, %s(head));\n",
+            fprintf(f, "                fprintf(stderr, \"tree_%%p -> tree_%%p[label=\\\"%s\\\"];\\n\", head, %s(head));\n",
                     prop.first.c_str(), propAccessor.c_str());
             fprintf(f, "            __tree_dump_dot(%s(head), depth);\n", type.getPropAccessor(prop.first).c_str());
             fprintf(f, "        }\n");
         } else {
             fprintf(f, "        tree_print_indent(depth);\n");
-            fprintf(f, "        fprintf(stderr, \"tree_%%x_val [label=\\\"\", head);\n");
+            fprintf(f, "        fprintf(stderr, \"tree_%%p_val [label=\\\"\", head);\n");
             fprintf(f, "        tree_dump_%s(head, %s(head), DOT);\n",
                     prop.second.baseType.name.c_str(), type.getPropAccessor(prop.first).c_str());
             fprintf(f, "        fprintf(stderr, \"\\\"];\\n\");\n");
             fprintf(f, "        tree_print_indent(depth);\n");
-            fprintf(f, "        fprintf(stderr, \"tree_%%x -> tree_%%x_val [label=\\\"%s\\\"];\\n\", head, head);\n",
-                    prop.first.c_str(), propAccessor.c_str());
+            fprintf(f, "        fprintf(stderr, \"tree_%%p -> tree_%%p_val [label=\\\"%s\\\"];\\n\", head, head);\n",
+                    prop.first.c_str());
         }
     }
 
@@ -83,14 +83,14 @@ static void outputEpilogue(FILE *f)
           "    if (is_CHAIN_HEAD(head)) {\n"
           "        for_each_tree(i, head) {\n"
           "            tree_print_indent(depth);\n"
-          "            fprintf(stderr, \"subgraph cluster_%x_%d {\\n\", head, subgraph_no);\n"
+          "            fprintf(stderr, \"subgraph cluster_%p_%d {\\n\", head, subgraph_no);\n"
           "            __tree_dump_dot_1(i, depth + 1);\n"
           "            tree_print_indent(depth);\n"
           "            fputs(\"}\\n\", stderr);\n"
           "\n"
           "            if (last_chain){\n"
           "                tree_print_indent(depth);\n"
-          "                fprintf(stderr, \"tree_%x -> tree_%x [ltail=cluster_%x_%d, lhead=cluster_%x_%d, style=dashed, color=blue];\\n\",\n"
+          "                fprintf(stderr, \"tree_%p -> tree_%p [ltail=cluster_%p_%d, lhead=cluster_%p_%d, style=dashed, color=blue];\\n\",\n"
           "                                last_chain, i, head, subgraph_no - 1, head, subgraph_no);\n"
           "            }\n"
           "\n"
