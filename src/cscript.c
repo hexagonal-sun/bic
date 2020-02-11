@@ -124,7 +124,7 @@ static void add_call_to_main(tree head, int num_args)
     tree_chain(main_fncall, head);
 }
 
-static tree __evaluate_cscript(tree head, const char *fname, int argc,
+static void __evaluate_cscript(tree head, const char *fname, int argc,
                                char* argv[])
 {
     /* Figure out how to execute the cscript:
