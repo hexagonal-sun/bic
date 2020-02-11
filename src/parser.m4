@@ -54,8 +54,6 @@ static void find_ids_to_map_to_typenames(tree decl)
 
 static void maybe_add_typenames(tree decl)
 {
-    tree i;
-
     if (chain_has_T_TYPEDEF(tDECL_SPECS(decl)))
         find_ids_to_map_to_typenames(decl);
 }
