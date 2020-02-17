@@ -2571,7 +2571,9 @@ static tree eval_cpp_include(tree t, int depth)
 
     reset_include_typenames();
     typename_set_include_file();
+    inhibit_gc();
     ret = cscriptparse();
+    enable_gc();
     typename_unset_include_file();
 
     fclose(out_file_stream);
