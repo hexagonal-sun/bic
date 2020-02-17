@@ -122,7 +122,9 @@ static tree get_compound_completion_object(struct completion_comp_access comp_ac
     comp_obj_expr = concat_strings(comp_obj_expr, ";");
 
     YY_BUFFER_STATE lex_buffer = repl_scan_string(comp_obj_expr);
+    inhibit_gc();
     int parse_result = replparse();
+    enable_gc();
     repl_delete_buffer(lex_buffer);
 
     if (parse_result)
@@ -373,7 +375,9 @@ static tree repl_do_parse(char *line)
     tree i, ret = NULL;
 
     YY_BUFFER_STATE buffer = repl_scan_string(line);
+    inhibit_gc();
     parse_result = replparse();
+    enable_gc();
     repl_delete_buffer(buffer);
 
     if (parse_result)
