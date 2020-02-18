@@ -33,7 +33,7 @@ int main()
 {
     int i;
     struct arrayStruct array_struct_instance;
-    printf("%d\n", sizeof(array_struct_instance));
+    printf("%ld\n", sizeof(array_struct_instance));
     for (i = 0; i < 3000; i++) {
         struct foobar {
             int a;

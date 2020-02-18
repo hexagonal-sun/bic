@@ -9,7 +9,7 @@ int main()
 
     b = &a[0];
     c = a;
-    d = &a;
+    d = (int *)&a;
 
     printf("%d\n", b == c);
     printf("%d\n", c == d);

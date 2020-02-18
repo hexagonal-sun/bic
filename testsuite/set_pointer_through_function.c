@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int set_var(int *foo)
+void set_var(int *foo)
 {
     *foo = 20;
 }

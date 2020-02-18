@@ -13,7 +13,7 @@ struct a {
     foostruct *fooelm;
 };
 
-int other()
+void other()
 {
     struct foobar {
         float d;

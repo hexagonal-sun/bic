@@ -24,8 +24,8 @@ int main()
     arrtype bb;
 
     bb[0] = 1024;
-    printf("%d\n", sizeof(bb));
-    printf("%d\n", sizeof(arrtype));
+    printf("%ld\n", sizeof(bb));
+    printf("%ld\n", sizeof(arrtype));
 
     for (i = 0; i < 20; i++) {
         int j;
@@ -40,7 +40,7 @@ int main()
     }
 
     for (i = 0; i < 20; i++)
-        printf("%d\n", double_array[i]);
+        printf("%ld\n", double_array[i]);
 
     for (i = 0; i < 20; i++)
         print_foo(&ff[i]);

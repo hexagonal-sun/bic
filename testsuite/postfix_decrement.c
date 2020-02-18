@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int foobar(int a)
+void foobar(int a)
 {
     printf("%d\n", a);
 }
