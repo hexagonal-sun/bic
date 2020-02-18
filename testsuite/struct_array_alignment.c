@@ -13,7 +13,7 @@ int main()
     void *member;
     base = &b;
     member = &b.m1;
-    printf("%d\n", member - base);
+    printf("%ld\n", member - base);
 
     return 0;
 }

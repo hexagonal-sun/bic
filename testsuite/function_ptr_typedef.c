@@ -8,7 +8,7 @@ typedef struct m{
 
 int main()
 {
-    printf("%d\n", sizeof(tan));
+    printf("%ld\n", sizeof(tan));
 
     return 0;
 }

@@ -1,9 +1,9 @@
 typedef unsigned int footype;
-typedef int * intptr;
+typedef unsigned int * intptr;
 
 #include <stdio.h>
 
-int foobar(footype a)
+void foobar(footype a)
 {
     printf("%d\n", a);
 }

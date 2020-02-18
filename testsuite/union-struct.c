@@ -4,7 +4,7 @@ struct
   {
     union
     {
-      unsigned long long int __wseq;
+      unsigned long int __wseq;
         unsigned int __high;
     }bar, baz;
       int a;
@@ -19,9 +19,9 @@ int main()
 
 
     printf("%d\n", foo.a);
-    printf("%d\n", foo.bar.__wseq);
+    printf("%ld\n", foo.bar.__wseq);
     printf("%d\n", foo.bar.__high);
-    printf("%d\n", foo.baz.__wseq);
+    printf("%ld\n", foo.baz.__wseq);
     printf("%d\n", foo.baz.__high);
 
     return 0;
