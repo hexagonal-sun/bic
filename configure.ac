@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([bic], [v0.9.1], [dev@mattleach.net])
+AC_INIT([bic], [v1.0.0], [dev@mattleach.net])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CANONICAL_BUILD
