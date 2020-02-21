@@ -71,10 +71,12 @@ jobs:
 
       - name: Audit Formula
         run: |
-          brew audit --strict --online --new-formula ${FORMULA} || echo "::warning ${FORMULA} failed brew audit --strict"
+          brew audit --strict --online --new-formula ${FORMULA} || \
+          echo "::error file=.github/workflows/nightly-Homebrew-build.yml,line=74,col=10::${FORMULA} failed brew audit --strict --online" ; false
           brew cat ${FORMULA}
 
       - name: Post logs on failure
         if: failure()
         run: |
-          brew gist-logs --with-hostname -v ${FORMULA} || echo "::error Needs a token (https://github.com/settings/tokens/new?scopes=gist,public_repo&description=Homebrew) stored in secrets.HOMEBREW_GIST_TOKEN"
+          brew gist-logs --with-hostname -v ${FORMULA} || \
+          echo "::error file=.github/workflows/nightly-Homebrew-build.yml,line=81,col=10::Needs a token (https://github.com/settings/tokens/new?scopes=gist,public_repo&description=Homebrew) stored in secrets.HOMEBREW_GIST_TOKEN"
