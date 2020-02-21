@@ -68,8 +68,7 @@ jobs:
 
       - name: Audit Formula
         run: |
-          brew audit --strict ${FORMULA}
-          brew audit --strict ${FORMULA}
+          brew audit --strict --online --new-formula ${FORMULA}
           brew cat ${FORMULA}
 
       - name: Post logs on failure
