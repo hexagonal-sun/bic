@@ -23,6 +23,7 @@ jobs:
     env:
       HOMEBREW_DEVELOPER: "ON"
       HOMEBREW_DISPLAY_INSTALL_TIMES: "ON"
+      HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.HOMEBREW_GIST_TOKEN }}
       HOMEBREW_NO_ANALYTICS: "ON"
       HOMEBREW_NO_AUTO_UPDATE: "ON"
       HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK: "ON"
@@ -60,17 +61,20 @@ jobs:
           name: ${{ env.FORMULA }}--HEAD.catalina.bottle.tar.gz
           path: bottles
 
-      - name: Show linkage
-        run: brew linkage -v ${FORMULA}
+      - name: Show and test linkage
+        run: |
+          brew linkage -v ${FORMULA}
+          brew linkage --test ${FORMULA}
 
       - name: Test Formula
         run: brew test --HEAD --verbose ${FORMULA}
 
       - name: Audit Formula
         run: |
-          brew audit --strict --online --new-formula ${FORMULA}
+          brew audit --strict --online --new-formula ${FORMULA} || echo "::warning ${FORMULA} failed brew audit --strict"
           brew cat ${FORMULA}
 
       - name: Post logs on failure
         if: failure()
-        run: brew gist-logs --with-hostname -v ${FORMULA}
+        run: |
+          brew gist-logs --with-hostname -v ${FORMULA} || echo "::error Needs a token (https://github.com/settings/tokens/new?scopes=gist,public_repo&description=Homebrew) stored in secrets.HOMEBREW_GIST_TOKEN"
