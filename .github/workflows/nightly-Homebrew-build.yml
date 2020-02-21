@@ -1,0 +1,76 @@
+# Only the "head" branch of the formula is tested
+
+on:
+  push:
+    paths:
+      - '**/nightly-Homebrew-build.yml'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - '**/nightly-Homebrew-build.yml'
+  schedule:
+    - cron: 45 6 * * *
+# This is 6:45 AM UTC daily, late at night in the USA
+
+# Since push and pull_request will still always be building and testing the `develop` branch,
+# it only makes sense to test if this file has been changed
+
+name: Nightly-Homebrew-Build
+jobs:
+  build-Formula-with-Homebrew:
+    runs-on: macos-latest
+    env:
+      HOMEBREW_DEVELOPER: "ON"
+      HOMEBREW_DISPLAY_INSTALL_TIMES: "ON"
+      HOMEBREW_NO_ANALYTICS: "ON"
+      HOMEBREW_NO_AUTO_UPDATE: "ON"
+      HOMEBREW_NO_BOTTLE_SOURCE_FALLBACK: "ON"
+      HOMEBREW_NO_INSTALL_CLEANUP: "ON"
+      FORMULA: "bic"
+
+    steps:
+      - name: Random delay for cron job
+        run: |
+          delay=$(( RANDOM % 600 ))
+          printf 'Delaying for %s seconds on event %s' ${delay} "${{ github.event_name }}"
+          sleep ${delay}
+        if: github.event_name == 'schedule'
+
+      - name: Update Homebrew
+        if: github.event_name != 'pull_request'
+        run: brew update || true
+
+      - name: Install prerequisites
+        run: brew install --fetch-HEAD --HEAD --only-dependencies --keep-tmp ${FORMULA}
+
+      - name: Install and bottle Formula
+        run: brew install --fetch-HEAD --HEAD --build-bottle --keep-tmp ${FORMULA}
+        # the HEAD flags tell Homebrew to build the develop branch fetch via git
+
+      - name: Create bottle
+        run: |
+          brew bottle -v ${FORMULA}
+          mkdir bottles
+          mv *.bottle.tar.gz bottles
+
+      - name: Upload bottle
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ env.FORMULA }}--HEAD.catalina.bottle.tar.gz
+          path: bottles
+
+      - name: Show linkage
+        run: brew linkage -v ${FORMULA}
+
+      - name: Test Formula
+        run: brew test --HEAD --verbose ${FORMULA}
+
+      - name: Audit Formula
+        run: |
+          brew audit --strict ${FORMULA}
+          brew cat ${FORMULA}
+
+      - name: Post logs on failure
+        if: failure()
+        run: brew gist-logs --with-hostname -v ${FORMULA}
