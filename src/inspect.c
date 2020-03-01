@@ -39,12 +39,15 @@ static tree handle_pointer_type(tree ptr_type)
 
 static void print_object_type(tree inspect_id, tree resolved_object)
 {
-    tree object_type = tLV_TYPE(resolved_object),
+    tree object_type = resolved_object,
         sizeof_obj = tree_make(T_SIZEOF);
     const char *object_name;
 
     if (!is_T_IDENTIFIER(inspect_id))
         return;
+
+    if (is_T_LIVE_VAR(object_type))
+        object_type = tLV_TYPE(object_type);
 
     printf("%s is a ", tID_STR(inspect_id));
 
@@ -66,10 +69,33 @@ static void print_object_locus(tree inspect_id, tree resolved_object)
            tLOCUS(resolved_object).line_no);
 }
 
-void inspect(tree inspect_id, tree resolved_object)
+void inspect_live_var(tree inspect_id, tree resolved_object)
 {
-    print_object_type(inspect_id, resolved_object);
     print_object_value(inspect_id, resolved_object);
     print_sizeof_object(inspect_id, resolved_object);
     print_object_locus(inspect_id, resolved_object);
+}
+
+void inspect_function(tree inspect_id, tree resolved_object)
+{
+    print_object_locus(inspect_id, resolved_object);
+}
+
+void inspect_external_function(tree inspect_id, tree resolved_object)
+{
+    print_object_locus(inspect_id, tEXT_FUNC_FN(resolved_object));
+}
+
+void inspect(tree inspect_id, tree resolved_object)
+{
+    print_object_type(inspect_id, resolved_object);
+
+    if (is_T_LIVE_VAR(resolved_object))
+        inspect_live_var(inspect_id, resolved_object);
+
+    if (is_T_FN(resolved_object))
+        inspect_function(inspect_id, resolved_object);
+
+    if (is_T_EXT_FUNC(resolved_object))
+        inspect_external_function(inspect_id, resolved_object);
 }
