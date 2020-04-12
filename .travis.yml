@@ -26,6 +26,7 @@ addons:
       - flex
       - libltdl-dev
   homebrew:
+    update: true
     packages:
       - autoconf-archive
       - bison
