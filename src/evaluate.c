@@ -7,6 +7,7 @@
 #include <dlfcn.h>
 #include <errno.h>
 #include <string.h>
+#include <stdalign.h>
 #include <unistd.h>
 
 #include "evaluate.h"
@@ -2139,10 +2140,10 @@ static size_t get_alignment_for_type(tree t, int depth)
              * array's base type. */
             tree array_type = tDTPTR_EXP(tLV_TYPE(t));
 
-            alignment = get_size_of_type(array_type, depth);
+            alignment = get_alignment_for_type(array_type, depth);
         }
         else
-            alignment = get_size_of_type(tLV_TYPE(t), depth);
+            alignment = get_alignment_for_type(tLV_TYPE(t), depth);
         break;
     }
     case T_LIVE_COMPOUND:
@@ -2157,11 +2158,14 @@ static size_t get_alignment_for_type(tree t, int depth)
         alignment = get_alignment_for_type(first_member, depth);
     }
     break;
-    case D_T_CHAR...D_T_PTR:
-        alignment = get_size_of_type(t, depth);
+#define DEFCTYPE(TNAME, DESC, CTYPE, FMT, FFMEM)                        \
+    case TNAME:                                                         \
+        alignment = alignof(CTYPE);                                     \
         break;
+#include "ctypes.def"
+#undef DEFCTYPE
     default:
-        eval_die(t, "Could not calculate offset for member");
+      eval_die(t, "Could not calculate offset for member");
     }
 
     return alignment;
