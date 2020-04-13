@@ -81,4 +81,4 @@ replparser.y: parser.m4
 cscriptparser.y: parser.m4
 	$(AM_V_GEN)m4 -DTARGET=cscript $< > $@
 
-DIST_SUBDIRS = x86_64 aarch64 armv7l
+DIST_SUBDIRS = x86_64 aarch64 armv7l i686
