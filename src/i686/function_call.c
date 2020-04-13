@@ -5,11 +5,35 @@
 
 #include "function_call.h"
 
-static void push_arg(struct arg **head, struct arg *new_arg)
+static void push_arg(struct arg **head, struct arg arg)
 {
+    struct arg *new_arg = malloc(sizeof(*new_arg));
+
+    memcpy(new_arg, &arg, sizeof(arg));
+
     /* Arguments are passed in right-to-left order. */
     new_arg->next = *head;
     *head = new_arg;
+}
+
+static void handle_double(struct arg **head, double d)
+{
+    struct arg new_arg;
+
+    union {
+        struct {
+            ptrdiff_t a, b;
+        };
+        double d;
+    } x;
+
+    x.d = d;
+
+    new_arg.val.i = x.a;
+    push_arg(head, new_arg);
+
+    new_arg.val.i = x.b;
+    push_arg(head, new_arg);
 }
 
 /* Here we simplify the interface for accessing arguments so that
@@ -24,18 +48,18 @@ union function_return do_call(void *function_address, tree args, tree ret_type,
     if (args)
         for_each_tree(fn_arg, args) {
             tree arg = tFNARG_EXP(fn_arg);
-            struct arg *new_arg = malloc(sizeof(*new_arg));
+            struct arg new_arg;
 
             switch(arg->type) {
             case T_STRING:
-                new_arg->val.i = (ptrdiff_t)tSTRING_VAL(arg);
+                new_arg.val.i = (ptrdiff_t)tSTRING_VAL(arg);
                 push_arg(&arg_head, new_arg);
                 break;
             case T_LIVE_VAR:
                 switch(TYPE(tLV_TYPE(arg))) {
 #define SETINT(type)                                                    \
                     case type:                                          \
-                        new_arg->val.i = (ptrdiff_t)tLV_VAL(arg)->type;   \
+                        new_arg.val.i = (ptrdiff_t)tLV_VAL(arg)->type;   \
                         push_arg(&arg_head, new_arg);                   \
                         break;
                     SETINT(D_T_CHAR);
@@ -50,15 +74,18 @@ union function_return do_call(void *function_address, tree args, tree ret_type,
                     SETINT(D_T_ULONGLONG);
 #undef SETINT
                 case D_T_FLOAT:
-                    new_arg->val.f = (float)tLV_VAL(arg)->D_T_FLOAT;
-                    push_arg(&arg_head, new_arg);
+                    if (is_variadic)
+                        handle_double(&arg_head, (double)tLV_VAL(arg)->D_T_FLOAT);
+                    else {
+                        new_arg.val.f = (float)tLV_VAL(arg)->D_T_FLOAT;
+                        push_arg(&arg_head, new_arg);
+                    }
                     break;
                 case D_T_DOUBLE:
-                    new_arg->val.f = (float)tLV_VAL(arg)->D_T_DOUBLE;
-                    push_arg(&arg_head, new_arg);
+                    handle_double(&arg_head, tLV_VAL(arg)->D_T_DOUBLE);
                     break;
                 case D_T_PTR:
-                    new_arg->val.i = (ptrdiff_t)tLV_VAL(arg)->D_T_PTR;
+                    new_arg.val.i = (ptrdiff_t)tLV_VAL(arg)->D_T_PTR;
                     push_arg(&arg_head, new_arg);
                     break;
                 default:
@@ -66,12 +93,11 @@ union function_return do_call(void *function_address, tree args, tree ret_type,
                 }
                 break;
             case T_INTEGER:
-                new_arg->val.i = (ptrdiff_t)mpz_get_si(tINT_VAL(arg));
+                new_arg.val.i = (ptrdiff_t)mpz_get_si(tINT_VAL(arg));
                 push_arg(&arg_head, new_arg);
                 break;
             case T_FLOAT:
-                new_arg->val.f = (float)mpf_get_d(tFLOAT_VAL(arg));
-                push_arg(&arg_head, new_arg);
+                handle_double(&arg_head, mpf_get_d(tFLOAT_VAL(arg)));
                 break;
             default:
                 eval_die(arg, "Unknown tree type to marshall.\n");
