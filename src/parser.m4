@@ -330,6 +330,13 @@ unary_expression
     set_locus(deref, @1);
     $$ = deref;
 }
+| '~' unary_expression
+{
+    tree comp = tree_make(T_ONES_COMP);
+    tONES_COMP_EXP(comp) = $2;
+    set_locus(comp, @1);
+    $$ = comp;
+}
 | SIZEOF unary_expression
 {
     tree szof = tree_make(T_SIZEOF);
