@@ -14,7 +14,7 @@ check_PROGRAMS = puts strcat pass_parameter_printf decl_with_assign	\
                  ior function_ptr_typedef array_ptr			\
                  struct_array_alignment iand factorial char-decl-and-assignment \
                  for-loop-init-decl sizeof-deref break comma modulo multi_assign \
-                 xor encrypt-decrypt
+                 xor encrypt-decrypt ones-complement
 
 expect_scripts = fileio.exp strtok.exp decl.exp chars.exp infix.exp \
                  repl-interrupt.exp

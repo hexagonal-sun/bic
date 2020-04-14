@@ -60,5 +60,6 @@ modulo
 multi_assign
 xor
 encrypt-decrypt
+ones-complement
 
 *.trs
