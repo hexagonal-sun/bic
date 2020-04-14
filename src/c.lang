@@ -33,6 +33,9 @@
 (deftype T_NEGATE "Negate" "tNEGATE"
          ("EXP"))
 
+(deftype T_ONES_COMP "One's Complement" "tONES_COMP"
+         ("EXP"))
+
 (deftype T_SIZEOF "Size of" "tSZOF"
          ("EXP"))
 
