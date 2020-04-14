@@ -247,6 +247,7 @@ L?'(\\.|[^\\'\n])+'	        mpz_init_set_si(LEXLVAL.integer, lex_char(LEXTEXT));
 "|"                             return '|';
 "\?"                             return '?';
 "^"                             return '^';
+"~"                             return '~';
 "<<"                            return SHIFT_LEFT;
 ">>"                            return SHIFT_RIGHT;
 "++"                            return INC;
