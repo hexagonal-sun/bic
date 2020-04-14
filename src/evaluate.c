@@ -1367,6 +1367,23 @@ static tree eval_negate(tree t, int depth)
     return ret;
 }
 
+static tree eval_ones_comp(tree t, int depth)
+{
+  tree ret = tree_make(T_INTEGER);
+  tree exp = __evaluate_1(tONES_COMP_EXP(t), depth + 1);
+  mpz_init(tINT_VAL(ret));
+
+  if (is_T_LIVE_VAR(exp))
+      exp = make_int_from_live_var(exp);
+
+  if (!is_T_INTEGER(exp))
+      eval_die(t, "Can't take one's complement of non-integer type.");
+
+  mpz_com(tINT_VAL(ret), tINT_VAL(exp));
+
+  return ret;
+}
+
 static tree eval_add(tree t, int depth)
 {
     tree left = __evaluate_1(tADD_LHS(t), depth + 1);
@@ -2654,6 +2671,7 @@ static tree __evaluate_1(tree t, int depth)
     case T_ADD:        result = eval_add(t, depth + 1);        break;
     case T_SUB:        result = eval_sub(t, depth + 1);        break;
     case T_NEGATE:     result = eval_negate(t, depth + 1);     break;
+    case T_ONES_COMP:  result = eval_ones_comp(t, depth + 1);  break;
     case T_X_OR:       result = eval_xor(t, depth + 1);        break;
     case T_I_OR:       result = eval_ior(t, depth + 1);        break;
     case T_I_AND:      result = eval_iand(t, depth + 1);       break;
