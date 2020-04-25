@@ -1,0 +1,22 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: 'gcc:latest'
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: apt-get -y update && apt-get install build-essential libreadline-dev autoconf-archive libgmp-dev expect flex bison automake m4 libtool pkg-config
+      - run:
+          name: Generate Makefiles
+          command: autoreconf -i
+      - run:
+          name: configure
+          command: ./configure --enable-debug
+      - run:
+          name: Build
+          command: make
+      - run:
+          name: Check
+          command: make distcheck
