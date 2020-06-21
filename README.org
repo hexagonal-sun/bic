@@ -197,8 +197,8 @@ Factorial of 4 is: 24
 
      If you wish to pass arguments to a C file, append them to bic's command
      line. Once bic has processed the ~-s~ argument all other arguments are
-     interpreted as parameters to be passed to the program. These parameters are
-     created as =argc= and =argv= variables passed =main()=. The value of
+     treated as parameters to be passed to the program. These parameters are
+     created as =argc= and =argv= variables and passed to =main()=. The value of
      =argv[0]= is the name of the C file that bic is executing. Consider the
      following C program:
 
