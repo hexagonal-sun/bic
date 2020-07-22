@@ -1,5 +1,6 @@
 #pragma once
 #include "tree.h"
+#include "../config.h"
 
 #if defined(BUILD_LINUX)
 # define GC_STATIC_TREE(name)                                   \
