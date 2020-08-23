@@ -33,7 +33,7 @@ static void outputTreeType(FILE *f, const struct TreeType &type)
             fprintf(f, "        if (%s(head)) {\n", propAccessor.c_str());
             fprintf(f, "            tree_print_indent(depth);\n");
             fprintf(f, "            if (is_CHAIN_HEAD(%s(head))) {\n", propAccessor.c_str());
-            fprintf(f, "                tree first_member;\n");
+            fprintf(f, "                tree first_member = NULL;\n");
             fprintf(f, "                for_each_tree(first_member, %s(head)) break;\n", propAccessor.c_str());
             fprintf(f, "                fprintf(stderr, \"tree_%%p -> tree_%%p [label=\\\"%s\\\", color=red, style=dashed];\\n\", head, first_member);\n",
                     prop.first.c_str());

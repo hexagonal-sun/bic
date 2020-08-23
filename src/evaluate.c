@@ -1036,10 +1036,10 @@ static tree handle_extern_decls(tree type, tree decls, int depth)
     tree ret = NULL;
     tree i;
 
-    if (is_CHAIN_HEAD(decls))
+    if (is_CHAIN_HEAD(decls)) {
         for_each_tree(i, decls)
             ret = handle_extern_decl(type, i);
-    else
+    } else
         ret = handle_extern_decl(type, decls);
 
     return ret;
@@ -1049,10 +1049,10 @@ static tree handle_typedef(tree type, tree decls, int depth)
 {
     tree i, ret = NULL;
 
-    if (is_CHAIN_HEAD(decls))
+    if (is_CHAIN_HEAD(decls)) {
         for_each_tree(i, decls)
             ret = map_typedef(i, type);
-    else
+    } else
         ret = map_typedef(decls, type);
 
     return ret;
@@ -1101,9 +1101,9 @@ static tree handle_static_decl(tree base_type, tree decl, int depth)
    * decls and retain the id_map and alloc chain.  We then use them
    * to construct the E_CTX object. */
   push_ctx("Static declaration");
-  if (is_CHAIN_HEAD(decls))
+  if (is_CHAIN_HEAD(decls)) {
     for_each_tree(i, decls) ret = handle_declarator(i, base_type, depth);
-  else
+  } else
     ret = handle_declarator(decls, base_type, depth);
 
   TYPE(decl) = E_CTX;
@@ -1149,10 +1149,10 @@ static tree eval_decl(tree t, int depth)
     if (!decls)
         return NULL;
 
-    if (is_CHAIN_HEAD(decls))
+    if (is_CHAIN_HEAD(decls)) {
         for_each_tree(decl, decls)
             ret = handle_declarator(decl, decl_type, depth);
-    else
+    } else
         ret = handle_declarator(decls, decl_type, depth);
 
     return ret;
@@ -2164,10 +2164,13 @@ static size_t get_alignment_for_type(tree t, int depth)
     }
     case T_LIVE_COMPOUND:
     {
-        tree first_member;
+        tree first_member = NULL;
 
         for_each_tree(first_member, tLV_COMP_MEMBERS(t))
             break;
+
+        if (!first_member)
+            eval_die(t, "First member not found in live compound");
 
         first_member = tEMAP_RIGHT(first_member);
 
@@ -2613,7 +2616,7 @@ static tree eval_cpp_include(tree t, int depth)
 
 static tree eval_evaluator_ctx(tree t, int depth)
 {
-    tree ret, mapping;
+    tree ret = NULL, mapping;
 
     /* We should only encounter an E_CTX object when it has been set
      * up by handle_static_decl.  Ensure this is the case by checking

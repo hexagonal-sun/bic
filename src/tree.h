@@ -151,7 +151,8 @@ static inline void tree_unchain(tree obj)
 }
 
 #define for_each_tree(pos, head)                \
-    list_for_each((pos), &(head)->chain, chain)
+    if (head)                                               \
+        list_for_each((pos), &(head)->chain, chain)
 
 #define for_each_tree_safe(pos, tmp, head)      \
     list_for_each_safe((pos), (tmp), &(head)->chain, chain)
