@@ -308,6 +308,8 @@ tree make_increment(tree number)
     - ~gengc~: Generate a mark function for each tree object, this allows the
       garbage collector to traverse object trees.
     - ~gendump~: Generate code to dump out tree objects recursively.
+    - ~gendot~: Generate a dot file for a given =tree= hierarchy, allowing it to
+      be visualised.
 
 *** Evaluator
 
