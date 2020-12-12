@@ -299,7 +299,7 @@ static tree make_live_var(tree type)
     /* We can not allow the GC to just free the LV_VAL memory as this
      * may not point to memory that has been allocated, for example in
      * arrays and struct members.  Therefore, track the allocation
-     * within the current context.  This is sufficent as once the
+     * within the current context.  This is sufficient as once the
      * current context goes out of scope, we can no longer access the
      * live variable. */
     track_alloc(tLV_VAL(live_var));
