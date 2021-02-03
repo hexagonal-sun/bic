@@ -1,8 +1,8 @@
 #ifndef __TREE_H_
 #define __TREE_H_
 
-#include <gmp.h>
 #include <stdio.h>
+#include <gmp.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
