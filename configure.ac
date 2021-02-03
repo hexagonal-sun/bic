@@ -31,8 +31,8 @@ AM_COND_IF([FOUND_EXPECT],,[AC_MSG_WARN([Expect not found, disabling REPL test c
 
 # Checks for libraries.
 AX_LIB_READLINE
-AC_CHECK_LIB(gmp, __gmpz_init, ,
-       [AC_MSG_ERROR([GNU MP not found, see https://gmplib.org/])])
+
+PKG_CHECK_MODULES([GMP], [gmp >= 6.2.0])
 
 AC_CHECK_LIB(dl, dlsym, ,
        [AC_MSG_ERROR([Dynamic linker not found])])
