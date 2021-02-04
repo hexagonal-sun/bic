@@ -33,6 +33,7 @@ AM_COND_IF([FOUND_EXPECT],,[AC_MSG_WARN([Expect not found, disabling REPL test c
 AX_LIB_READLINE
 
 PKG_CHECK_MODULES([GMP], [gmp >= 6.2.0])
+PKG_CHECK_MODULES([FFI], [libffi >= 3.0])
 
 AC_CHECK_LIB(dl, dlsym, ,
        [AC_MSG_ERROR([Dynamic linker not found])])
