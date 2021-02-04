@@ -9,7 +9,7 @@ noinst_PROGRAMS = gentypes genctypes gentree genaccess gengc gendump gendot	\
 bin_PROGRAMS = bic
 
 noinst_LIBRARIES = libbic.a
-libbic_a_CFLAGS = -I$(srcdir)/$(BUILD_CPU) $(GMP_CFLAGS)
+libbic_a_CFLAGS = -I$(srcdir)/$(BUILD_CPU) $(GMP_CFLAGS) $(FFI_CFLAGS)
 
 libbic_a_SOURCES = tree.c tree.h tree.def list.h list.c hash_table.c					\
 hash_table.h evaluate.c evaluate.h ctypes.def tree-access.h typename.h				\
@@ -25,8 +25,8 @@ DISTCLEANFILES = tree.def ctypes.def tree-base.h tree-access.h gc-internal.c	\
 tree-dump.c spec-resolver.c tree-dump-dot.c
 
 bic_SOURCES = main.c
-bic_LDADD = libbic.a $(BUILD_CPU)/libbic_$(BUILD_CPU).a $(GMP_LIBS)
-bic_CFLAGS = $(GMP_CFLAGS)
+bic_LDADD = libbic.a $(BUILD_CPU)/libbic_$(BUILD_CPU).a $(GMP_LIBS) $(FFI_LIBS)
+bic_CFLAGS = $(GMP_CFLAGS) $(FFI_CFLAGS)
 
 lang_src = lang.cpp lang.h lang_lexer.lpp lang_lexer.h
 
