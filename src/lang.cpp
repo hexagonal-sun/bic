@@ -217,6 +217,11 @@ static void handle_defctype(struct lang &lang)
     newCType.ff_union_member_name = lexval;
 
     token = yylex();
+    if (token != IDENTIFIER)
+      perror("Expected IDENTIFIER");
+    newCType.ffi_type = lexval;
+
+    token = yylex();
     if (token == ')')
         goto out;
 
