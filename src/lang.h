@@ -35,6 +35,7 @@ struct CType : public TreeType {
     std::string ctype;
     std::string format_string;
     std::string ff_union_member_name;
+    std::string ffi_type;
 };
 
 struct TypeAllocator;

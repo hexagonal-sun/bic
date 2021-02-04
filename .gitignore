@@ -56,6 +56,7 @@ src/genctypes
 src/gentypes
 src/gentree
 src/gendot
+src/genffitypes
 src/genspecresolver
 src/lang_lexer.cpp
 src/lang_lexer.h
@@ -63,6 +64,8 @@ src/tree.def
 src/ctypes.def
 src/tree-base.h
 src/tree.o
+src/ffi-types.o
+src/ffi-types.c
 stamp-h1
 ylwrap
 *.tar.gz
