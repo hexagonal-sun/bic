@@ -11,8 +11,7 @@
 
 #include "evaluate.h"
 #include "cscriptparser.h"
-#include "function_call.h"
-#include "ptr_call.h"
+#include "function-call.h"
 #include "typename.h"
 #include "repl.h"
 #include "gc.h"
@@ -427,15 +426,12 @@ static tree eval_fn_call(tree t, int depth)
      *    that is the case, evaluate all arguments and evaluate the
      *    function body.
      *
-     * 2: The function call is an external symbol, i.e. the function
-     *    should have been declared and should have a corresponding
-     *    T_DECL_FN.  If that is the case, evaluate the arguments and
-     *    use the symbolic linker to find the function.
+     * 2: The function call is an external symbol, i.e. the function should have
+     *    been declared and should have a corresponding T_DECL_FN. If that is
+     *    the case, evaluate the arguments and use the symbolic linker to find
+     *    the function and libffi to invoke it.
      *
-     * 3: The function evaluates to a live variable.  If this is the
-     *    case, we ensure that the live variable is a function
-     *    pointer, evaluate the arguments and call the address pointed
-     *    to by that live variable.
+     * 3: The function evaluates to a live variable. We don't support this, yet.
      *
      * 4: The function is an evaluator builtin.  In that case, call
      *    the handler with the argument chain.
@@ -544,25 +540,29 @@ static tree eval_fn_call(tree t, int depth)
             union function_return res;
             void *function_address = dlsym(RTLD_DEFAULT, function_name);
             bool is_variadic = false;
+            int variadic_pos = 0;
 
             if (function_address == NULL)
                 eval_die(t, "Could not resolve external symbol: %s\n", function_name);
 
 
-            for_each_tree(i, tFN_ARGS(function))
+            for_each_tree(i, tFN_ARGS(function)) {
                 if (is_T_VARIADIC(i)){
                     is_variadic = true;
                     break;
                 }
 
+                variadic_pos++;
+            }
+
             /* Evaluate all arguments before passing into the marshalling
              * function. */
             fn_arg_chain = eval_fn_args(args, depth);
 
-            res = do_call(function_address, fn_arg_chain, tFN_RET_TYPE(function),
-                          is_variadic);
+            do_ext_call(function_address, fn_arg_chain, tFN_RET_TYPE(function),
+                        is_variadic ? &variadic_pos : NULL);
 
-            return make_fncall_result(tFN_RET_TYPE(function), res);
+            return NULL;
         }
     }
 
@@ -591,10 +591,11 @@ static tree eval_fn_call(tree t, int depth)
          * function. */
         fn_arg_chain = eval_fn_args(args, depth);
 
-        res = do_call(tLV_VAL(function)->D_T_PTR, fn_arg_chain,
-                      tFN_RET_TYPE(function_type), is_variadic);
+        do_ext_call(tLV_VAL(function)->D_T_PTR, fn_arg_chain,
+                    tFN_RET_TYPE(function_type), is_variadic);
 
-        return make_fncall_result(tFN_RET_TYPE(function_type), res);
+        /* return make_fncall_result(tFN_RET_TYPE(function_type), res); */
+        return NULL;
     }
 
     if (is_T_BUILTIN(function)) {
@@ -2487,9 +2488,9 @@ static tree handle_addr_fn_def(tree fndef)
 
     live_var = make_live_var(ptr_type);
 
-    tLV_VAL(live_var)->D_T_PTR = get_entry_point_for_fn(fndef);
+    /* tLV_VAL(live_var)->D_T_PTR = get_entry_point_for_fn(fndef); */
 
-    return live_var;
+    return NULL;
 }
 
 static tree eval_expr_list(tree expr_list, int depth)
