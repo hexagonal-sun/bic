@@ -11,9 +11,9 @@ static void outputFFITypes(const struct lang &lang)
           " */\n\n"
           " #include \"ffi-types.h\"\n"
           "\n"
-          "ffi_type *get_ffi_type(tree ctype)\n"
+          "ffi_type *get_ffi_type(enum tree_type ctype)\n"
           "{\n"
-          "    switch(TYPE(ctype)) {\n", f);
+          "    switch(ctype) {\n", f);
 
     for (auto const &ctype : lang.treeCTypes)
       fprintf(f, "    case %s:\n"
