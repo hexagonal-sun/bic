@@ -24,12 +24,13 @@ static void push_arg(ffi_type *type, void* val)
     n++;
 }
 
-void do_ext_call(void *function_address, tree args, tree ret_type,
+void do_ext_call(void *function_address, tree args, tree ret_lv,
                  int *variadic_pos)
 {
     tree fn_arg;
     ffi_cif cif;
     n = 0;
+    ffi_type *ret_type = &ffi_type_void;
 
     if (args)
         for_each_tree(fn_arg, args) {
@@ -71,10 +72,13 @@ void do_ext_call(void *function_address, tree args, tree ret_type,
             }
         }
 
-    if (variadic_pos)
-        ffi_prep_cif_var(&cif, FFI_DEFAULT_ABI, *variadic_pos, n, &ffi_type_void, &type_stack);
-    else
-        ffi_prep_cif(&cif, FFI_DEFAULT_ABI, n, &ffi_type_void, &type_stack);
+    if (ret_lv)
+        ret_type = get_ffi_type(TYPE(tLV_TYPE(ret_lv)));
 
-    ffi_call(&cif, function_address, NULL, val_stack);
+    if (variadic_pos)
+        ffi_prep_cif_var(&cif, FFI_DEFAULT_ABI, *variadic_pos, n, ret_type, &type_stack);
+    else
+        ffi_prep_cif(&cif, FFI_DEFAULT_ABI, n, ret_type, &type_stack);
+
+    ffi_call(&cif, function_address, (void *)tLV_VAL(ret_lv), val_stack);
 }
