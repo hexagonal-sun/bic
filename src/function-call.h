@@ -10,5 +10,5 @@ union function_return
 
 void do_ext_call(void *function_address,
                  tree args,
-                 tree ret_type,
+                 tree ret_lv,
                  int *variadic_pos);

@@ -541,6 +541,7 @@ static tree eval_fn_call(tree t, int depth)
             void *function_address = dlsym(RTLD_DEFAULT, function_name);
             bool is_variadic = false;
             int variadic_pos = 0;
+            tree ret_lv = NULL;
 
             if (function_address == NULL)
                 eval_die(t, "Could not resolve external symbol: %s\n", function_name);
@@ -559,10 +560,13 @@ static tree eval_fn_call(tree t, int depth)
              * function. */
             fn_arg_chain = eval_fn_args(args, depth);
 
-            do_ext_call(function_address, fn_arg_chain, tFN_RET_TYPE(function),
+            if (!is_D_T_VOID(tFN_RET_TYPE(function)))
+                ret_lv = make_live_var(tFN_RET_TYPE(function));
+
+            do_ext_call(function_address, fn_arg_chain, ret_lv,
                         is_variadic ? &variadic_pos : NULL);
 
-            return NULL;
+            return ret_lv;
         }
     }
 
