@@ -1,7 +1,6 @@
 BUILT_SOURCES = replparser.h repllex.h lang_lexer.h tree.def ctypes.def		\
 	tree-base.h tree-access.h cscriptparser.h cscriptlex.h
 
-SUBDIRS = $(BUILD_CPU)
 AM_YFLAGS = --warnings="no-yacc" -d
 noinst_PROGRAMS = gentypes genctypes gentree genaccess gengc gendump gendot	\
 									genspecresolver genffitypes
@@ -9,7 +8,7 @@ noinst_PROGRAMS = gentypes genctypes gentree genaccess gengc gendump gendot	\
 bin_PROGRAMS = bic
 
 noinst_LIBRARIES = libbic.a
-libbic_a_CFLAGS = -I$(srcdir)/$(BUILD_CPU) $(GMP_CFLAGS) $(FFI_CFLAGS)
+libbic_a_CFLAGS = $(GMP_CFLAGS) $(FFI_CFLAGS)
 
 libbic_a_SOURCES = tree.c tree.h tree.def list.h list.c hash_table.c						\
 hash_table.h evaluate.c evaluate.h ctypes.def tree-access.h typename.h					\
@@ -25,7 +24,7 @@ DISTCLEANFILES = tree.def ctypes.def tree-base.h tree-access.h gc-internal.c	\
 tree-dump.c spec-resolver.c tree-dump-dot.c
 
 bic_SOURCES = main.c
-bic_LDADD = libbic.a $(BUILD_CPU)/libbic_$(BUILD_CPU).a $(GMP_LIBS) $(FFI_LIBS)
+bic_LDADD = libbic.a $(GMP_LIBS) $(FFI_LIBS)
 bic_CFLAGS = $(GMP_CFLAGS) $(FFI_CFLAGS)
 
 lang_src = lang.cpp lang.h lang_lexer.lpp lang_lexer.h
@@ -85,5 +84,3 @@ replparser.y: parser.m4
 
 cscriptparser.y: parser.m4
 	$(AM_V_GEN)m4 -DTARGET=cscript $< > $@
-
-DIST_SUBDIRS = x86_64 aarch64 armv7l
