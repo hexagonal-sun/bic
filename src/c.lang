@@ -256,7 +256,7 @@
 (defctype D_T_FLOAT "float" "float" "f" "dval" ffi_type_float)
 (defctype D_T_DOUBLE "double" "double" "f" "dval" ffi_type_double)
 (defctype D_T_LONGDOUBLE "long double" "long double" "Lf" "dval" ffi_type_longdouble)
-(defctype D_T_PTR "pointer" "void *" "p" "ival" ffi_type_void "tDTPTR"
+(defctype D_T_PTR "pointer" "void *" "p" "ival" ffi_type_pointer "tDTPTR"
           ("EXP"))
 
 (defspecifier D_T_CHAR ((T_CHAR_TS)
