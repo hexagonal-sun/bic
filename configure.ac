@@ -5,7 +5,6 @@ AC_PREREQ([2.69])
 AC_INIT([bic], [v1.0.0], [dev@mattleach.net])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
-AC_CANONICAL_BUILD
 
 AM_PROG_AR
 LT_INIT
@@ -23,7 +22,6 @@ AC_PROG_INSTALL
 AC_PROG_CPP
 AC_PROG_MKDIR_P
 AC_PROG_RANLIB
-AM_PROG_AS
 
 AC_CHECK_PROG([expect],[expect],[yes],[no])
 AM_CONDITIONAL([FOUND_EXPECT], [test "x$expect" = xyes])
@@ -86,9 +84,6 @@ case "${build_os}" in
         ;;
 esac
 
-BUILD_CPU=${build_cpu}
-AC_SUBST([BUILD_CPU])
-
 LT_SYS_SYMBOL_USCORE
 if test "x${sys_symbol_underscore}" = xyes; then
 AC_DEFINE([SYMBOL_USCORE], [1],
@@ -115,9 +110,6 @@ AC_CHECK_FUNCS([gethostname memset strdup strerror strstr])
 AC_CONFIG_FILES([Makefile
                  etc/Makefile
                  src/Makefile
-                 src/x86_64/Makefile
-                 src/aarch64/Makefile
-                 src/armv7l/Makefile
                  testsuite/Makefile])
 
 AC_OUTPUT
