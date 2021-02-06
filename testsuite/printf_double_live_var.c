@@ -2,7 +2,7 @@
 
 int main()
 {
-    float a;
+    double a;
     a = 1.2435;
     printf("%f\n", a);
 
