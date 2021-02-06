@@ -511,7 +511,6 @@ static tree eval_fn_call(tree t, int depth)
             tree fn_arg_chain = NULL, args = tFNCALL_ARGS(t);
             char *function_name = tID_STR(tFN_DECL(function));
             tree i;
-            union function_return res;
             void *function_address = dlsym(RTLD_DEFAULT, function_name);
             bool is_variadic = false;
             int variadic_pos = 0;
@@ -545,11 +544,12 @@ static tree eval_fn_call(tree t, int depth)
     }
 
     if (is_T_LIVE_VAR(function)) {
+        int variadic_pos = 0;
         tree fn_arg_chain, args = tFNCALL_ARGS(t),
             live_var_type = tLV_TYPE(function),
+            ret_lv = NULL,
             function_type, i;
         bool is_variadic = false;
-        union function_return res;
 
         if (!is_D_T_PTR(live_var_type))
             eval_die(t, "could not call non-pointer type\n");
@@ -559,21 +559,26 @@ static tree eval_fn_call(tree t, int depth)
         if (!is_T_FN(function_type))
             eval_die(t, "could not call non-function pointer type\n");
 
-        for_each_tree(i, tFN_ARGS(function_type))
+        for_each_tree(i, tFN_ARGS(function)) {
             if (is_T_VARIADIC(i)){
                 is_variadic = true;
                 break;
             }
 
+            variadic_pos++;
+        }
+
+        if (!is_D_T_VOID(tFN_RET_TYPE(function_type)))
+            ret_lv = make_live_var(tFN_RET_TYPE(function_type));
+
         /* Evaluate all arguments before passing into the marshalling
          * function. */
         fn_arg_chain = eval_fn_args(args, depth);
 
-        do_ext_call(tLV_VAL(function)->D_T_PTR, fn_arg_chain,
-                    tFN_RET_TYPE(function_type), is_variadic);
+        do_ext_call(tLV_VAL(function)->D_T_PTR, fn_arg_chain, ret_lv,
+                    is_variadic ? &variadic_pos : NULL);
 
-        /* return make_fncall_result(tFN_RET_TYPE(function_type), res); */
-        return NULL;
+        return ret_lv;
     }
 
     if (is_T_BUILTIN(function)) {
