@@ -374,32 +374,6 @@ static tree convert_to_comparable_type(tree t, int depth)
 #include "ctypes.def"
 #undef DEFCTYPE
 
-static tree make_fncall_result(tree type, union function_return result)
-{
-    tree ret;
-
-    if (!type)
-        return NULL;
-
-    if (is_D_T_VOID(type))
-        return NULL;
-
-    ret = make_live_var(type);
-
-    switch (TYPE(type))
-    {
-#define DEFCTYPE(TNAME, DESC, CTYPE, FMT, FFMEM)               \
-        case TNAME:                                            \
-            tLV_VAL(ret)->TNAME = (CTYPE)result.FFMEM;         \
-            break;
-#include "ctypes.def"
-#undef DEFCTYPE
-    default:
-        eval_die(type, "Could not create function return value\n");
-    }
-
-    return ret;
-}
 
 static tree eval_fn_args(tree args, int depth)
 {
