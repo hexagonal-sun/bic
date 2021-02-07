@@ -288,7 +288,7 @@ static tree eval_identifier(tree t, int depth)
              tID_STR(t));
 }
 
-static tree make_live_var(tree type)
+tree make_live_var(tree type)
 {
     tree live_var = tree_make(T_LIVE_VAR);
 
