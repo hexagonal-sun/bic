@@ -80,5 +80,5 @@ void do_ext_call(void *function_address, tree args, tree ret_lv,
     else
         ffi_prep_cif(&cif, FFI_DEFAULT_ABI, n, ret_type, &type_stack);
 
-    ffi_call(&cif, function_address, (void *)tLV_VAL(ret_lv), val_stack);
+    ffi_call(&cif, function_address, ret_lv ? (void *)tLV_VAL(ret_lv) : NULL, val_stack);
 }
