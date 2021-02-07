@@ -250,7 +250,7 @@ static size_t get_size_of_type(tree type, int depth)
         tree sz, szof = tree_make(T_SIZEOF);
         tSZOF_EXP(szof) = type;
         sz = __evaluate_1(szof, depth);
-        return mpz_get_ui(tINT_VAL(sz));
+        return tLV_VAL(sz)->D_T_ULONG;
     }
 }
 
@@ -2403,14 +2403,14 @@ static tree eval_sizeof(tree t, int depth)
 {
     tree exp = __evaluate_1(tSZOF_EXP(t), depth + 1),
         type = exp,
-         ret = tree_make(T_INTEGER);
+        ret = make_live_var(tree_make(D_T_ULONG));
 
     if (is_T_LIVE_VAR(exp)) {
 
         type = tLV_TYPE(exp);
 
         if (is_D_T_PTR(type) && tLV_IS_ARRAY(exp)) {
-            mpz_init_set_ui(tINT_VAL(ret), tLV_ARRAY_SZ(exp));
+            tLV_VAL(ret)->D_T_ULONG = tLV_ARRAY_SZ(exp);
             return ret;
         }
     }
@@ -2424,20 +2424,20 @@ static tree eval_sizeof(tree t, int depth)
     if (is_T_ARRAY_TYPE(exp)) {
         tree array = tree_make(T_ARRAY);
         tARRAY_SZ(array) = tARRAY_TYPE_SZ(exp);
-        mpz_init_set_ui(tINT_VAL(ret),
-                        get_array_size(array, tARRAY_TYPE_BASE_TYPE(exp),
-                                       depth + 1));
+        tLV_VAL(ret)->D_T_ULONG =
+            get_array_size(array, tARRAY_TYPE_BASE_TYPE(exp),
+                            depth + 1);
         return ret;
     }
 
     if (is_CTYPE(type)) {
-        mpz_init_set_ui(tINT_VAL(ret), get_ctype_size(type));
+        tLV_VAL(ret)->D_T_ULONG = get_ctype_size(type);
         return ret;
     }
 
     if (is_T_DECL_COMPOUND(type)) {
         assert(tCOMP_DECL_EXPANDED(type));
-        mpz_init_set_ui(tINT_VAL(ret), tCOMP_DECL_SZ(type));
+        tLV_VAL(ret)->D_T_ULONG = tCOMP_DECL_SZ(type);
         return ret;
     }
 
