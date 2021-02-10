@@ -7,6 +7,7 @@
   (sz "size_t")
   (flag "bool")
   (ffi_cif "ffi_cif *")
+  (ffi_types "ffi_type **")
   (ffi_closure "ffi_closure *")
   (comp_decl_type "compound_type")
   (live_var_val "union value *"))
@@ -189,6 +190,7 @@
 (deftype T_CLOSURE "Closure Call" "tCLOSURE"
          ("ARG_TYPES" "RET_TYPE" "FN"
           ("CIF" ffi_cif)
+          ("TYPES" ffi_types)
           ("CLOSURE" ffi_closure)))
 
 (deftype T_FN_ARG "Function Argument" "tFNARG"

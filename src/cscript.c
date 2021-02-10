@@ -143,9 +143,12 @@ static void __evaluate_cscript(tree head, const char *fname, int argc,
     bool has_non_decls = false;
 
     for_each_tree(i, head) {
-        if (is_T_DECL(i) && chain_has_T_FN(tDECL_DECLS(i))) {
-            tree fn, id;
+        if (is_T_DECL(i)) {
+            tree fn = NULL, id;
             for_each_tree(fn, tDECL_DECLS(i)) break;
+
+            if (!is_T_FN(fn))
+                continue;
 
             id = tFN_DECL(fn);
 

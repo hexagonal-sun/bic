@@ -72,6 +72,11 @@ static inline void tree_dump_ffi_closure(tree t, ffi_closure *closure, enum DUMP
 {
     return;
 }
+ 
+static inline void tree_dump_ffi_types(tree t, ffi_type **types,
+                                       enum DUMP_TYPE dt) {
+    return;
+}
 
 static inline void tree_dump_ffi_cif(tree t, ffi_cif *closure,
                                          enum DUMP_TYPE dt)

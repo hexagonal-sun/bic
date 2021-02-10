@@ -1964,9 +1964,6 @@ static tree eval_cast(tree t, int depth)
     DEFCAST(D_T_PTR, D_T_ULONGLONG);
     DEFCAST(D_T_PTR, D_T_PTR);
 
-#pragma GCC diagnostic pop
-#pragma GCC diagnostic pop
-
     eval_die(t, "Could not perform cast.\n");
 }
 

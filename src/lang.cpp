@@ -22,7 +22,7 @@ int yywrap(void)
 
 void TypePool::emitDeclarations(FILE *f) const
 {
-    for (const auto instantypatedType : pool_)
+    for (const auto &instantypatedType : pool_)
         fprintf(f, "    %s %s;\n", instantypatedType.baseType.type.c_str(),
                 instantypatedType.memberName.c_str());
 }

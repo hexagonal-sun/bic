@@ -10,11 +10,14 @@
 #include "gc.h"
 #include "spec-resolver.h"
 
-static ffi_type *type_stack[32];
-static void *val_stack[32];
-static int n = 0;
+#define ARG_STACK_SZ 32
 
-static void push_arg(ffi_type *type, void* val, bool should_promote)
+static void push_arg(ffi_type **type_stack,
+                     void **val_stack,
+                     int *n,
+                     ffi_type *type,
+                     void* val,
+                     bool should_promote)
 {
     /* Acording to the 'default argument promotions' floats should be promotoed
        to doubles and <int should be promoted to int when being passed as a
@@ -34,15 +37,15 @@ static void push_arg(ffi_type *type, void* val, bool should_promote)
     PROMOTE(ffi_type_ushort, unsigned short, D_T_UINT, unsigned int, ffi_type_uint);
 #undef PROMOTE
 
-    if (n == 32) {
+    if (*n == ARG_STACK_SZ) {
         fprintf(stderr , "Max num args reached.\n");
         exit(1);
     }
 
-    type_stack[n] = type;
-    val_stack[n] = val;
+    type_stack[*n] = type;
+    val_stack[*n] = val;
 
-    n++;
+    (*n)++;
 }
 
 void do_ext_call(void *function_address, tree args, tree ret_lv,
@@ -50,7 +53,9 @@ void do_ext_call(void *function_address, tree args, tree ret_lv,
 {
     tree fn_arg;
     ffi_cif cif;
-    n = 0;
+    int n = 0;
+    ffi_type **types = calloc(sizeof(*types), ARG_STACK_SZ);
+    void **vals = calloc(sizeof(*vals), ARG_STACK_SZ);
     ffi_type *ret_type = &ffi_type_void;
 
     // Prevent GC here, we could potentially create temporary LV for the default
@@ -66,13 +71,15 @@ void do_ext_call(void *function_address, tree args, tree ret_lv,
 
             switch(TYPE(arg)) {
             case T_STRING:
-                push_arg(&ffi_type_pointer, &tSTRING_VAL(arg), should_promote);
+                push_arg(types, vals, &n,
+                         &ffi_type_pointer, &tSTRING_VAL(arg), should_promote);
                 break;
             case T_LIVE_VAR:
                 switch(TYPE(tLV_TYPE(arg))) {
 #define DEFCTYPE(TNAME, DESC, STDINTSZ, FMT, FFMEM)                     \
                     case TNAME:                                         \
-                        push_arg(get_ffi_type(TNAME), &tLV_VAL(arg)->TNAME, should_promote); \
+                        push_arg(types, vals, &n,                     \
+                                 get_ffi_type(TNAME), &tLV_VAL(arg)->TNAME, should_promote); \
                         break;
 #include "ctypes.def"
 #undef DEFCTYPE
@@ -84,14 +91,14 @@ void do_ext_call(void *function_address, tree args, tree ret_lv,
                 {
                     int *buf = alloca(sizeof(int));
                     *buf = mpz_get_si(tINT_VAL(arg));
-                    push_arg(&ffi_type_sint, buf, should_promote);
+                    push_arg(types, vals, &n, &ffi_type_sint, buf, should_promote);
                     break;
                 }
             case T_FLOAT:
                 {
                     double *buf = alloca(sizeof(double));
                     *buf = mpf_get_d(tFLOAT_VAL(arg));
-                    push_arg(&ffi_type_double, buf, should_promote);
+                    push_arg(types, vals, &n, &ffi_type_double, buf, should_promote);
                     break;
                 }
             default:
@@ -104,11 +111,14 @@ void do_ext_call(void *function_address, tree args, tree ret_lv,
         ret_type = get_ffi_type(TYPE(tLV_TYPE(ret_lv)));
 
     if (variadic_pos)
-        ffi_prep_cif_var(&cif, FFI_DEFAULT_ABI, *variadic_pos, n, ret_type, &type_stack);
+        ffi_prep_cif_var(&cif, FFI_DEFAULT_ABI, *variadic_pos, n, ret_type, types);
     else
-        ffi_prep_cif(&cif, FFI_DEFAULT_ABI, n, ret_type, &type_stack);
+        ffi_prep_cif(&cif, FFI_DEFAULT_ABI, n, ret_type, types);
 
-    ffi_call(&cif, function_address, ret_lv ? (void *)tLV_VAL(ret_lv) : NULL, val_stack);
+    ffi_call(&cif, function_address, ret_lv ? (void *)tLV_VAL(ret_lv) : NULL, vals);
+
+    free(types);
+    free(vals);
 
     enable_gc();
 }
@@ -156,8 +166,9 @@ void *get_entry_point_for_fn(tree fndef)
         closure = tree_make(T_CLOSURE);
     ffi_type *ffi_ret_type = &ffi_type_void;
     tCLOSURE_CIF(closure) = malloc(sizeof(*tCLOSURE_CIF(closure)));
+    tCLOSURE_TYPES(closure) = calloc(sizeof(*tCLOSURE_TYPES(closure)), ARG_STACK_SZ);
 
-    n = 0;
+    int n = 0;
 
     for_each_tree(arg, args) {
         tree arg_type;
@@ -175,8 +186,11 @@ void *get_entry_point_for_fn(tree fndef)
         if (!is_T_IDENTIFIER(declarator))
             eval_die(arg, "Unknown declarator type in closure allocation");
 
-        type_stack[n++] = get_ffi_type(TYPE(arg_type));
+        tCLOSURE_TYPES(closure)[n++] = get_ffi_type(TYPE(arg_type));
         tree_chain(arg_type, arg_chain);
+
+        if (n >= ARG_STACK_SZ)
+            eval_die(fndef, "Argument stack size exceeded");
     }
 
     if (!is_D_T_VOID(ret_type))
@@ -188,7 +202,8 @@ void *get_entry_point_for_fn(tree fndef)
 
     tCLOSURE_CLOSURE(closure) = ffi_closure_alloc(sizeof(*closure), &ret);
 
-    ffi_prep_cif(tCLOSURE_CIF(closure), FFI_DEFAULT_ABI, n, ffi_ret_type, &type_stack);
+    ffi_prep_cif(tCLOSURE_CIF(closure), FFI_DEFAULT_ABI, n, ffi_ret_type,
+                 tCLOSURE_TYPES(closure));
 
     ffi_prep_closure_loc(tCLOSURE_CLOSURE(closure),
                          tCLOSURE_CIF(closure),

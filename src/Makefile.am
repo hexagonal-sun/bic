@@ -22,7 +22,7 @@ function-call.c
 
 EXTRA_DIST = c.lang
 DISTCLEANFILES = tree.def ctypes.def tree-base.h tree-access.h gc-internal.c	\
-tree-dump.c spec-resolver.c tree-dump-dot.c
+tree-dump.c spec-resolver.c tree-dump-dot.c ffi-types.c
 
 bic_SOURCES = main.c
 bic_LDADD = libbic.a $(GMP_LIBS) $(FFI_LIBS)

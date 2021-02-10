@@ -23,7 +23,7 @@ static void outputProps(FILE *f, const struct TreeType &t)
 
     fprintf(f, "/* Access macros for %s objects */\n", t.name.c_str());
 
-    for (const auto prop : t.props)
+    for (const auto &prop : t.props)
         fprintf(f, "#define %s(obj) (_DATA( TREE_CHECK((obj), %s)).%s)\n",
                 t.getPropAccessor(prop.first).c_str(), t.name.c_str(),
                 prop.second.memberName.c_str());
@@ -34,10 +34,10 @@ static void outputProps(FILE *f, const struct TreeType &t)
 static void outputTreeAccessMacros(const struct lang &lang,
                                    FILE *f)
 {
-    for (const auto type : lang.treeTypes)
+    for (const auto &type : lang.treeTypes)
         outputProps(f, type);
 
-    for (const auto ctype : lang.treeCTypes)
+    for (const auto &ctype : lang.treeCTypes)
         outputProps(f, ctype);
 }
 

@@ -104,6 +104,7 @@ static void dealloc_object(gc_obj obj)
     case T_CLOSURE:
         ffi_closure_free(tCLOSURE_CLOSURE(t));
         free(tCLOSURE_CIF(t));
+        free(tCLOSURE_TYPES(t));
         break;
     default:
         /* All other types don't contain any other referencies to

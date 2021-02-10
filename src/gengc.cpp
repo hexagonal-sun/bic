@@ -14,7 +14,7 @@ static void outputGCMarkProps(FILE *f, const struct TreeType &t)
 
     fprintf(f, "    case %s:\n", t.name.c_str());
 
-    for (const auto prop : t.props)
+    for (const auto &prop : t.props)
         if (prop.second.baseType.isTree)
             fprintf(f, "        mark_tree(%s(t));\n", t.getPropAccessor(prop.first).c_str());
 
@@ -24,7 +24,7 @@ static void outputGCMarkProps(FILE *f, const struct TreeType &t)
 static void outputPropertylessTypes(FILE *f)
 {
     fputs("    /* These types have no properties to traverse */\n", f);
-    for (const auto prop : propertylessTypes)
+    for (const auto &prop : propertylessTypes)
         fprintf(f, "    case %s:\n", prop.c_str());
 
     fputs("        return;\n", f);
@@ -33,10 +33,10 @@ static void outputPropertylessTypes(FILE *f)
 static void outputGCPropTraverse(const struct lang &lang,
                                  FILE *f)
 {
-    for (const auto type : lang.treeTypes)
+    for (const auto &type : lang.treeTypes)
         outputGCMarkProps(f, type);
 
-    for (const auto ctype : lang.treeCTypes)
+    for (const auto &ctype : lang.treeCTypes)
         outputGCMarkProps(f, ctype);
 
     outputPropertylessTypes(f);
