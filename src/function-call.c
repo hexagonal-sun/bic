@@ -8,6 +8,7 @@
 #include "function-call.h"
 #include "evaluate.h"
 #include "gc.h"
+#include "spec-resolver.h"
 
 static ffi_type *type_stack[32];
 static void *val_stack[32];
@@ -110,4 +111,90 @@ void do_ext_call(void *function_address, tree args, tree ret_lv,
     ffi_call(&cif, function_address, ret_lv ? (void *)tLV_VAL(ret_lv) : NULL, val_stack);
 
     enable_gc();
+}
+
+static void closure_entry(ffi_cif *cif, void *ret, void **ffi_args, void *user)
+{
+    tree closure = (tree)user;
+    tree arg,
+        args = tCLOSURE_ARG_TYPES(closure),
+        arg_chain = tree_make(CHAIN_HEAD),
+        fn_call = tree_make(T_FN_CALL);
+    int n = 0;
+
+    for_each_tree(arg, args) {
+        tree new_arg;
+
+        switch (TYPE(arg)){
+#define DEFCTYPE(TNAME, DESC, STDINTSZ, FMT, FFMEM)                     \
+            case TNAME:                                                 \
+                new_arg = make_live_var(arg);                         \
+                tLV_VAL(new_arg)->TNAME = *((STDINTSZ *)(ffi_args[n])); \
+                break;
+#include "ctypes.def"
+#undef DEFCTYPE
+        default:
+            eval_die(tCLOSURE_FN(closure), "Unknown argument type in closure entry");
+        }
+
+        n++;
+        tree_chain(new_arg, arg_chain);
+    }
+
+    tFNCALL_ID(fn_call) = tCLOSURE_FN(closure);
+    tFNCALL_ARGS(fn_call) = arg_chain;
+
+    evaluate(fn_call, "<PTRCALL>");
+}
+
+void *get_entry_point_for_fn(tree fndef)
+{
+    void *ret;
+    tree arg, args = tFN_ARGS(fndef),
+        ret_type = tFN_RET_TYPE(fndef);
+    tree arg_chain = tree_make(CHAIN_HEAD),
+        closure = tree_make(T_CLOSURE);
+    ffi_type *ffi_ret_type = &ffi_type_void;
+    tCLOSURE_CIF(closure) = malloc(sizeof(*tCLOSURE_CIF(closure)));
+
+    n = 0;
+
+    for_each_tree(arg, args) {
+        tree arg_type;
+        tree declarator;
+
+        if (!is_T_DECL(arg))
+            eval_die(arg, "Unknown type arg chain, expecting decl");
+
+        arg_type = resolve_decl_specs_to_type(tDECL_SPECS(arg));
+        declarator = tDECL_DECLS(arg);
+
+        if (is_T_POINTER(tDECL_DECLS(arg)))
+            resolve_ptr_type(&declarator, &arg_type);
+
+        if (!is_T_IDENTIFIER(declarator))
+            eval_die(arg, "Unknown declarator type in closure allocation");
+
+        type_stack[n++] = get_ffi_type(TYPE(arg_type));
+        tree_chain(arg_type, arg_chain);
+    }
+
+    if (!is_D_T_VOID(ret_type))
+        ffi_ret_type = get_ffi_type(TYPE(ret_type));
+
+    tCLOSURE_FN(closure) = fndef;
+    tCLOSURE_ARG_TYPES(closure) = arg_chain;
+    tCLOSURE_RET_TYPE(closure) = ret_type;
+
+    tCLOSURE_CLOSURE(closure) = ffi_closure_alloc(sizeof(*closure), &ret);
+
+    ffi_prep_cif(tCLOSURE_CIF(closure), FFI_DEFAULT_ABI, n, ffi_ret_type, &type_stack);
+
+    ffi_prep_closure_loc(tCLOSURE_CLOSURE(closure),
+                         tCLOSURE_CIF(closure),
+                         &closure_entry,
+                         (void *)closure,
+                         ret);
+
+    return ret;
 }

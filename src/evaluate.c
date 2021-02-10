@@ -2471,9 +2471,9 @@ static tree handle_addr_fn_def(tree fndef)
 
     live_var = make_live_var(ptr_type);
 
-    /* tLV_VAL(live_var)->D_T_PTR = get_entry_point_for_fn(fndef); */
+    tLV_VAL(live_var)->D_T_PTR = get_entry_point_for_fn(fndef);
 
-    return NULL;
+    return live_var;
 }
 
 static tree eval_expr_list(tree expr_list, int depth)
@@ -2646,6 +2646,7 @@ static tree __evaluate_1(tree t, int depth)
     {
     case T_IDENTIFIER: result = eval_identifier(t, depth + 1); break;
     case T_FN_CALL:    result = eval_fn_call(t, depth + 1);    break;
+    case T_FN:         result = eval_self(t, depth + 1);    break;
     case T_DECL:       result = eval_decl(t, depth + 1);       break;
     case T_ASSIGN:     result = eval_assign(t, depth + 1);     break;
     case T_FLOAT:      result = eval_self(t, depth + 1);       break;
