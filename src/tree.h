@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <setjmp.h>
+#include <ffi.h>
 #include "list.h"
 #include "tree-access.h"
 

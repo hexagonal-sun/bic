@@ -101,6 +101,10 @@ static void dealloc_object(gc_obj obj)
     case E_ALLOC:
         free(tALLOC_PTR(t));
         break;
+    case T_CLOSURE:
+        ffi_closure_free(tCLOSURE_CLOSURE(t));
+        free(tCLOSURE_CIF(t));
+        break;
     default:
         /* All other types don't contain any other referencies to
          * dynamic memory. */

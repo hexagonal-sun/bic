@@ -6,6 +6,8 @@
   (ptr "void *")
   (sz "size_t")
   (flag "bool")
+  (ffi_cif "ffi_cif *")
+  (ffi_closure "ffi_closure *")
   (comp_decl_type "compound_type")
   (live_var_val "union value *"))
 
@@ -183,6 +185,11 @@
 
 (deftype T_FN_CALL "Function Call" "tFNCALL"
          ("ID" "ARGS"))
+
+(deftype T_CLOSURE "Closure Call" "tCLOSURE"
+         ("ARG_TYPES" "RET_TYPE" "FN"
+          ("CIF" ffi_cif)
+          ("CLOSURE" ffi_closure)))
 
 (deftype T_FN_ARG "Function Argument" "tFNARG"
          ("EXP"))

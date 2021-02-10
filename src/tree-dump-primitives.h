@@ -68,6 +68,17 @@ static inline void tree_dump_integer(tree t, mpz_t val, enum DUMP_TYPE dt)
     gmp_fprintf(stderr, "%Zd", val);
 }
 
+static inline void tree_dump_ffi_closure(tree t, ffi_closure *closure, enum DUMP_TYPE dt)
+{
+    return;
+}
+
+static inline void tree_dump_ffi_cif(tree t, ffi_cif *closure,
+                                         enum DUMP_TYPE dt)
+{
+    return;
+}
+
 static inline void tree_dump_comp_decl_type(tree t, compound_type v, enum DUMP_TYPE dt)
 {
     switch(v) {
