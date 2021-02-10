@@ -61,5 +61,6 @@ multi_assign
 xor
 encrypt-decrypt
 ones-complement
+default-arg-promotions
 
 *.trs
