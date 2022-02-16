@@ -88,6 +88,11 @@ void inspect_external_function(tree inspect_id, tree resolved_object)
 
 void inspect(tree inspect_id, tree resolved_object)
 {
+    if (resolved_object == NULL) {
+        printf("Object not found\n");
+        return;
+    }
+
     print_object_type(inspect_id, resolved_object);
 
     if (is_T_LIVE_VAR(resolved_object))
